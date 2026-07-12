@@ -1,49 +1,57 @@
-using System.Collections.Concurrent;
+using Inventory.Api.Features;
+using Inventory.Api.GrpcServices;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
+
+InventoryModule.ConfigureServices(builder.Services, builder.Configuration);
+builder.Services.AddGrpc();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.SetKebabCaseEndpointNameFormatter();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var host = builder.Configuration["RabbitMq:Host"] ?? "localhost";
+        var username = builder.Configuration["RabbitMq:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMq:Password"] ?? "guest";
+
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password);
+        });
+    });
+});
+
 var app = builder.Build();
 
-var stock = new ConcurrentDictionary<string, InventoryState>(new[]
-{
-    new KeyValuePair<string, InventoryState>("p-100", new InventoryState(25, 0)),
-    new KeyValuePair<string, InventoryState>("p-200", new InventoryState(12, 0)),
-    new KeyValuePair<string, InventoryState>("p-300", new InventoryState(5, 0)),
-});
+app.UseGlobalExceptionHandler();
 
-app.MapGet("/", () => Results.Ok(new
+app.MapGrpcService<InventoryStockGrpcService>();
+
+app.MapGet("/health/live", () => Results.Ok(new
 {
     service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "inventory",
     status = "ok",
 }));
 
-app.MapGet("/health", () => Results.Ok(new
+app.MapGet("/health/ready", async (InventoryDbContext dbContext, CancellationToken cancellationToken) =>
 {
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "inventory",
-    status = "ok",
-}));
+    var canConnect = await dbContext.Database.CanConnectAsync(cancellationToken);
 
-app.MapGet("/stock/{productId}", (string productId) =>
-{
-    return stock.TryGetValue(productId, out var state)
-        ? Results.Ok(new { productId, state.Available, state.Reserved })
-        : Results.Ok(new { productId, available = 0, reserved = 0 });
-});
-
-app.MapPost("/stock/{productId}/reserve", (string productId, ReserveStockRequest request) =>
-{
-    return stock.AddOrUpdate(
-        productId,
-        _ => new InventoryState(0, request.Quantity),
-        (_, current) =>
+    return canConnect
+        ? Results.Ok(new
         {
-            var availableToReserve = Math.Max(0, current.Available - request.Quantity);
-            var reserved = current.Reserved + Math.Min(current.Available, request.Quantity);
-            return current with { Available = availableToReserve, Reserved = reserved };
-        });
+            service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "inventory",
+            status = "ready",
+        })
+        : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 });
+
+app.MapInventoryEndpoints();
+
+await app.Services.InitializeInventoryDatabaseAsync();
 
 app.Run();
-
-internal sealed record InventoryState(int Available, int Reserved);
-
-internal sealed record ReserveStockRequest(int Quantity);

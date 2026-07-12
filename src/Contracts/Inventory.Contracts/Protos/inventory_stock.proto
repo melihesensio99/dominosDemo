@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "Inventory.Contracts.Grpc";
+
+package inventory.stock;
+
+service InventoryStockService {
+  rpc GetStock (GetStockRequest) returns (GetStockResponse);
+}
+
+message GetStockRequest {
+  string product_id = 1;
+}
+
+message GetStockResponse {
+  string product_id = 1;
+  int32 available = 2;
+  int32 reserved = 3;
+  int32 reorder_level = 4;
+}
