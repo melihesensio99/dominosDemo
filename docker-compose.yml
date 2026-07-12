@@ -1,0 +1,128 @@
+services:
+  gateway:
+    build:
+      context: ./src/Services/Gateway/Gateway.Api
+    ports:
+      - "8000:8000"
+    environment:
+      - ASPNETCORE_URLS=http://+:8000
+      - SERVICE_NAME=gateway
+      - PORT=8000
+      - AUTH_SERVICE_URL=http://auth:8001
+      - CATALOG_SERVICE_URL=http://catalog:8002
+      - ORDER_SERVICE_URL=http://order:8003
+      - INVENTORY_SERVICE_URL=http://inventory:8004
+      - NOTIFICATION_SERVICE_URL=http://notification:8005
+    depends_on:
+      - auth
+      - catalog
+      - order
+      - inventory
+      - notification
+
+  auth:
+    build:
+      context: .
+      dockerfile: src/Services/Auth/Auth.Api/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - ASPNETCORE_URLS=http://+:8001
+      - SERVICE_NAME=auth
+      - PORT=8001
+      - ConnectionStrings__AuthDb=Host=postgres;Port=5432;Database=auth_db;Username=postgres;Password=postgres
+      - Jwt__Issuer=OpsFlow.Auth.Docker
+      - Jwt__Audience=OpsFlow.Api.Docker
+      - Jwt__SigningKey=dev-only-change-this-key-before-production-opsflow-2026
+      - Jwt__AccessTokenMinutes=60
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  catalog:
+    build:
+      context: ./src/Services/Catalog/Catalog.Api
+    ports:
+      - "8002:8002"
+    environment:
+      - ASPNETCORE_URLS=http://+:8002
+      - SERVICE_NAME=catalog
+      - PORT=8002
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/catalog_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  order:
+    build:
+      context: ./src/Services/Order/Order.Api
+    ports:
+      - "8003:8003"
+    environment:
+      - ASPNETCORE_URLS=http://+:8003
+      - SERVICE_NAME=order
+      - PORT=8003
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/order_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  inventory:
+    build:
+      context: ./src/Services/Inventory/Inventory.Api
+    ports:
+      - "8004:8004"
+    environment:
+      - ASPNETCORE_URLS=http://+:8004
+      - SERVICE_NAME=inventory
+      - PORT=8004
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/inventory_db
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  notification:
+    build:
+      context: ./src/Services/Notification/Notification.Api
+    ports:
+      - "8005:8005"
+    environment:
+      - ASPNETCORE_URLS=http://+:8005
+      - SERVICE_NAME=notification
+      - PORT=8005
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - rabbitmq
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  postgres_data:
