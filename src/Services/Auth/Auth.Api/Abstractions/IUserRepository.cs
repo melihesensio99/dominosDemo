@@ -1,4 +1,4 @@
-namespace Auth.Api.Abstractions.Domain;
+namespace Auth.Api.Abstractions;
 
 public interface IUserRepository
 {

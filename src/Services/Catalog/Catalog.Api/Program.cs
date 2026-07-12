@@ -1,33 +1,34 @@
+using Catalog.Api.Features;
+
 var builder = WebApplication.CreateBuilder(args);
+
+CatalogModule.ConfigureServices(builder.Services, builder.Configuration);
+
 var app = builder.Build();
 
-var products = new[]
-{
-    new Product("p-100", "Starter Box", 100m, 25),
-    new Product("p-200", "Pro Box", 250m, 12),
-    new Product("p-300", "Enterprise Box", 500m, 5),
-};
+app.UseGlobalExceptionHandler();
 
-app.MapGet("/", () => Results.Ok(new
+app.MapGet("/health/live", () => Results.Ok(new
 {
     service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "catalog",
     status = "ok",
 }));
 
-app.MapGet("/health", () => Results.Ok(new
+app.MapGet("/health/ready", async (CatalogDbContext dbContext, CancellationToken cancellationToken) =>
 {
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "catalog",
-    status = "ok",
-}));
+    var canConnect = await dbContext.Database.CanConnectAsync(cancellationToken);
 
-app.MapGet("/products", () => Results.Ok(new { items = products }));
-
-app.MapGet("/products/{id}", (string id) =>
-{
-    var product = products.FirstOrDefault(x => x.Id == id);
-    return product is null ? Results.NotFound(new { error = "product-not-found", id }) : Results.Ok(product);
+    return canConnect
+        ? Results.Ok(new
+        {
+            service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "catalog",
+            status = "ready",
+        })
+        : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 });
 
-app.Run();
+app.MapCatalogEndpoints();
 
-internal sealed record Product(string Id, string Name, decimal Price, int Stock);
+await app.Services.InitializeCatalogDatabaseAsync();
+
+app.Run();

@@ -1,3 +1,4 @@
+using Auth.Api.Abstractions;
 using Auth.Api.Domain;
 using Microsoft.EntityFrameworkCore;
 

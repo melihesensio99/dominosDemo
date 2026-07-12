@@ -1,6 +1,7 @@
+using Auth.Api.Abstractions;
 using Auth.Api.Features.Login;
 using Auth.Api.Features.Register;
-using BuildingBlocks.Validation;
+using BuildingBlocks.Behaviors;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ public static class AuthModule
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AuthModule).Assembly));
         services.AddValidatorsFromAssembly(typeof(AuthModule).Assembly);
-        services.AddValidationPipeline();
+        services.AddValidationBehavior();
         var connectionString = configuration.GetConnectionString("AuthDb")
             ?? throw new InvalidOperationException("ConnectionStrings:AuthDb is missing.");
 

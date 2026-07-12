@@ -1,9 +1,9 @@
 using FluentValidation;
 using MediatR;
 
-namespace BuildingBlocks.Validation;
+namespace BuildingBlocks.Behaviors;
 
-public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+public sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {

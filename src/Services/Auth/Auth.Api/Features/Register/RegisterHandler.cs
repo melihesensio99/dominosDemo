@@ -1,3 +1,5 @@
+using Auth.Api.Abstractions;
+
 namespace Auth.Api.Features.Register;
 
 public sealed class RegisterHandler(
@@ -10,7 +12,7 @@ public sealed class RegisterHandler(
         var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser is not null)
         {
-            return Result<RegisterResponse>.Failure("auth.email_exists", "A user with this email already exists.");
+            return Result<RegisterResponse>.Conflict("auth.email_exists", "A user with this email already exists.");
         }
 
         var user = new User
