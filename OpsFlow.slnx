@@ -2,8 +2,14 @@
   <Folder Name="/src/">
     <Project Path="src/BuildingBlocks/BuildingBlocks.csproj" />
   </Folder>
+  <Folder Name="/src/Contracts/">
+    <Project Path="src/Contracts/Inventory.Contracts/Inventory.Contracts.csproj" />
+  </Folder>
   <Folder Name="/src/Services/Auth/">
     <Project Path="src/Services/Auth/Auth.Api/Auth.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Basket/">
+    <Project Path="src/Services/Basket/Basket.Api/BasketService.csproj" />
   </Folder>
   <Folder Name="/src/Services/Catalog/">
     <Project Path="src/Services/Catalog/Catalog.Api/CatalogService.csproj" />

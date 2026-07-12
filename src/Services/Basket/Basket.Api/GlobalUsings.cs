@@ -1,0 +1,9 @@
+global using Basket.Api.Abstractions;
+global using Basket.Api.Domain;
+global using Basket.Api.Features.Common;
+global using Basket.Api.Infrastructure;
+global using BuildingBlocks.Behaviors;
+global using BuildingBlocks.Common;
+global using BuildingBlocks.Web;
+global using MediatR;
+global using Microsoft.Extensions.DependencyInjection;
