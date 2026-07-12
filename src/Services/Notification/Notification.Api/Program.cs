@@ -1,9 +1,33 @@
-using System.Collections.Concurrent;
+using MassTransit;
+using Notification.Api;
+using Notification.Api.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
 
-var notifications = new ConcurrentDictionary<string, NotificationDto>();
+builder.Services.AddSingleton<NotificationStore>();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<StockChangedConsumer>();
+    x.SetKebabCaseEndpointNameFormatter();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var host = builder.Configuration["RabbitMq:Host"] ?? "localhost";
+        var username = builder.Configuration["RabbitMq:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMq:Password"] ?? "guest";
+
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
+var app = builder.Build();
 
 app.MapGet("/", () => Results.Ok(new
 {
@@ -17,19 +41,17 @@ app.MapGet("/health", () => Results.Ok(new
     status = "ok",
 }));
 
-app.MapGet("/notifications", () => Results.Ok(new { items = notifications.Values.OrderByDescending(item => item.CreatedAt) }));
+app.MapGet("/notifications", (NotificationStore store) => Results.Ok(new { items = store.GetAll() }));
 
-app.MapPost("/notifications", (CreateNotificationRequest request) =>
+app.MapPost("/notifications", (CreateNotificationRequest request, NotificationStore store) =>
 {
-    var id = Guid.NewGuid().ToString("N");
-    var notification = new NotificationDto(id, request.RecipientId, request.Message, "queued", DateTimeOffset.UtcNow);
-    notifications[id] = notification;
-    return Results.Accepted($"/notifications/{id}", notification);
+    var notification = store.Add(request.RecipientId, request.Message);
+    return Results.Accepted($"/notifications/{notification.Id}", notification);
 });
 
-app.MapGet("/notifications/{id}", (string id) =>
+app.MapGet("/notifications/{id}", (string id, NotificationStore store) =>
 {
-    return notifications.TryGetValue(id, out var notification)
+    return store.GetById(id) is { } notification
         ? Results.Ok(notification)
         : Results.NotFound(new { error = "notification-not-found", id });
 });
@@ -37,10 +59,3 @@ app.MapGet("/notifications/{id}", (string id) =>
 app.Run();
 
 internal sealed record CreateNotificationRequest(string RecipientId, string Message);
-
-internal sealed record NotificationDto(
-    string Id,
-    string RecipientId,
-    string Message,
-    string Status,
-    DateTimeOffset CreatedAt);
