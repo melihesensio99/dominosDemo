@@ -29,18 +29,6 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
-app.MapGet("/", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "notification",
-    status = "ok",
-}));
-
-app.MapGet("/health", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "notification",
-    status = "ok",
-}));
-
 app.MapGet("/notifications", (NotificationStore store) => Results.Ok(new { items = store.GetAll() }));
 
 app.MapPost("/notifications", (CreateNotificationRequest request, NotificationStore store) =>

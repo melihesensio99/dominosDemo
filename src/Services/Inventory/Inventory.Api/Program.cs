@@ -31,25 +31,6 @@ app.UseGlobalExceptionHandler();
 
 app.MapGrpcService<InventoryStockGrpcService>();
 
-app.MapGet("/health/live", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "inventory",
-    status = "ok",
-}));
-
-app.MapGet("/health/ready", async (InventoryDbContext dbContext, CancellationToken cancellationToken) =>
-{
-    var canConnect = await dbContext.Database.CanConnectAsync(cancellationToken);
-
-    return canConnect
-        ? Results.Ok(new
-        {
-            service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "inventory",
-            status = "ready",
-        })
-        : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
-});
-
 app.MapInventoryEndpoints();
 
 await app.Services.InitializeInventoryDatabaseAsync();

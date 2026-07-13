@@ -15,18 +15,6 @@ var serviceMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase
     ["notification"] = Environment.GetEnvironmentVariable("NOTIFICATION_SERVICE_URL") ?? "http://localhost:8005",
 };
 
-app.MapGet("/", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "gateway",
-    status = "ok",
-}));
-
-app.MapGet("/health", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "gateway",
-    status = "ok",
-}));
-
 app.MapGet("/services", () => Results.Ok(new
 {
     service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "gateway",

@@ -5,18 +5,6 @@ var app = builder.Build();
 
 var orders = new ConcurrentDictionary<string, OrderDto>();
 
-app.MapGet("/", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "order",
-    status = "ok",
-}));
-
-app.MapGet("/health", () => Results.Ok(new
-{
-    service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "order",
-    status = "ok",
-}));
-
 app.MapGet("/orders", () => Results.Ok(new { items = orders.Values.OrderByDescending(order => order.CreatedAt) }));
 
 app.MapPost("/orders", (CreateOrderRequest request) =>
