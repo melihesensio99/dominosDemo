@@ -10,12 +10,14 @@ services:
       - PORT=8000
       - AUTH_SERVICE_URL=http://auth:8001
       - CATALOG_SERVICE_URL=http://catalog:8002
+      - BASKET_SERVICE_URL=http://basket:8006
       - ORDER_SERVICE_URL=http://order:8003
       - INVENTORY_SERVICE_URL=http://inventory:8004
       - NOTIFICATION_SERVICE_URL=http://notification:8005
     depends_on:
       - auth
       - catalog
+      - basket
       - order
       - inventory
       - notification
@@ -54,6 +56,21 @@ services:
       - postgres
       - redis
 
+  basket:
+    build:
+      context: ./src/Services/Basket/Basket.Api
+    ports:
+      - "8006:8006"
+    environment:
+      - ASPNETCORE_URLS=http://+:8006
+      - SERVICE_NAME=basket
+      - PORT=8006
+      - ConnectionStrings__Redis=redis:6379
+      - InventoryGrpc__Url=http://inventory:8004
+    depends_on:
+      - redis
+      - inventory
+
   order:
     build:
       context: ./src/Services/Order/Order.Api
@@ -63,7 +80,7 @@ services:
       - ASPNETCORE_URLS=http://+:8003
       - SERVICE_NAME=order
       - PORT=8003
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/order_db
+      - ConnectionStrings__OrderDb=Host=postgres;Port=5432;Database=order_db;Username=postgres;Password=postgres
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
       - postgres
@@ -94,8 +111,23 @@ services:
       - SERVICE_NAME=notification
       - PORT=8005
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - MongoDb__ConnectionString=mongodb://mongo:27017
+      - MongoDb__Database=notification_db
+      - MongoDb__Collection=notifications
     depends_on:
       - rabbitmq
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend/opsflow-web
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_SIGNALR_URL=http://localhost:8000/signalr/live
+    depends_on:
+      - gateway
 
   postgres:
     image: postgres:16-alpine
@@ -123,6 +155,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
 
 volumes:
   postgres_data:

@@ -9,9 +9,10 @@ This repository is a small but real microservice starter for learning service bo
 - `Catalog`: product listing and product features
 - `Inventory`: stock management and gRPC stock lookup
 - `Basket`: Redis-backed basket storage
-- `Order`: simple order API placeholder
-- `Notification`: RabbitMQ consumer for stock changes
+- `Order`: PostgreSQL-backed order lifecycle API with CQRS handlers and outbox-based RabbitMQ dispatch
+- `Notification`: RabbitMQ consumer for stock and order events with MongoDB storage
 - `Gateway`: HTTP reverse proxy for the services
+- `Frontend`: React + Vite storefront for the demo flow
 
 ## Shared projects
 
@@ -37,5 +38,8 @@ This repository is a small but real microservice starter for learning service bo
 
 - CQRS through MediatR
 - gRPC between Basket and Inventory
-- RabbitMQ between Inventory and Notification
+- RabbitMQ between Inventory and Notification, and between Order and Notification
+- MongoDB for notification persistence
+- Outbox pattern for Order event dispatch
 - Redis for basket storage
+- React frontend through the gateway

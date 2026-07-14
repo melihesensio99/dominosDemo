@@ -1,42 +1,35 @@
-using System.Collections.Concurrent;
+using Order.Api.Features;
+using Order.Api.Infrastructure;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
+
+OrderModule.ConfigureServices(builder.Services, builder.Configuration);
+
+builder.Services.AddMassTransit(x =>
+{
+    x.SetKebabCaseEndpointNameFormatter();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var host = builder.Configuration["RabbitMq:Host"] ?? "localhost";
+        var username = builder.Configuration["RabbitMq:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMq:Password"] ?? "guest";
+
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password);
+        });
+    });
+});
+
 var app = builder.Build();
 
-var orders = new ConcurrentDictionary<string, OrderDto>();
+app.UseGlobalExceptionHandler();
 
-app.MapGet("/orders", () => Results.Ok(new { items = orders.Values.OrderByDescending(order => order.CreatedAt) }));
+app.MapOrderEndpoints();
 
-app.MapPost("/orders", (CreateOrderRequest request) =>
-{
-    var id = Guid.NewGuid().ToString("N");
-    var order = new OrderDto(
-        id,
-        request.CustomerId,
-        request.Items,
-        "pending",
-        DateTimeOffset.UtcNow);
-
-    orders[id] = order;
-    return Results.Created($"/orders/{id}", order);
-});
-
-app.MapGet("/orders/{id}", (string id) =>
-{
-    return orders.TryGetValue(id, out var order)
-        ? Results.Ok(order)
-        : Results.NotFound(new { error = "order-not-found", id });
-});
+await app.Services.InitializeOrderDatabaseAsync();
 
 app.Run();
-
-internal sealed record OrderItem(string ProductId, int Quantity);
-
-internal sealed record CreateOrderRequest(string CustomerId, List<OrderItem> Items);
-
-internal sealed record OrderDto(
-    string Id,
-    string CustomerId,
-    List<OrderItem> Items,
-    string Status,
-    DateTimeOffset CreatedAt);

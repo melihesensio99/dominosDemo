@@ -7,9 +7,11 @@ This repository starts as a direct microservice setup with a small but real base
 - API gateway
 - Auth service
 - Catalog service
+- Basket service
 - Order service
 - Inventory service
 - Notification service
+- Frontend app
 - `BuildingBlocks` shared project
 - Redis
 - RabbitMQ
@@ -30,9 +32,11 @@ The rest of the services currently start as simple minimal APIs so we can learn 
 - `gateway` on `http://localhost:8000`
 - `auth` on `http://localhost:8001`
 - `catalog` on `http://localhost:8002`
+- `basket` on `http://localhost:8006`
 - `order` on `http://localhost:8003`
 - `inventory` on `http://localhost:8004`
 - `notification` on `http://localhost:8005`
+- `frontend` on `http://localhost:5173`
 
 ## Quick start
 
@@ -42,13 +46,19 @@ The rest of the services currently start as simple minimal APIs so we can learn 
 docker compose up --build
 ```
 
-2. Check the gateway:
+2. Open the frontend:
+
+```bash
+http://localhost:5173
+```
+
+3. Check the gateway:
 
 ```bash
 curl http://localhost:8000/health
 ```
 
-3. Try the auth service:
+4. Try the auth service:
 
 ```bash
 curl -X POST http://localhost:8001/auth/login ^
@@ -60,9 +70,10 @@ curl -X POST http://localhost:8001/auth/login ^
 
 1. Login through `auth`
 2. List products through `catalog`
-3. Create an order through `order`
-4. Check stock through `inventory`
-5. Send a notification through `notification`
+3. Add items to `basket`
+4. Create an order through `order`
+5. Check stock through `inventory`
+6. Send a notification through `notification`
 
 ## Notes for you
 

@@ -1,11 +1,12 @@
 using MassTransit;
 using Inventory.Contracts.IntegrationEvents.Inventory;
+using Notification.Api.Infrastructure;
 
 namespace Notification.Api.Consumers;
 
-public sealed class StockChangedConsumer(NotificationStore store) : IConsumer<StockChangedIntegrationEvent>
+public sealed class StockChangedConsumer(MongoNotificationStore store) : IConsumer<StockChangedIntegrationEvent>
 {
-    public Task Consume(ConsumeContext<StockChangedIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<StockChangedIntegrationEvent> context)
     {
         var evt = context.Message;
         var direction = evt.OperationType switch
@@ -17,8 +18,6 @@ public sealed class StockChangedConsumer(NotificationStore store) : IConsumer<St
         };
 
         var message = $"Stock for product '{evt.ProductId}' was {direction}. Change: {evt.Quantity}. Available: {evt.Available}, Reserved: {evt.Reserved}.";
-        store.Add("inventory", message, "received");
-
-        return Task.CompletedTask;
+        await store.AddAsync("inventory", message, "received", context.CancellationToken);
     }
 }

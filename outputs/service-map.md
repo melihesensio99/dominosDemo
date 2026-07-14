@@ -8,6 +8,9 @@
 - `Auth`
   - login and register use cases
 
+- `Frontend`
+  - React storefront for browsing, basket, orders and notifications
+
 - `Catalog`
   - product-facing service
 
@@ -20,25 +23,32 @@
   - gRPC client for stock checks
 
 - `Order`
-  - simple order API placeholder
+  - PostgreSQL-backed order lifecycle API with CQRS handlers
+  - persists order events through an outbox table
+  - background worker publishes outbox messages to RabbitMQ
 
 - `Notification`
-  - consumes RabbitMQ events and stores notifications in memory
+  - consumes RabbitMQ stock and order events
+  - stores notifications in MongoDB
 
 ## Local ports
 
 - `gateway` -> `http://localhost:8000`
 - `auth` -> `http://localhost:8001`
 - `catalog` -> `http://localhost:8002`
+- `basket` -> `http://localhost:8006`
 - `order` -> `http://localhost:8003`
 - `inventory` -> `http://localhost:8004`
 - `notification` -> `http://localhost:8005`
+- `frontend` -> `http://localhost:5173`
 
 ## Communication style
 
 - HTTP REST-like endpoints for public service APIs
 - gRPC for Basket -> Inventory synchronous stock lookup
-- RabbitMQ for Inventory -> Notification asynchronous events
+- RabbitMQ for Inventory -> Notification stock events and Order -> Notification lifecycle events
+- MongoDB for Notification persistence
+- Outbox table for Order -> RabbitMQ dispatch
 
 ## Why the map matters
 

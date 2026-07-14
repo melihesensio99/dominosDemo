@@ -3,13 +3,25 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowAnyOrigin();
+    });
+});
 
 var app = builder.Build();
+app.UseCors("Frontend");
 
 var serviceMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 {
     ["auth"] = Environment.GetEnvironmentVariable("AUTH_SERVICE_URL") ?? "http://localhost:8001",
     ["catalog"] = Environment.GetEnvironmentVariable("CATALOG_SERVICE_URL") ?? "http://localhost:8002",
+    ["basket"] = Environment.GetEnvironmentVariable("BASKET_SERVICE_URL") ?? "http://localhost:8006",
     ["order"] = Environment.GetEnvironmentVariable("ORDER_SERVICE_URL") ?? "http://localhost:8003",
     ["inventory"] = Environment.GetEnvironmentVariable("INVENTORY_SERVICE_URL") ?? "http://localhost:8004",
     ["notification"] = Environment.GetEnvironmentVariable("NOTIFICATION_SERVICE_URL") ?? "http://localhost:8005",
