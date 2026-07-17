@@ -1,5 +1,4 @@
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { AppHeader } from '../components/AppHeader';
 import { SectionCard } from '../components/SectionCard';
 import type { SessionUser } from '../types/auth';
@@ -74,7 +73,7 @@ export function AccountScreen({
             <Text style={styles.authButtonText}>{isLoading ? 'İşleniyor...' : mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}</Text>
           </Pressable>
           {error ? (
-            <Text style={styles.errorText}>{error instanceof Error ? error.message : ERROR_MESSAGES.AUTH_ACTION_ERROR}</Text>
+            <Text style={styles.errorText}>{error instanceof Error ? error.message : 'İşlem sırasında hata oluştu.'}</Text>
           ) : null}
         </SectionCard>
 
@@ -90,7 +89,7 @@ export function AccountScreen({
               </Pressable>
             </>
           ) : (
-            <Text style={styles.info}>{ERROR_MESSAGES.NOT_SIGNED_IN}</Text>
+            <Text style={styles.info}>Henüz giriş yapılmadı.</Text>
           )}
         </SectionCard>
       </ScrollView>

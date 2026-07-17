@@ -1,6 +1,5 @@
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { ROUTES } from '../constants/routes';
-import { useFeedback } from '../feedback';
+import { useAppStatus } from '../app-status';
 import { useAuth } from './useAuth';
 import { useBasket } from './useBasket';
 import { useCatalog } from './useCatalog';
@@ -9,7 +8,7 @@ import { useUiState } from './useUiState';
 
 export function useAppShell() {
   const ui = useUiState();
-  const feedback = useFeedback();
+  const appStatus = useAppStatus();
   const auth = useAuth();
   const catalog = useCatalog();
   const basket = useBasket(auth.user?.userId);
@@ -20,14 +19,14 @@ export function useAppShell() {
 
   const signIn = async () => {
     try {
-      feedback.showLoading(ERROR_MESSAGES.SIGNIN_LOADING);
+      appStatus.showLoading('Giriş yapılıyor...');
       await auth.signIn();
-      feedback.hideLoading();
-      feedback.showSuccess(`${auth.mode === 'login' ? 'Giriş' : 'Kayıt'} başarılı.`);
+      appStatus.hideLoading();
+      appStatus.showSuccess(`${auth.mode === 'login' ? 'Giriş' : 'Kayıt'} başarılı.`);
       ui.setTab(ROUTES.HOME);
     } catch (error) {
-      feedback.hideLoading();
-      feedback.showError(error instanceof Error ? error.message : ERROR_MESSAGES.AUTH_FAILED);
+      appStatus.hideLoading();
+      appStatus.showError(error instanceof Error ? error.message : 'İşlem başarısız.');
     }
   };
 
@@ -38,40 +37,40 @@ export function useAppShell() {
     }
 
     try {
-      feedback.showLoading(ERROR_MESSAGES.ADD_ITEM_LOADING);
+      appStatus.showLoading('Ürün sepete ekleniyor...');
       await basket.addItem(productId);
-      feedback.hideLoading();
-      feedback.showSuccess('Ürün sepete eklendi.');
+      appStatus.hideLoading();
+      appStatus.showSuccess('Ürün sepete eklendi.');
       ui.setTab(ROUTES.BASKET);
     } catch (error) {
-      feedback.hideLoading();
-      feedback.showError(error instanceof Error ? error.message : ERROR_MESSAGES.BASKET_ADD_FAILED);
+      appStatus.hideLoading();
+      appStatus.showError(error instanceof Error ? error.message : 'Sepete eklenemedi.');
     }
   };
 
   const placeOrder = async (payload: Parameters<typeof orders.placeOrder>[0]) => {
     try {
-      feedback.showLoading(ERROR_MESSAGES.ORDER_CREATING);
+      appStatus.showLoading('Sipariş oluşturuluyor...');
       const order = await orders.placeOrder(payload);
 
       if (!order) {
-        feedback.hideLoading();
-        feedback.showError(ERROR_MESSAGES.ORDER_NOT_CREATED);
+        appStatus.hideLoading();
+        appStatus.showError('Sipariş oluşturulamadı.');
         return;
       }
 
-      feedback.hideLoading();
-      feedback.showSuccess(ERROR_MESSAGES.ORDER_CREATED);
+      appStatus.hideLoading();
+      appStatus.showSuccess('Sipariş oluşturuldu.');
       ui.setTab(ROUTES.HOME);
     } catch (error) {
-      feedback.hideLoading();
-      feedback.showError(error instanceof Error ? error.message : ERROR_MESSAGES.ORDER_CREATE_FAILED);
+      appStatus.hideLoading();
+      appStatus.showError(error instanceof Error ? error.message : 'Sipariş verilemedi.');
     }
   };
 
   const signOut = () => {
     auth.signOut();
-    feedback.showSuccess(ERROR_MESSAGES.SIGNOUT_SUCCESS);
+    appStatus.showSuccess('Oturum kapatıldı.');
     ui.setTab(ROUTES.HOME);
   };
 

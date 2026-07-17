@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { authService } from '../services';
 import { tokenService } from '../services/token.service';
 import type { AuthCredentials, SessionUser } from '../types/auth';
@@ -36,7 +35,7 @@ export function useAuth() {
       tokenService.setAccessToken(session.accessToken);
       return session;
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : ERROR_MESSAGES.AUTH_FAILED;
+      const message = cause instanceof Error ? cause.message : 'İşlem başarısız.';
       setError(new Error(message));
       throw cause;
     } finally {

@@ -1,13 +1,21 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
-type FeedbackBanner = {
+type AppStatusBanner = {
   variant: 'error' | 'success';
   message: string;
 };
 
-type FeedbackContextValue = {
+type AppStatusContextValue = {
   loadingMessage: string | null;
-  banner: FeedbackBanner | null;
+  banner: AppStatusBanner | null;
   showLoading: (message?: string) => void;
   hideLoading: () => void;
   showSuccess: (message: string, autoHideMs?: number) => void;
@@ -15,15 +23,15 @@ type FeedbackContextValue = {
   clearBanner: () => void;
 };
 
-const FeedbackContext = createContext<FeedbackContextValue | null>(null);
+const AppStatusContext = createContext<AppStatusContextValue | null>(null);
 
-interface FeedbackProviderProps {
+interface AppStatusProviderProps {
   children: ReactNode;
 }
 
-export function FeedbackProvider({ children }: FeedbackProviderProps) {
+export function AppStatusProvider({ children }: AppStatusProviderProps) {
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [banner, setBanner] = useState<FeedbackBanner | null>(null);
+  const [banner, setBanner] = useState<AppStatusBanner | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimer = () => {
@@ -54,7 +62,7 @@ export function FeedbackProvider({ children }: FeedbackProviderProps) {
     setBanner(null);
   };
 
-  const showBanner = (variant: FeedbackBanner['variant'], message: string, autoHideMs = 3500) => {
+  const showBanner = (variant: AppStatusBanner['variant'], message: string, autoHideMs = 3500) => {
     clearTimer();
     setLoadingMessage(null);
     setBanner({ variant, message });
@@ -64,7 +72,7 @@ export function FeedbackProvider({ children }: FeedbackProviderProps) {
     }, autoHideMs);
   };
 
-  const value = useMemo<FeedbackContextValue>(
+  const value = useMemo<AppStatusContextValue>(
     () => ({
       loadingMessage,
       banner,
@@ -77,14 +85,14 @@ export function FeedbackProvider({ children }: FeedbackProviderProps) {
     [banner, loadingMessage],
   );
 
-  return <FeedbackContext.Provider value={value}>{children}</FeedbackContext.Provider>;
+  return <AppStatusContext.Provider value={value}>{children}</AppStatusContext.Provider>;
 }
 
-export function useFeedback() {
-  const context = useContext(FeedbackContext);
+export function useAppStatus() {
+  const context = useContext(AppStatusContext);
 
   if (!context) {
-    throw new Error('useFeedback must be used within a FeedbackProvider.');
+    throw new Error('useAppStatus must be used within an AppStatusProvider.');
   }
 
   return context;

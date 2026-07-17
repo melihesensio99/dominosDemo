@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { orderService } from '../services';
 import type { Address } from '../types/common';
 import type { Basket } from '../types/basket';
@@ -60,7 +59,7 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       await queryClient.invalidateQueries({ queryKey: ['basket'] });
       return order;
     } catch (cause) {
-      setActionError(cause instanceof Error ? cause : new Error(ERROR_MESSAGES.ORDER_CREATE_FAILED));
+      setActionError(cause instanceof Error ? cause : new Error('Sipariş verilemedi.'));
       throw cause;
     } finally {
       setIsPlacingOrder(false);

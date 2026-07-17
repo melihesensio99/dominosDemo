@@ -6,8 +6,7 @@ import { BasketScreen } from './src/screens/BasketScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { MenuScreen } from './src/screens/MenuScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
-import { GlobalFeedbackLayer } from './src/components/GlobalFeedbackLayer';
-import { FeedbackProvider } from './src/feedback';
+import { AppStatusProvider, AppStatusOverlay } from './src/app-status';
 import { useAppShell } from './src/hooks';
 import { ROUTES } from './src/constants/routes';
 import { styles } from './App.styles';
@@ -29,7 +28,7 @@ function AppShell() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <View style={styles.container}>
-        <GlobalFeedbackLayer />
+        <AppStatusOverlay />
 
         {isAuthenticated ? (
           <>
@@ -105,9 +104,9 @@ function AppShell() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <FeedbackProvider>
+      <AppStatusProvider>
         <AppShell />
-      </FeedbackProvider>
+      </AppStatusProvider>
     </QueryClientProvider>
   );
 }

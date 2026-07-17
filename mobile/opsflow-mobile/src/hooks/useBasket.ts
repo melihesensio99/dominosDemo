@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { basketService } from '../services';
 import type { Basket } from '../types/basket';
 
@@ -32,7 +31,7 @@ export function useBasket(customerId?: string | null) {
       await basketService.addItem(customerId, { productId, quantity: 1 });
       await queryClient.invalidateQueries({ queryKey: ['basket'] });
     } catch (cause) {
-      setActionError(cause instanceof Error ? cause : new Error(ERROR_MESSAGES.BASKET_ADD_FAILED));
+      setActionError(cause instanceof Error ? cause : new Error('Sepete eklenemedi.'));
       throw cause;
     } finally {
       setIsAddingItem(false);

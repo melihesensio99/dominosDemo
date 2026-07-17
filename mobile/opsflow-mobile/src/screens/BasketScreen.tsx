@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
 import { SectionCard } from '../components/SectionCard';
@@ -56,16 +55,16 @@ export function BasketScreen({
   }, [basket, products]);
 
   const emptyState = isLoading ? (
-    <EmptyState title={ERROR_MESSAGES.BASKET_LOADING} message={ERROR_MESSAGES.BASKET_FETCHING} />
+    <EmptyState title="Sepet yükleniyor" message="Sepet bilgisi backend'den getiriliyor." />
   ) : error ? (
     <EmptyState
       title="Sepet alınamadı"
-      message={error instanceof Error ? error.message : ERROR_MESSAGES.CART_LOADING_FAILED}
+      message={error instanceof Error ? error.message : 'Sepet bilgisi şu anda getirilemedi.'}
     />
   ) : (
     <EmptyState
-      title={ERROR_MESSAGES.BASKET_EMPTY}
-      message={ERROR_MESSAGES.BASKET_EMPTY_HINT}
+      title="Sepetinde ürün bulunmuyor."
+      message="Menüye gidip birkaç ürün ekleyebilirsin."
       actionLabel="Menüye Git"
       onAction={onGoMenu}
     />

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
 import { ProductCard } from '../components/ProductCard';
@@ -65,14 +64,14 @@ export function MenuScreen({ categories, products, isLoading, error, onAdd }: Me
             ))}
           </View>
         ) : isLoading ? (
-          <EmptyState title={ERROR_MESSAGES.MENU_LOADING} message={ERROR_MESSAGES.MENU_FETCHING} />
+          <EmptyState title="Menü yükleniyor" message="Ürünler backend'den çekiliyor." />
         ) : error ? (
           <EmptyState
             title="Menü alınamadı"
-            message={error instanceof Error ? error.message : ERROR_MESSAGES.MENU_LOADING_FAILED}
+            message={error instanceof Error ? error.message : 'Ürünler şu anda getirilemedi.'}
           />
         ) : (
-          <EmptyState title={ERROR_MESSAGES.MENU_EMPTY} message={ERROR_MESSAGES.MENU_EMPTY_HINT} />
+          <EmptyState title="Şu anda ürün yok" message="Backend'den ürün gelince burada listelenecek. İstersen ürünleri elle ekleyip akışı birlikte test edebiliriz." />
         )}
       </ScrollView>
     </View>

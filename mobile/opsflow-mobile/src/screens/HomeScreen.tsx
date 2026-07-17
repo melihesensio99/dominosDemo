@@ -1,5 +1,4 @@
 import { Pressable, Text, View } from 'react-native';
-import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { AppHeader } from '../components/AppHeader';
 import { SectionCard } from '../components/SectionCard';
 import { styles } from './HomeScreen.styles';
@@ -39,8 +38,8 @@ export function HomeScreen({ onGoMenu, lastOrderStatus, isLoading, error }: Home
                 : error
                   ? error instanceof Error
                     ? error.message
-                    : ERROR_MESSAGES.ORDER_CREATE_FAILED
-                  : ERROR_MESSAGES.ORDER_EMPTY}
+                    : 'Sipariş verilemedi.'
+                  : 'Henüz sipariş yok.'}
           </Text>
         </SectionCard>
       </View>
