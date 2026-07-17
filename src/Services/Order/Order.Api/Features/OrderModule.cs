@@ -5,6 +5,7 @@ using Order.Api.Infrastructure;
 using Order.Api.Features.Cancel;
 using Order.Api.Features.Create;
 using Order.Api.Features.Get;
+using Order.Api.Features.GetByCustomer;
 using Order.Api.Features.List;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,8 @@ public static class OrderModule
         app.MapCreateOrderEndpoint();
         app.MapGetOrdersEndpoint();
         app.MapGetOrderEndpoint();
+        app.MapGetMyOrdersEndpoint();
+        app.MapGetCustomerOrdersEndpoint();
         app.MapCancelOrderEndpoint();
         return app;
     }

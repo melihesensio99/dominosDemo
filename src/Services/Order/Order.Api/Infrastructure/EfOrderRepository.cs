@@ -13,6 +13,13 @@ public sealed class EfOrderRepository(OrderDbContext dbContext) : IOrderReposito
             .OrderByDescending(order => order.CreatedAt)
             .ToArrayAsync(cancellationToken);
 
+    public async Task<IReadOnlyCollection<OrderEntity>> GetByCustomerIdAsync(string customerId, CancellationToken cancellationToken) =>
+        await dbContext.Orders
+            .Include(order => order.Items)
+            .Where(order => order.CustomerId == customerId)
+            .OrderByDescending(order => order.CreatedAt)
+            .ToArrayAsync(cancellationToken);
+
     public async Task<OrderEntity?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         await dbContext.Orders
             .Include(order => order.Items)

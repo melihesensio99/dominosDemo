@@ -1,5 +1,6 @@
 using BuildingBlocks.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Order.Api.Features.List;
 
@@ -11,7 +12,7 @@ public static class ListOrdersEndpoint
         {
             var result = await sender.Send(new ListOrdersQuery(), cancellationToken);
             return result.ToHttpResult();
-        });
+        }).RequireAuthorization("AdminOnly");
 
         return app;
     }

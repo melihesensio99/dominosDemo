@@ -8,12 +8,12 @@ services:
       - ASPNETCORE_URLS=http://+:8000
       - SERVICE_NAME=gateway
       - PORT=8000
-      - AUTH_SERVICE_URL=http://auth:8001
-      - CATALOG_SERVICE_URL=http://catalog:8002
-      - BASKET_SERVICE_URL=http://basket:8006
-      - ORDER_SERVICE_URL=http://order:8003
-      - INVENTORY_SERVICE_URL=http://inventory:8004
-      - NOTIFICATION_SERVICE_URL=http://notification:8005
+      - DownstreamServices__auth=http://auth:8001
+      - DownstreamServices__catalog=http://catalog:8002
+      - DownstreamServices__basket=http://basket:8006
+      - DownstreamServices__order=http://order:8003
+      - DownstreamServices__inventory=http://inventory:8004
+      - DownstreamServices__notification=http://notification:8005
     depends_on:
       - auth
       - catalog
@@ -81,6 +81,9 @@ services:
       - SERVICE_NAME=order
       - PORT=8003
       - ConnectionStrings__OrderDb=Host=postgres;Port=5432;Database=order_db;Username=postgres;Password=postgres
+      - Jwt__Issuer=OpsFlow.Auth.Docker
+      - Jwt__Audience=OpsFlow.Api.Docker
+      - Jwt__SigningKey=dev-only-change-this-key-before-production-opsflow-2026
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
       - postgres
