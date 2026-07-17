@@ -1,0 +1,618 @@
+{
+  "info": {
+    "_postman_id": "1b8f0b8f-9b47-4c9d-9a42-4c4ef78d9d0a",
+    "name": "OpsFlow Local API Flow",
+    "description": "Local Postman collection for the OpsFlow microservice stack. It is organized by service so you can test the system step by step and observe how Redis, gRPC, RabbitMQ, and the outbox flow work together.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Gateway",
+      "item": [
+        {
+          "name": "Get Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/services",
+              "host": ["{{gateway_url}}"],
+              "path": ["services"]
+            },
+            "description": "Checks whether the gateway is up and shows the downstream service map."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"melih@test.com\",\n  \"password\": \"P@ssw0rd123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/auth/register",
+              "host": ["{{auth_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Creates a user and returns login data."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.accessToken) {",
+                  "  pm.environment.set('token', body.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"melih@test.com\",\n  \"password\": \"P@ssw0rd123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticates the user and returns a JWT access token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.accessToken) {",
+                  "  pm.environment.set('token', body.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "Get Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/products",
+              "host": ["{{catalog_url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Get Product By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/products/{{product_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kulaklik\",\n  \"description\": \"Kablosuz kulaklik\",\n  \"price\": 1499.9,\n  \"stock\": 20,\n  \"categoryId\": \"{{category_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{catalog_url}}/products",
+              "host": ["{{catalog_url}}"],
+              "path": ["products"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.environment.set('product_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kulaklik Pro\",\n  \"description\": \"Guncellenmis kablosuz kulaklik\",\n  \"price\": 1699.9,\n  \"stock\": 18,\n  \"categoryId\": \"{{category_id}}\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{catalog_url}}/products/{{product_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/products/{{product_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/categories",
+              "host": ["{{catalog_url}}"],
+              "path": ["categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/categories/{{category_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Elektronik\"\n}"
+            },
+            "url": {
+              "raw": "{{catalog_url}}/categories",
+              "host": ["{{catalog_url}}"],
+              "path": ["categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.environment.set('category_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Elektronik Guncel\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{catalog_url}}/categories/{{category_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{catalog_url}}/categories/{{category_id}}",
+              "host": ["{{catalog_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Get Stocks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{inventory_url}}/stock",
+              "host": ["{{inventory_url}}"],
+              "path": ["stock"]
+            }
+          }
+        },
+        {
+          "name": "Get Stock By Product Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{inventory_url}}/stock/{{product_id}}",
+              "host": ["{{inventory_url}}"],
+              "path": ["stock", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Adjust Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 10\n}"
+            },
+            "url": {
+              "raw": "{{inventory_url}}/stock/{{product_id}}/adjust",
+              "host": ["{{inventory_url}}"],
+              "path": ["stock", "{{product_id}}", "adjust"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.environment.set('stock_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reserve Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{inventory_url}}/stock/{{product_id}}/reserve",
+              "host": ["{{inventory_url}}"],
+              "path": ["stock", "{{product_id}}", "reserve"]
+            }
+          }
+        },
+        {
+          "name": "Release Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{inventory_url}}/stock/{{product_id}}/release",
+              "host": ["{{inventory_url}}"],
+              "path": ["stock", "{{product_id}}", "release"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Basket",
+      "item": [
+        {
+          "name": "Get Basket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{basket_url}}/baskets/{{customer_id}}",
+              "host": ["{{basket_url}}"],
+              "path": ["baskets", "{{customer_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Basket Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{basket_url}}/baskets/{{customer_id}}/items",
+              "host": ["{{basket_url}}"],
+              "path": ["baskets", "{{customer_id}}", "items"]
+            }
+          }
+        },
+        {
+          "name": "Update Basket Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{basket_url}}/baskets/{{customer_id}}/items/{{product_id}}",
+              "host": ["{{basket_url}}"],
+              "path": ["baskets", "{{customer_id}}", "items", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Remove Basket Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{basket_url}}/baskets/{{customer_id}}/items/{{product_id}}",
+              "host": ["{{basket_url}}"],
+              "path": ["baskets", "{{customer_id}}", "items", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Clear Basket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{basket_url}}/baskets/{{customer_id}}",
+              "host": ["{{basket_url}}"],
+              "path": ["baskets", "{{customer_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{order_url}}/orders",
+              "host": ["{{order_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{order_url}}/orders/customers/{{customer_id}}",
+              "host": ["{{order_url}}"],
+              "path": ["orders", "customers", "{{customer_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{order_url}}/orders/me",
+              "host": ["{{order_url}}"],
+              "path": ["orders", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{order_url}}/orders/{{order_id}}",
+              "host": ["{{order_url}}"],
+              "path": ["orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"items\": [\n    {\n      \"productId\": \"{{product_id}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"shippingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34000\",\n    \"country\": \"Turkey\"\n  },\n  \"billingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34000\",\n    \"country\": \"Turkey\"\n  },\n  \"paymentMethod\": 0\n}"
+            },
+            "url": {
+              "raw": "{{order_url}}/orders",
+              "host": ["{{order_url}}"],
+              "path": ["orders"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.environment.set('order_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{order_url}}/orders/{{order_id}}/cancel",
+              "host": ["{{order_url}}"],
+              "path": ["orders", "{{order_id}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notification",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{notification_url}}/notifications",
+              "host": ["{{notification_url}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "Get Notification By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{notification_url}}/notifications/{{notification_id}}",
+              "host": ["{{notification_url}}"],
+              "path": ["notifications", "{{notification_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"{{customer_id}}\",\n  \"message\": \"Siparisiniz olustu.\"\n}"
+            },
+            "url": {
+              "raw": "{{notification_url}}/notifications",
+              "host": ["{{notification_url}}"],
+              "path": ["notifications"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "  pm.environment.set('notification_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
