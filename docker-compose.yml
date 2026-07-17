@@ -1,7 +1,8 @@
 services:
   gateway:
     build:
-      context: ./src/Services/Gateway/Gateway.Api
+      context: .
+      dockerfile: src/Services/Gateway/Gateway.Api/Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -43,7 +44,8 @@ services:
 
   catalog:
     build:
-      context: ./src/Services/Catalog/Catalog.Api
+      context: .
+      dockerfile: src/Services/Catalog/Catalog.Api/Dockerfile
     ports:
       - "8002:8002"
     environment:
@@ -58,7 +60,8 @@ services:
 
   basket:
     build:
-      context: ./src/Services/Basket/Basket.Api
+      context: .
+      dockerfile: src/Services/Basket/Basket.Api/Dockerfile
     ports:
       - "8006:8006"
     environment:
@@ -73,7 +76,8 @@ services:
 
   order:
     build:
-      context: ./src/Services/Order/Order.Api
+      context: .
+      dockerfile: src/Services/Order/Order.Api/Dockerfile
     ports:
       - "8003:8003"
     environment:
@@ -91,7 +95,8 @@ services:
 
   inventory:
     build:
-      context: ./src/Services/Inventory/Inventory.Api
+      context: .
+      dockerfile: src/Services/Inventory/Inventory.Api/Dockerfile
     ports:
       - "8004:8004"
     environment:
@@ -106,7 +111,8 @@ services:
 
   notification:
     build:
-      context: ./src/Services/Notification/Notification.Api
+      context: .
+      dockerfile: src/Services/Notification/Notification.Api/Dockerfile
     ports:
       - "8005:8005"
     environment:
