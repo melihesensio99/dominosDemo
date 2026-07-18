@@ -9,12 +9,12 @@ services:
       - ASPNETCORE_URLS=http://+:8000
       - SERVICE_NAME=gateway
       - PORT=8000
-      - DownstreamServices__auth=http://auth:8001
-      - DownstreamServices__catalog=http://catalog:8002
-      - DownstreamServices__basket=http://basket:8006
-      - DownstreamServices__order=http://order:8003
-      - DownstreamServices__inventory=http://inventory:8004
-      - DownstreamServices__notification=http://notification:8005
+      - ServiceMap__auth=http://auth:8001
+      - ServiceMap__catalog=http://catalog:8002
+      - ServiceMap__basket=http://basket:8006
+      - ServiceMap__order=http://order:8003
+      - ServiceMap__inventory=http://inventory:8004
+      - ServiceMap__notification=http://notification:8005
     depends_on:
       - auth
       - catalog

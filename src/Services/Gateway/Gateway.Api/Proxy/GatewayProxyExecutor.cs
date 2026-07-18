@@ -15,7 +15,7 @@ public sealed class GatewayProxyExecutor(
         string? path,
         CancellationToken cancellationToken)
     {
-        if (!options.Value.DownstreamServices.TryGetValue(serviceName, out var baseUrl))
+        if (!options.Value.Services.TryGetValue(serviceName, out var baseUrl))
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             await context.Response.WriteAsJsonAsync(new { error = "unknown-service", serviceName }, cancellationToken);

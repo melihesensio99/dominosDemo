@@ -11,7 +11,7 @@ public static class GatewayEndpointExtensions
         app.MapGet("/services", (IOptions<GatewayOptions> options) => Results.Ok(new
         {
             service = Environment.GetEnvironmentVariable("SERVICE_NAME") ?? "gateway",
-            downstream = options.Value.DownstreamServices,
+            serviceMap = options.Value.Services,
         }));
 
         app.MapMethods("/proxy/{serviceName}/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE" }, ProxyAsync);
