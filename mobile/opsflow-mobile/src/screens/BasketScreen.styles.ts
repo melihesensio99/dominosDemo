@@ -11,6 +11,11 @@ export const styles = StyleSheet.create({
     paddingBottom: 140,
     gap: 14,
   },
+  errorText: {
+    color: theme.colors.danger,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

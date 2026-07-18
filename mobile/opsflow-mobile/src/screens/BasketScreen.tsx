@@ -75,6 +75,12 @@ export function BasketScreen({
       <AppHeader title="Sepetim" subtitle="Adres ve ödeme ile siparişi tamamla" />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {error && basket?.items.length ? (
+          <Text style={styles.errorText}>
+            {error instanceof Error ? error.message : 'Basket or order operation failed.'}
+          </Text>
+        ) : null}
+
         {!basket?.items.length ? (
           emptyState
         ) : (

@@ -7,7 +7,7 @@ import type { Order } from '../types/order';
 import { endpoints } from './endpoints';
 import { tokenService } from './token.service';
 
-const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const apiBase = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5022';
 
 const apiClient = axios.create({
   baseURL: apiBase,
@@ -50,12 +50,32 @@ function extractErrorMessage(error: AxiosError): string {
   }
 
   if (typeof data === 'object' && data !== null) {
-    if ('message' in data && typeof data.message === 'string') {
-      return data.message;
+    const problem = data as Record<string, unknown>;
+
+    if (typeof problem.message === 'string') {
+      return problem.message;
     }
 
-    if ('error' in data && typeof data.error === 'string') {
-      return data.error;
+    if (typeof problem.error === 'string') {
+      return problem.error;
+    }
+
+    if (typeof problem.detail === 'string') {
+      return problem.detail;
+    }
+
+    if (problem.errors && typeof problem.errors === 'object') {
+      const validationMessages = Object.values(problem.errors as Record<string, unknown>)
+        .flatMap((value) => (Array.isArray(value) ? value : [value]))
+        .filter((value): value is string => typeof value === 'string');
+
+      if (validationMessages.length > 0) {
+        return validationMessages.join(' ');
+      }
+    }
+
+    if (typeof problem.title === 'string') {
+      return problem.title;
     }
   }
 

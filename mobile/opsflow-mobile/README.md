@@ -16,9 +16,9 @@ Bu klasör, OpsFlow projesinin React Native + Expo tabanlı mobil uygulamasıdı
 
 ## API base URL örnekleri
 
-- iPhone simülatör / macOS: `http://localhost:8000`
+- iPhone simülatör / macOS: `http://localhost:5022`
 - Android emülatör: `http://10.0.2.2:8000`
-- Gerçek telefon: bilgisayarının yerel IP adresi, örneğin `http://192.168.1.20:8000`
+- Gerçek telefon: bilgisayarının yerel IP adresi, örneğin `http://192.168.1.20:5022`
 
 ## Not
 

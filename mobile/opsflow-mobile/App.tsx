@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { SafeAreaView, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AccountScreen } from './src/screens/AccountScreen';
@@ -23,6 +24,12 @@ const queryClient = new QueryClient({
 function AppShell() {
   const app = useAppShell();
   const isAuthenticated = Boolean(app.user);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      app.setTab(ROUTES.HOME);
+    }
+  }, [app.setTab, isAuthenticated]);
 
   return (
     <SafeAreaView style={styles.safe}>
