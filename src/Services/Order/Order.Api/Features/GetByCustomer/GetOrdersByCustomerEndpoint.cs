@@ -11,7 +11,8 @@ public static class GetMyOrdersEndpoint
     {
         app.MapGet("/orders/me", async (ClaimsPrincipal user, ISender sender, CancellationToken cancellationToken) =>
         {
-            var customerId = user.FindFirstValue("sub");
+            var customerId = user.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? user.FindFirstValue("sub");
             if (string.IsNullOrWhiteSpace(customerId))
             {
                 return Results.Unauthorized();
