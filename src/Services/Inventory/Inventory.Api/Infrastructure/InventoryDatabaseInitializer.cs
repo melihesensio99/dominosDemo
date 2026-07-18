@@ -1,3 +1,4 @@
+using BuildingBlocks.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Api.Infrastructure;
@@ -9,7 +10,7 @@ public static class InventoryDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
 
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
         await SeedStockAsync(dbContext, cancellationToken);
     }
 

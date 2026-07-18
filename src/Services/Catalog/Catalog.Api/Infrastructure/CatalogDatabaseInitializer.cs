@@ -1,3 +1,4 @@
+using BuildingBlocks.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Api.Infrastructure;
@@ -9,7 +10,7 @@ public static class CatalogDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
         await SeedCategoriesAsync(dbContext, cancellationToken);
         await SeedProductsAsync(dbContext, cancellationToken);
     }

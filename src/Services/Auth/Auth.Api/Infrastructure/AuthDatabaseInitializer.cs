@@ -1,4 +1,5 @@
 using Auth.Api.Domain;
+using BuildingBlocks.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Api.Infrastructure;
@@ -10,13 +11,8 @@ public static class AuthDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
-        await EnsureDatabaseMigratedAsync(dbContext, cancellationToken);
+        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
         await SeedAdminUserAsync(dbContext, cancellationToken);
-    }
-
-    private static Task EnsureDatabaseMigratedAsync(AuthDbContext dbContext, CancellationToken cancellationToken)
-    {
-        return dbContext.Database.MigrateAsync(cancellationToken);
     }
 
     private static async Task SeedAdminUserAsync(AuthDbContext dbContext, CancellationToken cancellationToken)

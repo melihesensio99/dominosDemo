@@ -1,3 +1,4 @@
+using BuildingBlocks.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain;
 using OrderEntity = Order.Api.Domain.Order;
@@ -11,7 +12,7 @@ public static class OrderDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
 
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
 
         if (await dbContext.Orders.AnyAsync(cancellationToken))
         {
