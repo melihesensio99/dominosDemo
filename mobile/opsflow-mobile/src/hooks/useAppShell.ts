@@ -34,7 +34,7 @@ export function useAppShell() {
     }
   };
 
-  const addItem = async (productId: string) => {
+  const addItem = async (productId: string, selectedOptionIds: string[] = []) => {
     if (!auth.user) {
       ui.setTab(ROUTES.ACCOUNT);
       return;
@@ -42,7 +42,7 @@ export function useAppShell() {
 
     try {
       appStatus.showLoading('Urun sepete ekleniyor...');
-      await basket.addItem(productId);
+      await basket.addItem(productId, selectedOptionIds);
       appStatus.hideLoading();
       appStatus.showSuccess('Urun sepete eklendi.');
       ui.setTab(ROUTES.BASKET);
@@ -102,11 +102,15 @@ export function useAppShell() {
   };
 
   const continueToPayment = async () => {
-    if (checkout.selectedAddress) {
-      checkout.goToPayment();
+    if (!checkout.selectedAddress) {
+      appStatus.showError('Lutfen devam etmek icin bir adres sec.');
       return;
     }
 
+    checkout.goToPayment();
+  };
+
+  const saveNewAddress = async () => {
     const draft = checkout.draftAddress;
     if (!draft.street || !draft.district || !draft.city || !draft.postalCode || !draft.country) {
       appStatus.showError('Lutfen adres bilgilerini eksiksiz doldur.');
@@ -117,8 +121,9 @@ export function useAppShell() {
       appStatus.showLoading('Adres kaydediliyor...');
       const created = await addresses.addAddress({ title: 'Yeni adres', ...draft });
       checkout.selectAddress(created.id);
+      checkout.cancelAddAddress();
       appStatus.hideLoading();
-      checkout.goToPayment();
+      appStatus.showSuccess('Adres kaydedildi. Lutfen adresini sec.');
     } catch (error) {
       appStatus.hideLoading();
       appStatus.showError(error instanceof Error ? error.message : 'Adres kaydedilemedi.');
@@ -157,6 +162,7 @@ export function useAppShell() {
     addresses: addresses.addresses,
     checkout,
     continueToPayment,
+    saveNewAddress,
     lastOrder: orders.lastOrder,
     lastOrderStatus: orders.lastOrder?.status,
     signIn,

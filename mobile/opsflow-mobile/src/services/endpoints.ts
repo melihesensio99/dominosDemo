@@ -12,8 +12,8 @@ export const endpoints = {
   basket: {
     mine: '/proxy/basket/baskets/me',
     items: '/proxy/basket/baskets/me/items',
-    itemByProduct: (productId: string) =>
-      `/proxy/basket/baskets/me/items/${productId}`,
+    itemById: (itemId: string) =>
+      `/proxy/basket/baskets/me/items/${itemId}`,
   },
   orders: {
     me: '/proxy/order/orders/me',

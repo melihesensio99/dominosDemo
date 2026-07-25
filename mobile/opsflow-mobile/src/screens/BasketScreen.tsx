@@ -26,8 +26,7 @@ export function BasketScreen({
 }: BasketScreenProps) {
   const total = useMemo(() => {
     return basket?.items.reduce((sum, item) => {
-      const product = products.find((candidate) => candidate.id === item.productId);
-      return sum + (product?.price ?? 0) * item.quantity;
+      return sum + item.totalPrice;
     }, 0) ?? 0;
   }, [basket, products]);
 
@@ -59,15 +58,19 @@ export function BasketScreen({
               </View>
               <View style={styles.items}>
                 {basket.items.map((item) => {
-                  const product = products.find((candidate) => candidate.id === item.productId);
                   return (
-                    <View key={item.productId} style={styles.itemRow}>
+                    <View key={item.id} style={styles.itemRow}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.itemTitle}>{product?.name ?? item.productId}</Text>
+                        <Text style={styles.itemTitle}>{item.productName}</Text>
+                        {item.selectedOptions.map((option) => (
+                          <Text key={option.optionId} style={styles.itemMeta}>
+                            {option.name}{option.priceAdjustment > 0 ? ` (+${option.priceAdjustment} TL)` : ''}
+                          </Text>
+                        ))}
                         <Text style={styles.itemMeta}>Adet: {item.quantity}</Text>
                       </View>
                       <Text style={styles.itemPrice}>
-                        {((product?.price ?? 0) * item.quantity).toLocaleString('tr-TR')} TL
+                        {item.totalPrice.toLocaleString('tr-TR')} TL
                       </Text>
                     </View>
                   );

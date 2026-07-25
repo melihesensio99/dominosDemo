@@ -131,16 +131,16 @@ export function getBasket() {
   return request<Basket>(endpoints.basket.mine);
 }
 
-export function addBasketItem(body: { productId: string; quantity: number }) {
+export function addBasketItem(body: { productId: string; quantity: number; selectedOptionIds?: string[] }) {
   return request<Basket>(endpoints.basket.items, { method: 'POST', body });
 }
 
-export function updateBasketItem(productId: string, body: { quantity: number }) {
-  return request<Basket>(endpoints.basket.itemByProduct(productId), { method: 'PUT', body });
+export function updateBasketItem(itemId: string, body: { quantity: number }) {
+  return request<Basket>(endpoints.basket.itemById(itemId), { method: 'PUT', body });
 }
 
-export function removeBasketItem(productId: string) {
-  return request<Basket>(endpoints.basket.itemByProduct(productId), { method: 'DELETE' });
+export function removeBasketItem(itemId: string) {
+  return request<Basket>(endpoints.basket.itemById(itemId), { method: 'DELETE' });
 }
 
 export function clearBasket() {

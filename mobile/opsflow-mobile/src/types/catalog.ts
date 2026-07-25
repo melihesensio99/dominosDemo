@@ -6,9 +6,27 @@ export interface Product {
   stock: number;
   categoryId: string;
   categoryName: string | null;
+  optionGroups: ProductOptionGroup[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
+}
+
+export interface ProductOptionGroup {
+  id: string;
+  name: string;
+  selectionType: 'single' | 'multiple';
+  isRequired: boolean;
+  displayOrder: number;
+  options: ProductOption[];
+}
+
+export interface ProductOption {
+  id: string;
+  name: string;
+  priceAdjustment: number;
+  isActive: boolean;
+  displayOrder: number;
 }
 
 export interface Category {

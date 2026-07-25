@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AccountScreen } from './src/screens/AccountScreen';
@@ -7,7 +7,8 @@ import { BasketScreen } from './src/screens/BasketScreen';
 import { CheckoutAddressScreen } from './src/screens/CheckoutAddressScreen';
 import { CheckoutPaymentScreen } from './src/screens/CheckoutPaymentScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
-import { MenuScreen } from './src/screens/MenuScreen';
+import { ProductDetailsScreen } from './src/screens/ProductDetailsScreen';
+import type { Product } from './src/types/catalog';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { AppStatusProvider, AppStatusOverlay } from './src/app-status';
 import { useAppShell } from './src/hooks';
@@ -23,6 +24,7 @@ const queryClient = new QueryClient({
 function AppShell() {
   const app = useAppShell();
   const isAuthenticated = Boolean(app.user);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -37,47 +39,55 @@ function AppShell() {
         <AppStatusOverlay />
         {isAuthenticated ? (
           <>
-            {app.tab === ROUTES.HOME && (
+            {selectedProduct ? (
+              <ProductDetailsScreen
+                product={selectedProduct}
+                onBack={() => setSelectedProduct(null)}
+                onAdd={(optionIds) => {
+                  setSelectedProduct(null);
+                  void app.addItem(selectedProduct.id, optionIds);
+                }}
+              />
+            ) : app.tab === ROUTES.HOME && (
               <HomeScreen
-                onGoMenu={() => app.setTab(ROUTES.MENU)}
+                categories={app.categories}
+                products={app.products}
+                isCatalogLoading={app.status.catalog.isLoading}
+                catalogError={app.status.catalog.error}
+                onAdd={setSelectedProduct}
                 lastOrderStatus={app.lastOrderStatus}
                 isLoading={app.status.orders.isLoading}
                 error={app.status.orders.error}
               />
             )}
-            {app.tab === ROUTES.MENU && (
-              <MenuScreen
-                categories={app.categories}
-                products={app.products}
-                isLoading={app.status.catalog.isLoading}
-                error={app.status.catalog.error}
-                onAdd={(product) => void app.addItem(product.id)}
-              />
-            )}
-            {app.tab === ROUTES.BASKET && app.checkout.step === 'basket' && (
+            {!selectedProduct && app.tab === ROUTES.BASKET && app.checkout.step === 'basket' && (
               <BasketScreen
                 basket={app.basket}
                 products={app.products}
                 isLoading={app.status.basket.isLoading}
                 error={app.status.basket.error}
                 onProceedCheckout={app.checkout.begin}
-                onGoMenu={() => app.setTab(ROUTES.MENU)}
+                onGoMenu={() => app.setTab(ROUTES.HOME)}
               />
             )}
-            {app.tab === ROUTES.BASKET && app.checkout.step === 'address' && (
+            {!selectedProduct && app.tab === ROUTES.BASKET && app.checkout.step === 'address' && (
               <CheckoutAddressScreen
                 addresses={app.addresses}
+                addressMode={app.checkout.addressMode}
                 selectedAddressId={app.checkout.selectedAddressId}
                 draftAddress={app.checkout.draftAddress}
                 isLoading={app.status.addresses.isLoading}
                 error={app.status.addresses.error}
                 onSelectAddress={app.checkout.selectAddress}
                 onChangeDraft={app.checkout.setDraftAddress}
+                onStartAddAddress={app.checkout.beginAddAddress}
+                onCancelAddAddress={app.checkout.cancelAddAddress}
+                onSaveAddress={() => void app.saveNewAddress()}
                 onContinue={() => void app.continueToPayment()}
                 onBack={app.checkout.goBack}
               />
             )}
-            {app.tab === ROUTES.BASKET && app.checkout.step === 'payment' && (
+            {!selectedProduct && app.tab === ROUTES.BASKET && app.checkout.step === 'payment' && (
               <CheckoutPaymentScreen
                 basket={app.basket}
                 products={app.products}
@@ -96,7 +106,7 @@ function AppShell() {
                 onBack={app.checkout.goBack}
               />
             )}
-            {app.tab === ROUTES.ACCOUNT && (
+            {!selectedProduct && app.tab === ROUTES.ACCOUNT && (
               <AccountScreen
                 user={app.user}
                 mode={app.mode}
@@ -111,7 +121,7 @@ function AppShell() {
                 onSignOut={app.signOut}
               />
             )}
-            {app.checkout.step === 'basket' && <BottomTabBar activeTab={app.tab} onChangeTab={app.setTab} />}
+            {!selectedProduct && app.checkout.step === 'basket' && <BottomTabBar activeTab={app.tab} onChangeTab={app.setTab} />}
           </>
         ) : (
           <AccountScreen
