@@ -30,6 +30,23 @@ public sealed class CreateProductHandler(
             Price = request.Price,
             Stock = request.Stock,
             CategoryId = request.CategoryId,
+            OptionGroups = request.OptionGroups?
+                .Select(group => new ProductOptionGroup
+                {
+                    Name = group.Name.Trim(),
+                    SelectionType = group.SelectionType.Trim().ToLowerInvariant(),
+                    IsRequired = group.IsRequired,
+                    DisplayOrder = group.DisplayOrder,
+                    Options = group.Options
+                        .Select(option => new ProductOption
+                        {
+                            Name = option.Name.Trim(),
+                            PriceAdjustment = option.PriceAdjustment,
+                            DisplayOrder = option.DisplayOrder,
+                        })
+                        .ToList(),
+                })
+                .ToList() ?? [],
         };
 
         await productRepository.AddAsync(product, cancellationToken);

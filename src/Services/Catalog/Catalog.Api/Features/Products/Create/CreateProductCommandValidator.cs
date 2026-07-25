@@ -12,5 +12,6 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
         RuleFor(x => x.Stock).GreaterThanOrEqualTo(0);
         RuleFor(x => x.ReorderLevel).GreaterThanOrEqualTo(0);
         RuleFor(x => x.CategoryId).NotEmpty();
+        RuleForEach(x => x.OptionGroups).SetValidator(new CreateProductOptionGroupValidator());
     }
 }
