@@ -83,7 +83,7 @@ function AnimatedOrderStatus({ status }: { status: string }) {
 }
 
 const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
-const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/logo/logo.jpg';
+const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1785012397/Ads%C4%B1z.png';
 
 export function HomeScreen({
   categories,
