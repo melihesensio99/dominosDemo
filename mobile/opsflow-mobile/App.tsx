@@ -26,6 +26,14 @@ function AppShell() {
   const isAuthenticated = Boolean(app.user);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  const directAddCategoryIds = new Set(
+    app.categories
+      .filter((category) => ['icecekler', 'soslar', 'tatlilar'].includes(category.slug))
+      .map((category) => category.id),
+  );
+  const shouldDirectlyAdd = (product: Product) =>
+    directAddCategoryIds.has(product.categoryId) || product.optionGroups.length === 0;
+
   useEffect(() => {
     if (isAuthenticated) {
       app.setTab(ROUTES.HOME);
@@ -55,14 +63,18 @@ function AppShell() {
                 isCatalogLoading={app.status.catalog.isLoading}
                 catalogError={app.status.catalog.error}
                 onAdd={(product) => {
-                  if (product.optionGroups.length === 0) {
+                  if (shouldDirectlyAdd(product)) {
                     void app.addItem(product.id);
                     return;
                   }
 
                   setSelectedProduct(product);
                 }}
-                onOpenProduct={setSelectedProduct}
+                onOpenProduct={(product) => {
+                  if (!shouldDirectlyAdd(product)) {
+                    setSelectedProduct(product);
+                  }
+                }}
                 lastOrderStatus={app.lastOrderStatus}
                 isLoading={app.status.orders.isLoading}
                 error={app.status.orders.error}
