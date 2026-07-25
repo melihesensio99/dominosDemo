@@ -7,6 +7,7 @@ public static class ProductMapper
             product.Id,
             product.Name,
             product.Description,
+            product.ImageUrl,
             product.Price,
             product.Stock,
             product.CategoryId,

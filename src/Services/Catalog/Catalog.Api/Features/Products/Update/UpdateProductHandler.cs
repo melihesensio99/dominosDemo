@@ -28,6 +28,7 @@ public sealed class UpdateProductHandler(
 
         product.Name = request.Name.Trim();
         product.Description = request.Description.Trim();
+        product.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
         product.Price = request.Price;
         product.Stock = request.Stock;
         product.CategoryId = request.CategoryId;

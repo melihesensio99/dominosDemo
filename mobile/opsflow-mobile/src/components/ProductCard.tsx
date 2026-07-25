@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import type { Product } from '../types/catalog';
 import { styles } from './ProductCard.styles';
 
@@ -10,6 +10,7 @@ interface ProductCardProps {
 export function ProductCard({ product, onAdd }: ProductCardProps) {
   return (
     <View style={styles.card}>
+      {product.imageUrl ? <Image source={{ uri: product.imageUrl }} style={styles.image} resizeMode="cover" /> : null}
       <View style={styles.topRow}>
         <View style={styles.categoryBadge}>
           <Text style={styles.categoryText}>{product.categoryName ?? 'Ürün'}</Text>

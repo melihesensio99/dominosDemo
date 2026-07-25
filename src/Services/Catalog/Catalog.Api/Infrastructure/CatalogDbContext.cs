@@ -32,6 +32,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).IsRequired().HasMaxLength(250);
             entity.Property(x => x.Description).IsRequired().HasMaxLength(2000);
+            entity.Property(x => x.ImageUrl).HasMaxLength(1000);
             entity.Property(x => x.Price).HasPrecision(18, 2);
             entity.Property(x => x.Stock).IsRequired();
             entity.Property(x => x.IsActive).IsRequired();

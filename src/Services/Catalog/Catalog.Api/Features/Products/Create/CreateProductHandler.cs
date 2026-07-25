@@ -27,6 +27,7 @@ public sealed class CreateProductHandler(
         {
             Name = request.Name.Trim(),
             Description = request.Description.Trim(),
+            ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim(),
             Price = request.Price,
             Stock = request.Stock,
             CategoryId = request.CategoryId,

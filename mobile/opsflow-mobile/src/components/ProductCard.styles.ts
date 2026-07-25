@@ -2,6 +2,12 @@ import { StyleSheet } from 'react-native';
 import { theme } from '../theme';
 
 export const styles = StyleSheet.create({
+  image: {
+    width: '100%',
+    height: 180,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,

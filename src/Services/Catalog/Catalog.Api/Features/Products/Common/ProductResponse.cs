@@ -4,6 +4,7 @@ public sealed record ProductResponse(
     Guid Id,
     string Name,
     string Description,
+    string? ImageUrl,
     decimal Price,
     int Stock,
     Guid CategoryId,

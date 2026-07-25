@@ -9,7 +9,8 @@ public sealed record CreateProductCommand(
     int Stock,
     Guid CategoryId,
     int ReorderLevel = 5,
-    IReadOnlyList<CreateProductOptionGroup>? OptionGroups = null) : IRequest<Result<ProductResponse>>;
+    IReadOnlyList<CreateProductOptionGroup>? OptionGroups = null,
+    string? ImageUrl = null) : IRequest<Result<ProductResponse>>;
 
 public sealed record CreateProductOptionGroup(
     string Name,

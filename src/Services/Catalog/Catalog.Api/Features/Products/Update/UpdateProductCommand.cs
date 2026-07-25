@@ -9,4 +9,5 @@ public sealed record UpdateProductCommand(
     decimal Price,
     int Stock,
     Guid CategoryId,
-    bool IsActive) : IRequest<Result<ProductResponse>>;
+    bool IsActive,
+    string? ImageUrl = null) : IRequest<Result<ProductResponse>>;
