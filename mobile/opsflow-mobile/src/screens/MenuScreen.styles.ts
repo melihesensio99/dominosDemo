@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   content: {
     padding: theme.spacing.lg,
-    paddingBottom: 140,
+    paddingBottom: 24,
     gap: 14,
   },
   chips: {

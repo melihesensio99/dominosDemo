@@ -147,9 +147,6 @@ export function HomeScreen({
             <View style={styles.productList}>
               {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />)}
             </View>
-            <View style={styles.listEnd}>
-              <Text style={styles.listEndText}>Bu kategorideki tum urunleri gordun.</Text>
-            </View>
           </>
         ) : isCatalogLoading ? (
           <EmptyState title="Urunler yukleniyor" message="Urunler backend'den getiriliyor." />

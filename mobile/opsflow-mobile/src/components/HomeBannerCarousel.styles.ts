@@ -4,10 +4,12 @@ import { theme } from '../theme';
 export const styles = StyleSheet.create({
   container: {
     marginHorizontal: -theme.spacing.lg,
+    alignItems: 'center',
   },
   content: {
     gap: 32,
     paddingHorizontal: theme.spacing.lg,
+    alignItems: 'center',
   },
   image: {
     height: 201,

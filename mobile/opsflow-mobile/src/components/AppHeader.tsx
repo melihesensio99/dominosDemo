@@ -1,4 +1,5 @@
 import { Image, Pressable, Text, View } from 'react-native';
+import { useState } from 'react';
 import { styles } from './AppHeader.styles';
 
 interface AppHeaderProps {
@@ -10,11 +11,17 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, subtitle, badge, onBack, logoUrl }: AppHeaderProps) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
   return (
     <View style={styles.container}>
       {onBack ? <Pressable onPress={onBack} style={styles.backButton}><Text style={styles.backText}>‹</Text></Pressable> : null}
       <View style={styles.brandRow}>
-        {logoUrl ? <Image source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" /> : null}
+        {logoUrl && !logoFailed ? (
+          <Image source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setLogoFailed(true)} />
+        ) : logoUrl ? (
+          <View style={styles.logoFallback}><Text style={styles.logoFallbackText}>MP</Text></View>
+        ) : null}
         <View>
           <Text style={styles.title}>{title}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}

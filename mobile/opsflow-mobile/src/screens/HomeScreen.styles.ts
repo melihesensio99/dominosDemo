@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   content: {
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
-    paddingBottom: 140,
+    paddingBottom: 24,
   },
   sectionTitle: { color: theme.colors.text, fontSize: 21, fontWeight: '900' },
   chips: { gap: 10, paddingBottom: 2 },
@@ -19,15 +19,6 @@ export const styles = StyleSheet.create({
   chipTextActive: { color: '#fff' },
   categoryIcon: { fontSize: 18 },
   productList: { gap: 12 },
-  listEnd: {
-    alignItems: 'center',
-    paddingVertical: 18,
-  },
-  listEndText: {
-    color: theme.colors.muted,
-    fontSize: 12,
-    fontWeight: '600',
-  },
   statusCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border },
   statusHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   statusPulse: { width: 16, height: 16, borderRadius: 8, backgroundColor: theme.colors.success, borderWidth: 4, borderColor: '#D8F4E5' },
