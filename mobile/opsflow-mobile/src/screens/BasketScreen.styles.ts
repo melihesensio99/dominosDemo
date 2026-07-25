@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
+  scroll: { flex: 1 },
   content: {
     paddingBottom: 28,
     gap: 12,

@@ -50,7 +50,7 @@ export function BasketScreen({
   return (
     <View style={styles.container}>
       <AppHeader title="Sepetim" subtitle="Siparisini kontrol et ve tamamla" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {!basket?.items.length ? (
           emptyState
         ) : (

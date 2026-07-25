@@ -3,6 +3,7 @@ import { theme } from '../theme';
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
+  scroll: { flex: 1 },
   content: { padding: theme.spacing.lg, paddingBottom: 40, gap: 14 },
   card: { backgroundColor: theme.colors.surface, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.colors.border },
   title: { color: theme.colors.text, fontSize: 16, fontWeight: '800', marginBottom: 12 },

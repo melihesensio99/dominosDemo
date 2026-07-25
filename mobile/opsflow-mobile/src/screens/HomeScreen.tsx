@@ -111,7 +111,7 @@ export function HomeScreen({
   return (
     <View style={styles.container}>
       <AppHeader title="Melo's Pizza" subtitle="Urunleri kesfet ve sepete ekle" logoUrl={logoUrl} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
         <HomeBannerCarousel />
 
         {lastOrderStatus || isLoading || error ? (

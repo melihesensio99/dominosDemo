@@ -41,7 +41,7 @@ export function CheckoutPaymentScreen({
   return (
     <View style={styles.container}>
       <AppHeader title="Odeme ve Onay" subtitle="Siparis bilgilerini son kez kontrol et" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {error ? <Text style={styles.error}>{error instanceof Error ? error.message : 'Siparis olusturulamadi.'}</Text> : null}
         <View style={styles.card}>
           <Text style={styles.title}>Teslimat adresi</Text>

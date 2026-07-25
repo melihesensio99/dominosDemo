@@ -48,7 +48,7 @@ export function CheckoutAddressScreen({
   return (
     <View style={styles.container}>
       <AppHeader title="Siparis Onayi" subtitle="Teslimat bilgilerini sec ve devam et" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {error ? <Text style={styles.error}>{error instanceof Error ? error.message : 'Adresler getirilemedi.'}</Text> : null}
 
         {addressMode === 'list' ? (

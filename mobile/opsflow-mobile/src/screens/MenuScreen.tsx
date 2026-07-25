@@ -30,7 +30,7 @@ export function MenuScreen({ categories, products, isLoading, error, onAdd, onOp
     <View style={styles.container}>
       <AppHeader title="Menü" subtitle="Ürün seç ve sepete ekle" />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
         {categories.length > 0 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
             <Text
