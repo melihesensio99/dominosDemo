@@ -128,14 +128,14 @@ export function useAppShell() {
 
   const saveNewAddress = async () => {
     const draft = checkout.draftAddress;
-    if (!draft.street || !draft.district || !draft.city || !draft.postalCode || !draft.country) {
+    if (!checkout.addressTitle.trim() || !draft.street || !draft.district || !draft.city || !draft.postalCode || !draft.country) {
       appStatus.showError('Lutfen adres bilgilerini eksiksiz doldur.');
       return;
     }
 
     try {
       appStatus.showLoading('Adres kaydediliyor...');
-      const created = await addresses.addAddress({ title: 'Yeni adres', ...draft });
+      const created = await addresses.addAddress({ title: checkout.addressTitle.trim(), ...draft });
       checkout.selectAddress(created.id);
       checkout.cancelAddAddress();
       appStatus.hideLoading();

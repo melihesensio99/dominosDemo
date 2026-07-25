@@ -18,6 +18,7 @@ export function useCheckout(addresses: UserAddress[]) {
   const [addressMode, setAddressMode] = useState<AddressMode>('list');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [draftAddress, setDraftAddress] = useState<Address>(emptyAddress);
+  const [addressTitle, setAddressTitle] = useState('');
   const [paymentMethod, setPaymentMethod] = useState(0);
   const [note, setNote] = useState('');
 
@@ -33,6 +34,8 @@ export function useCheckout(addresses: UserAddress[]) {
     selectedAddress: addresses.find((address) => address.id === selectedAddressId),
     selectedAddressId,
     draftAddress,
+    addressTitle,
+    setAddressTitle,
     paymentMethod,
     setPaymentMethod,
     note,
@@ -49,6 +52,7 @@ export function useCheckout(addresses: UserAddress[]) {
       setAddressMode('list');
       setSelectedAddressId(null);
       setDraftAddress(emptyAddress);
+      setAddressTitle('');
       setPaymentMethod(0);
       setNote('');
     },

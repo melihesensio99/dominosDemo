@@ -86,10 +86,12 @@ function AppShell() {
                 addressMode={app.checkout.addressMode}
                 selectedAddressId={app.checkout.selectedAddressId}
                 draftAddress={app.checkout.draftAddress}
+                addressTitle={app.checkout.addressTitle}
                 isLoading={app.status.addresses.isLoading}
                 error={app.status.addresses.error}
                 onSelectAddress={app.checkout.selectAddress}
                 onChangeDraft={app.checkout.setDraftAddress}
+                onChangeAddressTitle={app.checkout.setAddressTitle}
                 onStartAddAddress={app.checkout.beginAddAddress}
                 onCancelAddAddress={app.checkout.cancelAddAddress}
                 onSaveAddress={() => void app.saveNewAddress()}
