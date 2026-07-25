@@ -3,6 +3,7 @@ using Basket.Api.Features.Get;
 using Basket.Api.Features.Items.Add;
 using Basket.Api.Features.Items.Remove;
 using Basket.Api.Features.Items.Update;
+using BuildingBlocks.Security;
 using FluentValidation;
 using Grpc.Net.Client;
 using Inventory.Contracts.Grpc;
@@ -17,6 +18,7 @@ public static class BasketModule
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(BasketApiAssemblyMarker).Assembly));
         services.AddValidationBehavior();
         services.AddValidatorsFromAssembly(typeof(BasketApiAssemblyMarker).Assembly);
+        services.AddJwtAuthentication(configuration);
 
         services.AddSingleton<IConnectionMultiplexer>(_ =>
             ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));

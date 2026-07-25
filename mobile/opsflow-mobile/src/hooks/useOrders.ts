@@ -45,7 +45,6 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       setActionError(null);
 
       const order = await orderService.createOrder({
-        customerId,
         items: basket.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,

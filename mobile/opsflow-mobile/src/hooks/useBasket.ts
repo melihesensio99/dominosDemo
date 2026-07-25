@@ -16,7 +16,7 @@ export function useBasket(customerId?: string | null) {
         return null;
       }
 
-      return basketService.getBasket(customerId);
+      return basketService.getBasket();
     },
   });
 
@@ -28,7 +28,7 @@ export function useBasket(customerId?: string | null) {
     try {
       setIsAddingItem(true);
       setActionError(null);
-      await basketService.addItem(customerId, { productId, quantity: 1 });
+      await basketService.addItem({ productId, quantity: 1 });
       await queryClient.invalidateQueries({ queryKey: ['basket'] });
     } catch (cause) {
       setActionError(cause instanceof Error ? cause : new Error('Sepete eklenemedi.'));

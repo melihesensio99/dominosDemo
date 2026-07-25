@@ -1,16 +1,16 @@
 {
   "info": {
     "_postman_id": "1b8f0b8f-9b47-4c9d-9a42-4c4ef78d9d0a",
-    "name": "OpsFlow Local API Flow",
-    "description": "Local Postman collection for the OpsFlow microservice stack. It is organized by service so you can test the system step by step and observe how Redis, gRPC, RabbitMQ, and the outbox flow work together.",
+    "name": "OpsFlow MVP Flow",
+    "description": "OpsFlow MVP alisveris akisinin Gateway uzerinden adim adim test edilmesi icin sade Postman koleksiyonu.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Gateway",
+      "name": "01 - Gateway",
       "item": [
         {
-          "name": "Get Services",
+          "name": "Servis Haritasini Kontrol Et",
           "request": {
             "method": "GET",
             "header": [],
@@ -18,289 +18,39 @@
               "raw": "{{gateway_url}}/services",
               "host": ["{{gateway_url}}"],
               "path": ["services"]
-            },
-            "description": "Checks whether the gateway is up and shows the downstream service map."
-          }
-        }
-      ]
-    },
-    {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"melih@test.com\",\n  \"password\": \"P@ssw0rd123\"\n}"
-            },
-            "url": {
-              "raw": "{{auth_url}}/auth/register",
-              "host": ["{{auth_url}}"],
-              "path": ["auth", "register"]
-            },
-            "description": "Creates a user and returns login data."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "if (body && body.accessToken) {",
-                  "  pm.environment.set('token', body.accessToken);",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Login",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"melih@test.com\",\n  \"password\": \"P@ssw0rd123\"\n}"
-            },
-            "url": {
-              "raw": "{{auth_url}}/auth/login",
-              "host": ["{{auth_url}}"],
-              "path": ["auth", "login"]
-            },
-            "description": "Authenticates the user and returns a JWT access token."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "if (body && body.accessToken) {",
-                  "  pm.environment.set('token', body.accessToken);",
-                  "}"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Catalog",
-      "item": [
-        {
-          "name": "Get Products",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/products",
-              "host": ["{{catalog_url}}"],
-              "path": ["products"]
-            }
-          }
-        },
-        {
-          "name": "Get Product By Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/products/{{product_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["products", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Create Product",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Kulaklik\",\n  \"description\": \"Kablosuz kulaklik\",\n  \"price\": 1499.9,\n  \"stock\": 20,\n  \"categoryId\": \"{{category_id}}\"\n}"
-            },
-            "url": {
-              "raw": "{{catalog_url}}/products",
-              "host": ["{{catalog_url}}"],
-              "path": ["products"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "if (body && body.id) {",
-                  "  pm.environment.set('product_id', body.id);",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Update Product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Kulaklik Pro\",\n  \"description\": \"Guncellenmis kablosuz kulaklik\",\n  \"price\": 1699.9,\n  \"stock\": 18,\n  \"categoryId\": \"{{category_id}}\",\n  \"isActive\": true\n}"
-            },
-            "url": {
-              "raw": "{{catalog_url}}/products/{{product_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["products", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Product",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/products/{{product_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["products", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Categories",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/categories",
-              "host": ["{{catalog_url}}"],
-              "path": ["categories"]
-            }
-          }
-        },
-        {
-          "name": "Get Category By Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/categories/{{category_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["categories", "{{category_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Create Category",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Elektronik\"\n}"
-            },
-            "url": {
-              "raw": "{{catalog_url}}/categories",
-              "host": ["{{catalog_url}}"],
-              "path": ["categories"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "if (body && body.id) {",
-                  "  pm.environment.set('category_id', body.id);",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Update Category",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Elektronik Guncel\",\n  \"isActive\": true\n}"
-            },
-            "url": {
-              "raw": "{{catalog_url}}/categories/{{category_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["categories", "{{category_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Category",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{catalog_url}}/categories/{{category_id}}",
-              "host": ["{{catalog_url}}"],
-              "path": ["categories", "{{category_id}}"]
             }
           }
         }
       ]
     },
     {
-      "name": "Inventory",
+      "name": "02 - Auth",
       "item": [
         {
-          "name": "Get Stocks",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{inventory_url}}/stock",
-              "host": ["{{inventory_url}}"],
-              "path": ["stock"]
+          "name": "Deneme Kullanıcısı Oluştur",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('test_email')) {",
+                  "  pm.environment.set('test_email', `opsflow.demo.${Date.now()}@example.com`);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.environment.set('token', body.accessToken);"
+                ]
+              }
             }
-          }
-        },
-        {
-          "name": "Get Stock By Product Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{inventory_url}}/stock/{{product_id}}",
-              "host": ["{{inventory_url}}"],
-              "path": ["stock", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Adjust Stock",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -308,14 +58,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 10\n}"
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
             },
             "url": {
-              "raw": "{{inventory_url}}/stock/{{product_id}}/adjust",
-              "host": ["{{inventory_url}}"],
-              "path": ["stock", "{{product_id}}", "adjust"]
+              "raw": "{{gateway_url}}/proxy/auth/auth/register",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "auth", "auth", "register"]
             }
-          },
+          }
+        },
+        {
+          "name": "Deneme Kullanıcısı ile Giriş Yap",
           "event": [
             {
               "listen": "test",
@@ -323,16 +76,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "const body = pm.response.json();",
-                  "if (body && body.id) {",
-                  "  pm.environment.set('stock_id', body.id);",
-                  "}"
+                  "pm.environment.set('token', body.accessToken);"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Reserve Stock",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -340,188 +88,142 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
             },
             "url": {
-              "raw": "{{inventory_url}}/stock/{{product_id}}/reserve",
-              "host": ["{{inventory_url}}"],
-              "path": ["stock", "{{product_id}}", "reserve"]
+              "raw": "{{gateway_url}}/proxy/auth/auth/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "auth", "auth", "login"]
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "03 - Catalog",
+      "item": [
         {
-          "name": "Release Stock",
+          "name": "Bir Kategori Oluştur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.environment.set('category_id', body.id);"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MVP Pizzalar\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/proxy/catalog/categories",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "catalog", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Bir Ürün Oluştur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.environment.set('product_id', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MVP Karışık Pizza\",\n  \"description\": \"Postman ile eklenen deneme ürünü\",\n  \"price\": 249.90,\n  \"stock\": 20,\n  \"categoryId\": \"{{category_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/proxy/catalog/products",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "catalog", "products"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Inventory",
+      "item": [
+        {
+          "name": "Otomatik Oluşan Ürün Stoğunu Kontrol Et",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/proxy/inventory/stock/{{product_id}}",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "inventory", "stock", "{{product_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Basket",
+      "item": [
+        {
+          "name": "Ürünü Sepete Ekle",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 1\n}"
             },
             "url": {
-              "raw": "{{inventory_url}}/stock/{{product_id}}/release",
-              "host": ["{{inventory_url}}"],
-              "path": ["stock", "{{product_id}}", "release"]
+              "raw": "{{gateway_url}}/proxy/basket/baskets/me/items",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "basket", "baskets", "me", "items"]
+            }
+          }
+        },
+        {
+          "name": "Sepeti Görüntüle",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/proxy/basket/baskets/me",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "basket", "baskets", "me"]
             }
           }
         }
       ]
     },
     {
-      "name": "Basket",
+      "name": "06 - Order",
       "item": [
         {
-          "name": "Get Basket",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{basket_url}}/baskets/{{customer_id}}",
-              "host": ["{{basket_url}}"],
-              "path": ["baskets", "{{customer_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Add Basket Item",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
-            },
-            "url": {
-              "raw": "{{basket_url}}/baskets/{{customer_id}}/items",
-              "host": ["{{basket_url}}"],
-              "path": ["baskets", "{{customer_id}}", "items"]
-            }
-          }
-        },
-        {
-          "name": "Update Basket Item Quantity",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 3\n}"
-            },
-            "url": {
-              "raw": "{{basket_url}}/baskets/{{customer_id}}/items/{{product_id}}",
-              "host": ["{{basket_url}}"],
-              "path": ["baskets", "{{customer_id}}", "items", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Remove Basket Item",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{basket_url}}/baskets/{{customer_id}}/items/{{product_id}}",
-              "host": ["{{basket_url}}"],
-              "path": ["baskets", "{{customer_id}}", "items", "{{product_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Clear Basket",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{basket_url}}/baskets/{{customer_id}}",
-              "host": ["{{basket_url}}"],
-              "path": ["baskets", "{{customer_id}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Order",
-      "item": [
-        {
-          "name": "List Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{order_url}}/orders",
-              "host": ["{{order_url}}"],
-              "path": ["orders"]
-            }
-          }
-        },
-        {
-          "name": "Get Customer Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{order_url}}/orders/customers/{{customer_id}}",
-              "host": ["{{order_url}}"],
-              "path": ["orders", "customers", "{{customer_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Get My Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{order_url}}/orders/me",
-              "host": ["{{order_url}}"],
-              "path": ["orders", "me"]
-            }
-          }
-        },
-        {
-          "name": "Get Order",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{order_url}}/orders/{{order_id}}",
-              "host": ["{{order_url}}"],
-              "path": ["orders", "{{order_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Create Order",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customerId\": \"{{customer_id}}\",\n  \"items\": [\n    {\n      \"productId\": \"{{product_id}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"shippingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34000\",\n    \"country\": \"Turkey\"\n  },\n  \"billingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34000\",\n    \"country\": \"Turkey\"\n  },\n  \"paymentMethod\": 0\n}"
-            },
-            "url": {
-              "raw": "{{order_url}}/orders",
-              "host": ["{{order_url}}"],
-              "path": ["orders"]
-            }
-          },
+          "name": "Sipariş Oluştur",
           "event": [
             {
               "listen": "test",
@@ -529,88 +231,58 @@
                 "type": "text/javascript",
                 "exec": [
                   "const body = pm.response.json();",
-                  "if (body && body.id) {",
-                  "  pm.environment.set('order_id', body.id);",
-                  "}"
+                  "pm.environment.set('order_id', body.id);"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Cancel Order",
+          ],
           "request": {
             "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{product_id}}\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34710\",\n    \"country\": \"Turkiye\"\n  },\n  \"billingAddress\": {\n    \"street\": \"Ataturk Caddesi 10\",\n    \"district\": \"Kadikoy\",\n    \"city\": \"Istanbul\",\n    \"postalCode\": \"34710\",\n    \"country\": \"Turkiye\"\n  },\n  \"paymentMethod\": 0\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/proxy/order/orders",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "order", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Siparişlerimi Görüntüle",
+          "request": {
+            "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{order_url}}/orders/{{order_id}}/cancel",
-              "host": ["{{order_url}}"],
-              "path": ["orders", "{{order_id}}", "cancel"]
+              "raw": "{{gateway_url}}/proxy/order/orders/me",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "order", "orders", "me"]
             }
           }
         }
       ]
     },
     {
-      "name": "Notification",
+      "name": "07 - Notification",
       "item": [
         {
-          "name": "Get Notifications",
+          "name": "Bildirimleri Görüntüle",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{notification_url}}/notifications",
-              "host": ["{{notification_url}}"],
-              "path": ["notifications"]
+              "raw": "{{gateway_url}}/proxy/notification/notifications",
+              "host": ["{{gateway_url}}"],
+              "path": ["proxy", "notification", "notifications"]
             }
           }
-        },
-        {
-          "name": "Get Notification By Id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{notification_url}}/notifications/{{notification_id}}",
-              "host": ["{{notification_url}}"],
-              "path": ["notifications", "{{notification_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Create Notification",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"recipientId\": \"{{customer_id}}\",\n  \"message\": \"Siparisiniz olustu.\"\n}"
-            },
-            "url": {
-              "raw": "{{notification_url}}/notifications",
-              "host": ["{{notification_url}}"],
-              "path": ["notifications"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const body = pm.response.json();",
-                  "if (body && body.id) {",
-                  "  pm.environment.set('notification_id', body.id);",
-                  "}"
-                ]
-              }
-            }
-          ]
         }
       ]
     }

@@ -1,41 +1,38 @@
-# OpsFlow Postman Pack
+# OpsFlow Postman MVP Flow
 
-Bu klasör, projeyi Postman ile tek tek test etmek için hazırlanmıştır.
+Bu koleksiyon, alisveris akisinin Gateway uzerinden tekrar edilebilir sekilde test edilmesi icin hazirlanmistir.
 
-## Dosyalar
+## Import
 
-- `opsflow.postman_collection.json`
-- `opsflow.postman_environment.json`
+1. `opsflow.postman_environment.json` dosyasini Postman'a import et.
+2. `opsflow.postman_collection.json` dosyasini import et.
+3. Environment olarak `OpsFlow Local` sec.
 
-## Import sırası
+## Calistirma Sirasi
 
-1. Postman'da önce environment dosyasını import et.
-2. Sonra collection dosyasını import et.
-3. Environment olarak `OpsFlow Local` seç.
+1. Gateway servis haritasini kontrol et.
+2. Deneme kullanicisi olustur.
+3. Deneme kullanicisi ile giris yap.
+4. Kategori olustur.
+5. Urun olustur.
+6. Otomatik olusan stok kaydini kontrol et.
+7. Urunu sepete ekle.
+8. Sepeti goruntule.
+9. Siparis olustur.
+10. Siparislerimi goruntule.
+11. Bildirimleri goruntule.
 
-## Önerilen test sırası
+## Degiskenler
 
-1. `Gateway > Get Services`
-2. `Auth > Register`
-3. `Auth > Login`
-4. `Catalog > Create Category`
-5. `Catalog > Create Product`
-6. `Inventory > Adjust Stock`
-7. `Basket > Add Basket Item`
-8. `Basket > Get Basket`
-9. `Order > Create Order`
-10. `Order > Get My Orders`
-11. `Order > Get Order`
-12. `Notification > Create Notification`
-13. `Notification > Get Notifications`
+- `test_password`: Deneme kullanicisinin sifresi.
+- `test_email`: Bos birakilirsa benzersiz bir e-posta uretilir.
+- `token`: Login cevabindan otomatik doldurulur.
+- `category_id`: Kategori cevabindan otomatik doldurulur.
+- `product_id`: Urun cevabindan otomatik doldurulur.
+- `order_id`: Siparis cevabindan otomatik doldurulur.
 
-## Order auth note
+Basket ve Order isteklerinde `customerId` body veya URL icinde gonderilmez. Backend kullanici kimligini JWT icindeki `sub` claim'inden okur.
 
-- `Order > Get My Orders` endpoint expects a bearer token.
-- Login first, then let the collection store the returned `accessToken` into `token`.
+Tum istekler Gateway uzerinden gider:
 
-## Notlar
-
-- `Basket` servisi stok kontrolü için `Inventory` servisine gRPC ile gider, ama bunu Postman'dan doğrudan değil Basket endpoint'i üzerinden görmen daha kolaydır.
-- `Order` tarafında outbox mantığı arka planda çalışır; sipariş oluşturunca event yayınlama işi otomatik tamamlanır.
-- Eğer servisleri Docker ile çalıştırıyorsan URL'ler `docker-compose.yml` içindeki portlarla eşleşmelidir.
+`http://localhost:5022/proxy/{service}/{endpoint}`

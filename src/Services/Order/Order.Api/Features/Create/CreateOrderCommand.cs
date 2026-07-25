@@ -5,6 +5,12 @@ using Order.Api.Features.Common;
 
 namespace Order.Api.Features.Create;
 
+public sealed record CreateOrderRequest(
+    List<CreateOrderItemRequest> Items,
+    AddressRequest ShippingAddress,
+    AddressRequest BillingAddress,
+    PaymentMethod PaymentMethod);
+
 public sealed record CreateOrderCommand(
     string CustomerId,
     List<CreateOrderItemRequest> Items,

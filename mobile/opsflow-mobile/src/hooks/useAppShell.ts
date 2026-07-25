@@ -3,6 +3,8 @@ import { useAppStatus } from '../app-status';
 import { useAuth } from './useAuth';
 import { useBasket } from './useBasket';
 import { useCatalog } from './useCatalog';
+import { useAddresses } from './useAddresses';
+import { useCheckout } from './useCheckout';
 import { useOrders } from './useOrders';
 import { useUiState } from './useUiState';
 
@@ -12,6 +14,8 @@ export function useAppShell() {
   const auth = useAuth();
   const catalog = useCatalog();
   const basket = useBasket(auth.user?.userId);
+  const addresses = useAddresses(auth.user?.userId);
+  const checkout = useCheckout(addresses.addresses);
   const orders = useOrders({
     customerId: auth.user?.userId,
     basket: basket.basket,
@@ -19,14 +23,14 @@ export function useAppShell() {
 
   const signIn = async () => {
     try {
-      appStatus.showLoading('Giriş yapılıyor...');
+      appStatus.showLoading('Giris yapiliyor...');
       await auth.signIn();
       appStatus.hideLoading();
-      appStatus.showSuccess(`${auth.mode === 'login' ? 'Giriş' : 'Kayıt'} başarılı.`);
+      appStatus.showSuccess(`${auth.mode === 'login' ? 'Giris' : 'Kayit'} basarili.`);
       ui.setTab(ROUTES.HOME);
     } catch (error) {
       appStatus.hideLoading();
-      appStatus.showError(error instanceof Error ? error.message : 'İşlem başarısız.');
+      appStatus.showError(error instanceof Error ? error.message : 'Islem basarisiz.');
     }
   };
 
@@ -37,10 +41,10 @@ export function useAppShell() {
     }
 
     try {
-      appStatus.showLoading('Ürün sepete ekleniyor...');
+      appStatus.showLoading('Urun sepete ekleniyor...');
       await basket.addItem(productId);
       appStatus.hideLoading();
-      appStatus.showSuccess('Ürün sepete eklendi.');
+      appStatus.showSuccess('Urun sepete eklendi.');
       ui.setTab(ROUTES.BASKET);
     } catch (error) {
       appStatus.hideLoading();
@@ -50,27 +54,29 @@ export function useAppShell() {
 
   const placeOrder = async (payload: Parameters<typeof orders.placeOrder>[0]) => {
     try {
-      appStatus.showLoading('Sipariş oluşturuluyor...');
+      appStatus.showLoading('Siparis olusturuluyor...');
       const order = await orders.placeOrder(payload);
 
       if (!order) {
         appStatus.hideLoading();
-        appStatus.showError('Sipariş oluşturulamadı.');
+        appStatus.showError('Siparis olusturulamadi.');
         return;
       }
 
       appStatus.hideLoading();
-      appStatus.showSuccess('Sipariş oluşturuldu.');
+      checkout.reset();
+      appStatus.showSuccess('Siparis olusturuldu.');
       ui.setTab(ROUTES.HOME);
     } catch (error) {
       appStatus.hideLoading();
-      appStatus.showError(error instanceof Error ? error.message : 'Sipariş verilemedi.');
+      appStatus.showError(error instanceof Error ? error.message : 'Siparis verilemedi.');
     }
   };
 
   const signOut = () => {
     auth.signOut();
-    appStatus.showSuccess('Oturum kapatıldı.');
+    checkout.reset();
+    appStatus.showSuccess('Oturum kapatildi.');
     ui.setTab(ROUTES.HOME);
   };
 
@@ -78,29 +84,60 @@ export function useAppShell() {
     isLoading: auth.isSigningIn,
     error: auth.error,
   };
-
   const catalogStatus = {
     isLoading: catalog.isLoading,
     error: catalog.error,
   };
-
   const basketStatus = {
     isLoading: basket.isLoading || basket.isAddingItem,
     error: basket.error,
   };
-
   const ordersStatus = {
     isLoading: orders.isLoading || orders.isPlacingOrder,
     error: orders.error,
   };
+  const addressesStatus = {
+    isLoading: addresses.isLoading,
+    error: addresses.error,
+  };
+
+  const continueToPayment = async () => {
+    if (checkout.selectedAddress) {
+      checkout.goToPayment();
+      return;
+    }
+
+    const draft = checkout.draftAddress;
+    if (!draft.street || !draft.district || !draft.city || !draft.postalCode || !draft.country) {
+      appStatus.showError('Lutfen adres bilgilerini eksiksiz doldur.');
+      return;
+    }
+
+    try {
+      appStatus.showLoading('Adres kaydediliyor...');
+      const created = await addresses.addAddress({ title: 'Yeni adres', ...draft });
+      checkout.selectAddress(created.id);
+      appStatus.hideLoading();
+      checkout.goToPayment();
+    } catch (error) {
+      appStatus.hideLoading();
+      appStatus.showError(error instanceof Error ? error.message : 'Adres kaydedilemedi.');
+    }
+  };
 
   const status = {
-    isLoading: authStatus.isLoading || catalogStatus.isLoading || basketStatus.isLoading || ordersStatus.isLoading,
-    error: authStatus.error ?? catalogStatus.error ?? basketStatus.error ?? ordersStatus.error,
+    isLoading:
+      authStatus.isLoading ||
+      catalogStatus.isLoading ||
+      basketStatus.isLoading ||
+      ordersStatus.isLoading ||
+      addressesStatus.isLoading,
+    error: authStatus.error ?? catalogStatus.error ?? basketStatus.error ?? ordersStatus.error ?? addressesStatus.error,
     auth: authStatus,
     catalog: catalogStatus,
     basket: basketStatus,
     orders: ordersStatus,
+    addresses: addressesStatus,
   };
 
   return {
@@ -117,6 +154,9 @@ export function useAppShell() {
     categories: catalog.categories,
     products: catalog.products,
     basket: basket.basket,
+    addresses: addresses.addresses,
+    checkout,
+    continueToPayment,
     lastOrder: orders.lastOrder,
     lastOrderStatus: orders.lastOrder?.status,
     signIn,

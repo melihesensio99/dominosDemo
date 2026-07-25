@@ -11,8 +11,6 @@ public static class CatalogDatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
         await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
-        await SeedCategoriesAsync(dbContext, cancellationToken);
-        await SeedProductsAsync(dbContext, cancellationToken);
     }
 
     private static async Task SeedCategoriesAsync(CatalogDbContext dbContext, CancellationToken cancellationToken)

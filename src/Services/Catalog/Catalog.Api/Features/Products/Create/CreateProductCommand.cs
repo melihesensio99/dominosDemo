@@ -7,4 +7,5 @@ public sealed record CreateProductCommand(
     string Description,
     decimal Price,
     int Stock,
-    Guid CategoryId) : IRequest<Result<ProductResponse>>;
+    Guid CategoryId,
+    int ReorderLevel = 5) : IRequest<Result<ProductResponse>>;

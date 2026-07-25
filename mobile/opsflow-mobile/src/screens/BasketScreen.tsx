@@ -1,100 +1,65 @@
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useMemo } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
 import { SectionCard } from '../components/SectionCard';
-import type { Address } from '../types/common';
 import type { Basket } from '../types/basket';
 import type { Product } from '../types/catalog';
 import { styles } from './BasketScreen.styles';
-import { theme } from '../theme';
 
 interface BasketScreenProps {
   basket: Basket | null;
   products: Product[];
   isLoading?: boolean;
-  isPlacingOrder?: boolean;
   error?: unknown;
-  onPlaceOrder: (payload: {
-    shippingAddress: Address;
-    billingAddress: Address;
-    paymentMethod: number;
-  }) => void;
+  onProceedCheckout: () => void;
   onGoMenu: () => void;
 }
-
-const defaultAddress: Address = {
-  street: 'Bağdat Caddesi 42',
-  district: 'Kadıköy',
-  city: 'İstanbul',
-  postalCode: '34710',
-  country: 'Turkey',
-};
 
 export function BasketScreen({
   basket,
   products,
   isLoading,
-  isPlacingOrder,
   error,
-  onPlaceOrder,
+  onProceedCheckout,
   onGoMenu,
 }: BasketScreenProps) {
-  const [address, setAddress] = useState<Address>(defaultAddress);
-  const [paymentMethod, setPaymentMethod] = useState(0);
-
   const total = useMemo(() => {
-    if (!basket?.items.length) {
-      return 0;
-    }
-
-    return basket.items.reduce((sum, item) => {
+    return basket?.items.reduce((sum, item) => {
       const product = products.find((candidate) => candidate.id === item.productId);
       return sum + (product?.price ?? 0) * item.quantity;
-    }, 0);
+    }, 0) ?? 0;
   }, [basket, products]);
 
   const emptyState = isLoading ? (
-    <EmptyState title="Sepet yükleniyor" message="Sepet bilgisi backend'den getiriliyor." />
+    <EmptyState title="Sepet yukleniyor" message="Sepet bilgisi backend'den getiriliyor." />
   ) : error ? (
-    <EmptyState
-      title="Sepet alınamadı"
-      message={error instanceof Error ? error.message : 'Sepet bilgisi şu anda getirilemedi.'}
-    />
+    <EmptyState title="Sepet alinamadi" message={error instanceof Error ? error.message : 'Sepet getirilemedi.'} />
   ) : (
     <EmptyState
-      title="Sepetinde ürün bulunmuyor."
-      message="Menüye gidip birkaç ürün ekleyebilirsin."
-      actionLabel="Menüye Git"
+      title="Sepetinde urun bulunmuyor."
+      message="Menuye gidip birkac urun ekleyebilirsin."
+      actionLabel="Menuye Git"
       onAction={onGoMenu}
     />
   );
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Sepetim" subtitle="Adres ve ödeme ile siparişi tamamla" />
-
+      <AppHeader title="Sepetim" subtitle="Urunlerini kontrol et ve devam et" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {error && basket?.items.length ? (
-          <Text style={styles.errorText}>
-            {error instanceof Error ? error.message : 'Basket or order operation failed.'}
-          </Text>
-        ) : null}
-
         {!basket?.items.length ? (
           emptyState
         ) : (
           <>
-            <SectionCard title="Ürünler">
+            <SectionCard title="Urunler">
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>{basket.itemCount} ürün</Text>
+                <Text style={styles.summaryLabel}>{basket.itemCount} urun</Text>
                 <Text style={styles.summaryPrice}>{total.toLocaleString('tr-TR')} TL</Text>
               </View>
-
               <View style={styles.items}>
                 {basket.items.map((item) => {
                   const product = products.find((candidate) => candidate.id === item.productId);
-
                   return (
                     <View key={item.productId} style={styles.itemRow}>
                       <View style={{ flex: 1 }}>
@@ -109,55 +74,9 @@ export function BasketScreen({
                 })}
               </View>
             </SectionCard>
-
-            <SectionCard title="Teslimat adresi">
-              {(['street', 'district', 'city', 'postalCode', 'country'] as const).map((key) => (
-                <TextInput
-                  key={key}
-                  style={styles.input}
-                  placeholder={key}
-                  placeholderTextColor={theme.colors.muted}
-                  value={address[key]}
-                  onChangeText={(value) => setAddress((current) => ({ ...current, [key]: value }))}
-                />
-              ))}
-            </SectionCard>
-
-            <SectionCard title="Ödeme yöntemi">
-              <View style={styles.paymentRow}>
-                {[
-                  { label: 'Kart', value: 0 },
-                  { label: 'Havale', value: 1 },
-                  { label: 'Kapıda', value: 2 },
-                ].map((item) => {
-                  const active = paymentMethod === item.value;
-
-                  return (
-                    <Pressable
-                      key={item.value}
-                      style={[styles.paymentChip, active && styles.paymentChipActive]}
-                      onPress={() => setPaymentMethod(item.value)}
-                    >
-                      <Text style={[styles.paymentText, active && styles.paymentTextActive]}>{item.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-
-              <Pressable
-                style={[styles.orderButton, isPlacingOrder && { opacity: 0.7 }]}
-                disabled={Boolean(isPlacingOrder)}
-                onPress={() =>
-                  onPlaceOrder({
-                    shippingAddress: address,
-                    billingAddress: address,
-                    paymentMethod,
-                  })
-                }
-              >
-                <Text style={styles.orderButtonText}>{isPlacingOrder ? 'Sipariş Veriliyor...' : 'Siparişi Ver'}</Text>
-              </Pressable>
-            </SectionCard>
+            <Pressable style={styles.orderButton} onPress={onProceedCheckout}>
+              <Text style={styles.orderButtonText}>Sepeti Onayla ve Devam Et</Text>
+            </Pressable>
           </>
         )}
       </ScrollView>

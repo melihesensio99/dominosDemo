@@ -4,6 +4,8 @@ import { SafeAreaView, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AccountScreen } from './src/screens/AccountScreen';
 import { BasketScreen } from './src/screens/BasketScreen';
+import { CheckoutAddressScreen } from './src/screens/CheckoutAddressScreen';
+import { CheckoutPaymentScreen } from './src/screens/CheckoutPaymentScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { MenuScreen } from './src/screens/MenuScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
@@ -14,10 +16,7 @@ import { styles } from './App.styles';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: 1, refetchOnWindowFocus: false },
   },
 });
 
@@ -36,7 +35,6 @@ function AppShell() {
       <StatusBar style="dark" />
       <View style={styles.container}>
         <AppStatusOverlay />
-
         {isAuthenticated ? (
           <>
             {app.tab === ROUTES.HOME && (
@@ -47,7 +45,6 @@ function AppShell() {
                 error={app.status.orders.error}
               />
             )}
-
             {app.tab === ROUTES.MENU && (
               <MenuScreen
                 categories={app.categories}
@@ -57,19 +54,48 @@ function AppShell() {
                 onAdd={(product) => void app.addItem(product.id)}
               />
             )}
-
-            {app.tab === ROUTES.BASKET && (
+            {app.tab === ROUTES.BASKET && app.checkout.step === 'basket' && (
               <BasketScreen
                 basket={app.basket}
                 products={app.products}
                 isLoading={app.status.basket.isLoading}
-                isPlacingOrder={app.status.orders.isLoading}
-                error={app.status.basket.error ?? app.status.orders.error}
-                onPlaceOrder={(payload) => void app.placeOrder(payload)}
+                error={app.status.basket.error}
+                onProceedCheckout={app.checkout.begin}
                 onGoMenu={() => app.setTab(ROUTES.MENU)}
               />
             )}
-
+            {app.tab === ROUTES.BASKET && app.checkout.step === 'address' && (
+              <CheckoutAddressScreen
+                addresses={app.addresses}
+                selectedAddressId={app.checkout.selectedAddressId}
+                draftAddress={app.checkout.draftAddress}
+                isLoading={app.status.addresses.isLoading}
+                error={app.status.addresses.error}
+                onSelectAddress={app.checkout.selectAddress}
+                onChangeDraft={app.checkout.setDraftAddress}
+                onContinue={() => void app.continueToPayment()}
+                onBack={app.checkout.goBack}
+              />
+            )}
+            {app.tab === ROUTES.BASKET && app.checkout.step === 'payment' && (
+              <CheckoutPaymentScreen
+                basket={app.basket}
+                products={app.products}
+                address={app.checkout.selectedAddress}
+                paymentMethod={app.checkout.paymentMethod}
+                isPlacingOrder={app.status.orders.isLoading}
+                error={app.status.orders.error}
+                onChangePaymentMethod={app.checkout.setPaymentMethod}
+                onConfirm={() =>
+                  void app.placeOrder({
+                    shippingAddress: app.checkout.selectedAddress!,
+                    billingAddress: app.checkout.selectedAddress!,
+                    paymentMethod: app.checkout.paymentMethod,
+                  })
+                }
+                onBack={app.checkout.goBack}
+              />
+            )}
             {app.tab === ROUTES.ACCOUNT && (
               <AccountScreen
                 user={app.user}
@@ -85,8 +111,7 @@ function AppShell() {
                 onSignOut={app.signOut}
               />
             )}
-
-            <BottomTabBar activeTab={app.tab} onChangeTab={app.setTab} />
+            {app.checkout.step === 'basket' && <BottomTabBar activeTab={app.tab} onChangeTab={app.setTab} />}
           </>
         ) : (
           <AccountScreen

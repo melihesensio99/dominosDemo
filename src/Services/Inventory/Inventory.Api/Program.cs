@@ -1,5 +1,6 @@
 using Inventory.Api.Features;
 using Inventory.Api.GrpcServices;
+using Inventory.Api.Consumers;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddGrpc();
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<ProductCreatedConsumer>();
     x.SetKebabCaseEndpointNameFormatter();
 
     x.UsingRabbitMq((context, cfg) =>
@@ -22,6 +24,8 @@ builder.Services.AddMassTransit(x =>
             h.Username(username);
             h.Password(password);
         });
+
+        cfg.ConfigureEndpoints(context);
     });
 });
 

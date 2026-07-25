@@ -11,7 +11,6 @@ public static class InventoryDatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
 
         await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
-        await SeedStockAsync(dbContext, cancellationToken);
     }
 
     private static async Task SeedStockAsync(InventoryDbContext dbContext, CancellationToken cancellationToken)

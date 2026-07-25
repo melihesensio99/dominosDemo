@@ -1,10 +1,13 @@
 using Catalog.Api.Features.Products.Common;
+using Inventory.Contracts.IntegrationEvents.Catalog;
+using MassTransit;
 
 namespace Catalog.Api.Features.Products;
 
 public sealed class CreateProductHandler(
     IProductRepository productRepository,
-    ICategoryRepository categoryRepository) : IRequestHandler<CreateProductCommand, Result<ProductResponse>>
+    ICategoryRepository categoryRepository,
+    IPublishEndpoint publishEndpoint) : IRequestHandler<CreateProductCommand, Result<ProductResponse>>
 {
     public async Task<Result<ProductResponse>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
@@ -30,6 +33,13 @@ public sealed class CreateProductHandler(
         };
 
         await productRepository.AddAsync(product, cancellationToken);
+
+        await publishEndpoint.Publish(
+            new ProductCreatedIntegrationEvent(
+                product.Id.ToString(),
+                product.Stock,
+                request.ReorderLevel),
+            cancellationToken);
 
         return Result<ProductResponse>.Success(ProductMapper.ToResponse(product, category.Name));
     }

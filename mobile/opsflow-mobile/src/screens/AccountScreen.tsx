@@ -32,66 +32,76 @@ export function AccountScreen({
   onAuth,
   onSignOut,
 }: AccountScreenProps) {
+  const isAuthenticated = Boolean(user);
+
   return (
     <View style={styles.container}>
-      <AppHeader title="Hesabım" subtitle="Giriş yap, oturumu bağla" />
+      <AppHeader
+        title="Hesabım"
+        subtitle={isAuthenticated ? 'Hesap bilgilerin' : 'Giriş yap veya yeni hesap oluştur'}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SectionCard title="Giriş">
-          <View style={styles.modeRow}>
-            <Pressable
-              style={[styles.modeButton, mode === 'login' && styles.modeButtonActive]}
-              onPress={() => onChangeMode('login')}
-            >
-              <Text style={[styles.modeText, mode === 'login' && styles.modeTextActive]}>Giriş</Text>
+        {isAuthenticated ? (
+          <SectionCard title="Hesap Bilgileri">
+            <Text style={styles.info}>E-posta: {user?.email}</Text>
+
+            <Pressable style={styles.signOutButton} onPress={onSignOut}>
+              <Text style={styles.signOutText}>Çıkış Yap</Text>
             </Pressable>
-            <Pressable
-              style={[styles.modeButton, mode === 'register' && styles.modeButtonActive]}
-              onPress={() => onChangeMode('register')}
-            >
-              <Text style={[styles.modeText, mode === 'register' && styles.modeTextActive]}>Kayıt</Text>
-            </Pressable>
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder="E-posta"
-            placeholderTextColor={theme.colors.muted}
-            value={email}
-            onChangeText={onChangeEmail}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Şifre"
-            placeholderTextColor={theme.colors.muted}
-            secureTextEntry
-            value={password}
-            onChangeText={onChangePassword}
-          />
-
-          <Pressable style={[styles.authButton, isLoading && { opacity: 0.7 }]} disabled={Boolean(isLoading)} onPress={onAuth}>
-            <Text style={styles.authButtonText}>{isLoading ? 'İşleniyor...' : mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}</Text>
-          </Pressable>
-          {error ? (
-            <Text style={styles.errorText}>{error instanceof Error ? error.message : 'İşlem sırasında hata oluştu.'}</Text>
-          ) : null}
-        </SectionCard>
-
-        <SectionCard title="Oturum">
-          {user ? (
-            <>
-              <Text style={styles.info}>E-posta: {user.email}</Text>
-              <Text style={styles.info}>Rol: {user.role}</Text>
-              <Text style={styles.info}>Kullanıcı ID: {user.userId}</Text>
-
-              <Pressable style={styles.signOutButton} onPress={onSignOut}>
-                <Text style={styles.signOutText}>Çıkış Yap</Text>
+          </SectionCard>
+        ) : (
+          <SectionCard title="Giriş">
+            <View style={styles.modeRow}>
+              <Pressable
+                style={[styles.modeButton, mode === 'login' && styles.modeButtonActive]}
+                onPress={() => onChangeMode('login')}
+              >
+                <Text style={[styles.modeText, mode === 'login' && styles.modeTextActive]}>Giriş</Text>
               </Pressable>
-            </>
-          ) : (
-            <Text style={styles.info}>Henüz giriş yapılmadı.</Text>
-          )}
-        </SectionCard>
+              <Pressable
+                style={[styles.modeButton, mode === 'register' && styles.modeButtonActive]}
+                onPress={() => onChangeMode('register')}
+              >
+                <Text style={[styles.modeText, mode === 'register' && styles.modeTextActive]}>Kayıt</Text>
+              </Pressable>
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder="E-posta"
+              placeholderTextColor={theme.colors.muted}
+              value={email}
+              onChangeText={onChangeEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Şifre"
+              placeholderTextColor={theme.colors.muted}
+              secureTextEntry
+              value={password}
+              onChangeText={onChangePassword}
+            />
+
+            <Pressable
+              style={[styles.authButton, isLoading && { opacity: 0.7 }]}
+              disabled={Boolean(isLoading)}
+              onPress={onAuth}
+            >
+              <Text style={styles.authButtonText}>
+                {isLoading ? 'İşleniyor...' : mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
+              </Text>
+            </Pressable>
+
+            {error ? (
+              <Text style={styles.errorText}>
+                {error instanceof Error ? error.message : 'İşlem sırasında hata oluştu.'}
+              </Text>
+            ) : null}
+          </SectionCard>
+        )}
       </ScrollView>
     </View>
   );

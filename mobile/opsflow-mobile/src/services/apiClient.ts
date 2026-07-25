@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
 import type { Address } from '../types/common';
-import type { AuthCredentials, SessionUser } from '../types/auth';
+import type { AuthCredentials, SessionUser, UserAddress } from '../types/auth';
 import type { Basket } from '../types/basket';
 import type { Category, Product } from '../types/catalog';
 import type { Order } from '../types/order';
@@ -107,6 +107,18 @@ export function postRegister(body: AuthCredentials) {
   return request<SessionUser>(endpoints.auth.register, { method: 'POST', body });
 }
 
+export function getAddresses() {
+  return request<UserAddress[]>(endpoints.auth.addresses);
+}
+
+export function createAddress(body: Omit<UserAddress, 'id'>) {
+  return request<UserAddress>(endpoints.auth.addresses, { method: 'POST', body });
+}
+
+export function deleteAddress(addressId: string) {
+  return request<void>(endpoints.auth.addressById(addressId), { method: 'DELETE' });
+}
+
 export function getProducts() {
   return request<Product[]>(endpoints.catalog.products);
 }
@@ -115,24 +127,24 @@ export function getCategories() {
   return request<Category[]>(endpoints.catalog.categories);
 }
 
-export function getBasket(customerId: string) {
-  return request<Basket>(endpoints.basket.byCustomer(customerId));
+export function getBasket() {
+  return request<Basket>(endpoints.basket.mine);
 }
 
-export function addBasketItem(customerId: string, body: { productId: string; quantity: number }) {
-  return request<Basket>(endpoints.basket.items(customerId), { method: 'POST', body });
+export function addBasketItem(body: { productId: string; quantity: number }) {
+  return request<Basket>(endpoints.basket.items, { method: 'POST', body });
 }
 
-export function updateBasketItem(customerId: string, productId: string, body: { quantity: number }) {
-  return request<Basket>(endpoints.basket.itemByProduct(customerId, productId), { method: 'PUT', body });
+export function updateBasketItem(productId: string, body: { quantity: number }) {
+  return request<Basket>(endpoints.basket.itemByProduct(productId), { method: 'PUT', body });
 }
 
-export function removeBasketItem(customerId: string, productId: string) {
-  return request<Basket>(endpoints.basket.itemByProduct(customerId, productId), { method: 'DELETE' });
+export function removeBasketItem(productId: string) {
+  return request<Basket>(endpoints.basket.itemByProduct(productId), { method: 'DELETE' });
 }
 
-export function clearBasket(customerId: string) {
-  return request<Basket>(endpoints.basket.byCustomer(customerId), { method: 'DELETE' });
+export function clearBasket() {
+  return request<Basket>(endpoints.basket.mine, { method: 'DELETE' });
 }
 
 export function getMyOrders() {
@@ -140,7 +152,6 @@ export function getMyOrders() {
 }
 
 export function createOrder(body: {
-  customerId: string;
   items: { productId: string; quantity: number }[];
   shippingAddress: Address;
   billingAddress: Address;
