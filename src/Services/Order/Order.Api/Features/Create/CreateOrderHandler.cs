@@ -31,7 +31,8 @@ public sealed class CreateOrderHandler(
                 request.BillingAddress.City,
                 request.BillingAddress.PostalCode,
             request.BillingAddress.Country),
-            request.PaymentMethod);
+            request.PaymentMethod,
+            request.Note);
 
         await orderRepository.SaveAsync(order, cancellationToken);
 

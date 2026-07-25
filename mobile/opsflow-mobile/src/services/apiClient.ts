@@ -156,6 +156,7 @@ export function createOrder(body: {
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: number;
+  note?: string;
 }) {
   return request<Order>(endpoints.orders.create, { method: 'POST', body });
 }

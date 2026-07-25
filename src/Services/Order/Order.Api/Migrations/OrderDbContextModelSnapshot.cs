@@ -33,6 +33,11 @@ partial class OrderDbContextModelSnapshot : ModelSnapshot
             b.Property<DateTimeOffset>("CreatedAt")
                 .HasColumnType("timestamp with time zone");
 
+            b.Property<string>("Note")
+                .IsRequired()
+                .HasMaxLength(500)
+                .HasColumnType("character varying(500)");
+
             b.Property<string>("billing_city")
                 .IsRequired()
                 .HasMaxLength(150)
@@ -116,6 +121,11 @@ partial class OrderDbContextModelSnapshot : ModelSnapshot
 
                 b1.Property<int>("Quantity")
                     .HasColumnType("integer");
+
+                b1.Property<string>("SelectedOptionIdsJson")
+                    .IsRequired()
+                    .HasMaxLength(4000)
+                    .HasColumnType("character varying(4000)");
 
                 b1.HasKey("Id");
 

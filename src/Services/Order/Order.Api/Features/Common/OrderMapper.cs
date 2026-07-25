@@ -29,6 +29,7 @@ public static class OrderMapper
             new PaymentResponse(
                 order.Payment.Method.ToString().ToLowerInvariant(),
                 order.Payment.Status.ToString().ToLowerInvariant()),
+            order.Note,
             order.Status.ToString().ToLowerInvariant(),
             order.CreatedAt,
             order.UpdatedAt);

@@ -19,7 +19,8 @@ public sealed class Order
         Address billingAddress,
         Payment payment,
         OrderStatus status,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        string note)
     {
         Id = id;
         CustomerId = customerId;
@@ -29,6 +30,7 @@ public sealed class Order
         Payment = payment;
         Status = status;
         CreatedAt = createdAt;
+        Note = note;
     }
 
     public string Id { get; private set; } = string.Empty;
@@ -47,6 +49,8 @@ public sealed class Order
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    public string Note { get; private set; } = string.Empty;
+
     public DateTimeOffset? UpdatedAt { get; private set; }
 
     public IReadOnlyCollection<IDomainEvent> DomainEvents => domainEvents.ToArray();
@@ -56,7 +60,8 @@ public sealed class Order
         IEnumerable<OrderItem> items,
         Address shippingAddress,
         Address billingAddress,
-        PaymentMethod paymentMethod)
+        PaymentMethod paymentMethod,
+        string? note = null)
     {
         var orderItems = items.ToList();
         var order = new Order(
@@ -67,7 +72,8 @@ public sealed class Order
             billingAddress,
             Payment.Create(paymentMethod),
             OrderStatus.Pending,
-            DateTimeOffset.UtcNow);
+            DateTimeOffset.UtcNow,
+            note?.Trim() ?? string.Empty);
         order.AddDomainEvent(new OrderCreatedDomainEvent(order.Id, order.CustomerId, order.Items.Count));
         return order;
     }

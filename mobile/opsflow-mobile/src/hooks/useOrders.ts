@@ -31,10 +31,12 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
     shippingAddress,
     billingAddress,
     paymentMethod,
+    note,
   }: {
     shippingAddress: Address;
     billingAddress: Address;
     paymentMethod: number;
+    note?: string;
   }) => {
     if (!customerId || !basket?.items.length) {
       return null;
@@ -53,6 +55,7 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
         shippingAddress,
         billingAddress,
         paymentMethod,
+        note: note?.trim() || undefined,
       });
 
       // The order is now owned by Order API; remove the checkout basket afterwards.

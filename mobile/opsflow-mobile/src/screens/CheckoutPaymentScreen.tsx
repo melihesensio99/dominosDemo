@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
 import type { Basket } from '../types/basket';
 import type { Product } from '../types/catalog';
@@ -10,9 +11,11 @@ interface CheckoutPaymentScreenProps {
   products: Product[];
   address?: UserAddress;
   paymentMethod: number;
+  note: string;
   isPlacingOrder?: boolean;
   error?: unknown;
   onChangePaymentMethod: (value: number) => void;
+  onChangeNote: (value: string) => void;
   onConfirm: () => void;
   onBack: () => void;
 }
@@ -22,9 +25,11 @@ export function CheckoutPaymentScreen({
   products,
   address,
   paymentMethod,
+  note,
   isPlacingOrder,
   error,
   onChangePaymentMethod,
+  onChangeNote,
   onConfirm,
   onBack,
 }: CheckoutPaymentScreenProps) {
@@ -46,17 +51,19 @@ export function CheckoutPaymentScreen({
         </View>
         <View style={styles.card}>
           <Text style={styles.title}>Odeme yontemi</Text>
-          <View style={styles.options}>
-            {[{ label: 'Kart', value: 0 }, { label: 'Havale', value: 1 }, { label: 'Kapida', value: 2 }].map((option) => (
-              <Pressable
-                key={option.value}
-                style={[styles.option, paymentMethod === option.value && styles.optionSelected]}
-                onPress={() => onChangePaymentMethod(option.value)}
-              >
-                <Text style={[styles.optionText, paymentMethod === option.value && styles.optionTextSelected]}>{option.label}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <PaymentMethodSelect paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.title}>Siparis notu</Text>
+          <TextInput
+            value={note}
+            onChangeText={onChangeNote}
+            placeholder="Kurye icin bir not ekle"
+            placeholderTextColor={styles.placeholder.color}
+            multiline
+            maxLength={500}
+            style={styles.noteInput}
+          />
         </View>
         <View style={styles.card}>
           <Text style={styles.title}>Siparis ozeti</Text>
@@ -70,6 +77,30 @@ export function CheckoutPaymentScreen({
           <Text style={styles.secondaryText}>Adrese Don</Text>
         </Pressable>
       </ScrollView>
+    </View>
+  );
+}
+
+function PaymentMethodSelect({ paymentMethod, onChange }: { paymentMethod: number; onChange: (value: number) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const options = [{ label: 'Kart', value: 0 }, { label: 'Havale', value: 1 }, { label: 'Kapida', value: 2 }];
+  const selected = options.find((option) => option.value === paymentMethod) ?? options[0];
+
+  return (
+    <View>
+      <Pressable style={styles.selectButton} onPress={() => setIsOpen((current) => !current)}>
+        <Text style={styles.selectText}>{selected.label}</Text>
+        <Text style={styles.selectArrow}>{isOpen ? '⌃' : '⌄'}</Text>
+      </Pressable>
+      {isOpen ? (
+        <View style={styles.selectOptions}>
+          {options.map((option) => (
+            <Pressable key={option.value} style={styles.selectOption} onPress={() => { onChange(option.value); setIsOpen(false); }}>
+              <Text style={styles.selectOptionText}>{option.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }

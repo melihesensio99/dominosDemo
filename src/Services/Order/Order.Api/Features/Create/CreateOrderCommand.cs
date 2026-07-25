@@ -9,14 +9,16 @@ public sealed record CreateOrderRequest(
     List<CreateOrderItemRequest> Items,
     AddressRequest ShippingAddress,
     AddressRequest BillingAddress,
-    PaymentMethod PaymentMethod);
+    PaymentMethod PaymentMethod,
+    string? Note = null);
 
 public sealed record CreateOrderCommand(
     string CustomerId,
     List<CreateOrderItemRequest> Items,
     AddressRequest ShippingAddress,
     AddressRequest BillingAddress,
-    PaymentMethod PaymentMethod) : IRequest<Result<OrderResponse>>;
+    PaymentMethod PaymentMethod,
+    string? Note) : IRequest<Result<OrderResponse>>;
 
 public sealed record CreateOrderItemRequest(
     string ProductId,

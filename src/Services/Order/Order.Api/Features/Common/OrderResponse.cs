@@ -18,6 +18,7 @@ public sealed record OrderResponse(
     AddressResponse ShippingAddress,
     AddressResponse BillingAddress,
     PaymentResponse Payment,
+    string Note,
     string Status,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt);

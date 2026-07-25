@@ -21,7 +21,8 @@ public static class CreateOrderEndpoint
                 request.Items,
                 request.ShippingAddress,
                 request.BillingAddress,
-                request.PaymentMethod);
+                request.PaymentMethod,
+                request.Note);
 
             var result = await sender.Send(command, cancellationToken);
             return result.ToHttpResult();

@@ -101,14 +101,17 @@ function AppShell() {
                 products={app.products}
                 address={app.checkout.selectedAddress}
                 paymentMethod={app.checkout.paymentMethod}
+                note={app.checkout.note}
                 isPlacingOrder={app.status.orders.isLoading}
                 error={app.status.orders.error}
                 onChangePaymentMethod={app.checkout.setPaymentMethod}
+                onChangeNote={app.checkout.setNote}
                 onConfirm={() =>
                   void app.placeOrder({
                     shippingAddress: app.checkout.selectedAddress!,
                     billingAddress: app.checkout.selectedAddress!,
                     paymentMethod: app.checkout.paymentMethod,
+                    note: app.checkout.note,
                   })
                 }
                 onBack={app.checkout.goBack}

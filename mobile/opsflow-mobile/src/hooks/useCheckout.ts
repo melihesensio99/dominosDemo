@@ -19,6 +19,7 @@ export function useCheckout(addresses: UserAddress[]) {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [draftAddress, setDraftAddress] = useState<Address>(emptyAddress);
   const [paymentMethod, setPaymentMethod] = useState(0);
+  const [note, setNote] = useState('');
 
   useEffect(() => {
     if (!selectedAddressId && addresses.length > 0) {
@@ -34,6 +35,8 @@ export function useCheckout(addresses: UserAddress[]) {
     draftAddress,
     paymentMethod,
     setPaymentMethod,
+    note,
+    setNote,
     setDraftAddress,
     selectAddress: setSelectedAddressId,
     begin: () => setStep('address'),
@@ -47,6 +50,7 @@ export function useCheckout(addresses: UserAddress[]) {
       setSelectedAddressId(null);
       setDraftAddress(emptyAddress);
       setPaymentMethod(0);
+      setNote('');
     },
   };
 }
