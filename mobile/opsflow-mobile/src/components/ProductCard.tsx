@@ -13,9 +13,6 @@ export function ProductCard({ product, onAdd, onOpen }: ProductCardProps) {
     <View style={styles.card}>
       <Pressable onPress={() => onOpen?.(product)} style={styles.imageContainer}>
         {product.imageUrl ? <Image source={{ uri: product.imageUrl }} style={styles.image} resizeMode="cover" /> : null}
-        <Pressable style={styles.imageAction} onPress={() => onAdd(product)}>
-          <Text style={styles.imageActionText}>+</Text>
-        </Pressable>
       </Pressable>
       <View style={styles.topRow}>
         <View style={styles.categoryBadge}>
@@ -29,11 +26,9 @@ export function ProductCard({ product, onAdd, onOpen }: ProductCardProps) {
       </Pressable>
       <Text style={styles.description}>{product.description}</Text>
 
-      <View style={styles.footer}>
-        <Pressable style={styles.button} onPress={() => onAdd(product)}>
-          <Text style={styles.buttonText}>Sepete Ekle</Text>
-        </Pressable>
-      </View>
+      <Pressable style={styles.cardAction} onPress={() => onAdd(product)}>
+        <Text style={styles.cardActionText}>+</Text>
+      </Pressable>
     </View>
   );
 }

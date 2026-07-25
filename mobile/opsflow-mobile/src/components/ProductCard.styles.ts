@@ -9,8 +9,6 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   imageContainer: { position: 'relative' },
-  imageAction: { position: 'absolute', right: 10, bottom: 10, width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderWidth: 3, borderColor: theme.colors.surface },
-  imageActionText: { color: '#fff', fontSize: 30, lineHeight: 32, fontWeight: '400' },
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
@@ -18,6 +16,8 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     gap: 8,
+    paddingBottom: 64,
+    position: 'relative',
   },
   topRow: {
     flexDirection: 'row',
@@ -49,26 +49,27 @@ export const styles = StyleSheet.create({
     color: theme.colors.muted,
     lineHeight: 20,
   },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-    marginTop: 4,
-  },
   meta: {
     color: theme.colors.muted,
     fontSize: 12,
   },
-  button: {
+  cardAction: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: theme.colors.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 16,
+    borderWidth: 3,
+    borderColor: theme.colors.surface,
   },
-  buttonText: {
+  cardActionText: {
     color: '#fff',
-    fontWeight: '700',
-    fontSize: 12,
+    fontSize: 30,
+    lineHeight: 32,
+    fontWeight: '400',
   },
 });
