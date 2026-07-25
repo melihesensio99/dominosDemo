@@ -28,6 +28,8 @@ function getOrderStatusText(status?: string) {
   }
 }
 
+const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
+
 export function HomeScreen({
   categories,
   products,
@@ -38,9 +40,13 @@ export function HomeScreen({
   isLoading,
   error,
 }: HomeScreenProps) {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const orderedCategories = useMemo(
+    () => [...categories].sort((left, right) => categoryOrder.indexOf(left.slug) - categoryOrder.indexOf(right.slug)),
+    [categories],
+  );
   const visibleProducts = useMemo(
-    () => selectedCategory === 'all'
+    () => selectedCategory === null
       ? products
       : products.filter((product) => product.categoryId === selectedCategory),
     [products, selectedCategory],
@@ -52,13 +58,7 @@ export function HomeScreen({
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SectionTitle title="Kategoriler" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          <Pressable
-            onPress={() => setSelectedCategory('all')}
-            style={[styles.chip, selectedCategory === 'all' && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, selectedCategory === 'all' && styles.chipTextActive]}>Tumu</Text>
-          </Pressable>
-          {categories.map((category) => (
+          {orderedCategories.map((category) => (
             <Pressable
               key={category.id}
               onPress={() => setSelectedCategory(category.id)}
@@ -78,7 +78,7 @@ export function HomeScreen({
           </View>
         ) : null}
 
-        <SectionTitle title={selectedCategory === 'all' ? 'Tum urunler' : 'Secilen kategori'} />
+        <SectionTitle title={selectedCategory === null ? 'Tum urunler' : 'Secilen kategori'} />
         {visibleProducts.length > 0 ? (
           <View style={styles.productList}>
             {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} />)}

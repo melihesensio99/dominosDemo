@@ -22,7 +22,6 @@ export function ProductCard({ product, onAdd }: ProductCardProps) {
       <Text style={styles.description}>{product.description}</Text>
 
       <View style={styles.footer}>
-        <Text style={styles.meta}>Stok: {product.stock}</Text>
         <Pressable style={styles.button} onPress={() => onAdd(product)}>
           <Text style={styles.buttonText}>Sepete Ekle</Text>
         </Pressable>

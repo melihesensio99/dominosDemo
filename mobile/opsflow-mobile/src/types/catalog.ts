@@ -4,7 +4,6 @@ export interface Product {
   description: string;
   imageUrl: string | null;
   price: number;
-  stock: number;
   categoryId: string;
   categoryName: string | null;
   optionGroups: ProductOptionGroup[];
