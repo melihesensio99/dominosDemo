@@ -17,9 +17,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  iconWrap: { height: 24, alignItems: 'center', justifyContent: 'center' },
+  iconWrap: { height: 24, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   icon: { color: theme.colors.muted, fontSize: 21 },
   iconActive: { color: theme.colors.primary },
+  badge: { position: 'absolute', top: -10, right: -18, minWidth: 19, height: 19, paddingHorizontal: 4, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.danger, borderWidth: 2, borderColor: theme.colors.surface },
+  badgeText: { color: '#fff', fontSize: 10, lineHeight: 12, fontWeight: '900' },
   label: {
     color: theme.colors.muted,
     fontSize: 11,

@@ -8,6 +8,7 @@ export type TabKey = RouteKey;
 interface BottomTabBarProps {
   activeTab: TabKey;
   onChangeTab: (tab: TabKey) => void;
+  basketQuantity?: number;
 }
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
@@ -16,14 +17,20 @@ const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
   { key: ROUTES.ACCOUNT, label: ROUTE_LABELS.account, icon: '♙' },
 ];
 
-export function BottomTabBar({ activeTab, onChangeTab }: BottomTabBarProps) {
+export function BottomTabBar({ activeTab, onChangeTab, basketQuantity = 0 }: BottomTabBarProps) {
   return (
     <View style={styles.container}>
       {tabs.map((tab) => {
         const active = activeTab === tab.key;
 
         return (
-          <AnimatedTab key={tab.key} tab={tab} active={active} onPress={() => onChangeTab(tab.key)} />
+          <AnimatedTab
+            key={tab.key}
+            tab={tab}
+            active={active}
+            onPress={() => onChangeTab(tab.key)}
+            badge={tab.key === ROUTES.BASKET && basketQuantity > 0 ? basketQuantity : undefined}
+          />
         );
       })}
     </View>
@@ -34,10 +41,12 @@ function AnimatedTab({
   tab,
   active,
   onPress,
+  badge,
 }: {
   tab: (typeof tabs)[number];
   active: boolean;
   onPress: () => void;
+  badge?: number;
 }) {
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -54,6 +63,7 @@ function AnimatedTab({
     <Pressable onPress={onPress} style={styles.tab}>
       <Animated.View style={[styles.iconWrap, { transform: [{ scale }] }]}>
         <Text style={[styles.icon, active && styles.iconActive]}>{tab.icon}</Text>
+        {badge !== undefined ? <View style={styles.badge}><Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text></View> : null}
       </Animated.View>
       <Text style={[styles.label, active && styles.labelActive]}>{tab.label}</Text>
       <View style={[styles.indicator, active && styles.indicatorActive]} />

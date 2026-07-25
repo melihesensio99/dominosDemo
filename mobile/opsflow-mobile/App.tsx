@@ -129,7 +129,13 @@ function AppShell() {
                 onSignOut={app.signOut}
               />
             )}
-            {!selectedProduct && app.checkout.step === 'basket' && <BottomTabBar activeTab={app.tab} onChangeTab={app.setTab} />}
+            {!selectedProduct && app.checkout.step === 'basket' && (
+              <BottomTabBar
+                activeTab={app.tab}
+                onChangeTab={app.setTab}
+                basketQuantity={app.basket?.totalQuantity ?? 0}
+              />
+            )}
           </>
         ) : (
           <AccountScreen
