@@ -19,6 +19,15 @@ export const styles = StyleSheet.create({
   chipTextActive: { color: '#fff' },
   categoryIcon: { fontSize: 18 },
   productList: { gap: 12 },
+  listEnd: {
+    alignItems: 'center',
+    paddingVertical: 18,
+  },
+  listEndText: {
+    color: theme.colors.muted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   statusCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border },
   orderBanner: { backgroundColor: theme.colors.primarySoft, borderRadius: theme.radius.lg, padding: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.primary },
   orderBannerTitle: { color: theme.colors.primaryDark, fontSize: 18, fontWeight: '900' },

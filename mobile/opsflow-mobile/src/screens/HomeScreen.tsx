@@ -31,6 +31,7 @@ function getOrderStatusText(status?: string) {
 }
 
 const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
+const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/logo/logo.jpg';
 
 export function HomeScreen({
   categories,
@@ -57,8 +58,8 @@ export function HomeScreen({
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Domino's benzeri" subtitle="Urunleri kesfet ve sepete ekle" badge="MVP" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <AppHeader title="Melo's Pizza" subtitle="Urunleri kesfet ve sepete ekle" logoUrl={logoUrl} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
         <HomeBannerCarousel />
 
         {lastOrderStatus || isLoading || error ? (
@@ -90,9 +91,14 @@ export function HomeScreen({
 
         <SectionTitle title={selectedCategory === null ? 'Tum urunler' : 'Secilen kategori'} />
         {visibleProducts.length > 0 ? (
-          <View style={styles.productList}>
-            {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />)}
-          </View>
+          <>
+            <View style={styles.productList}>
+              {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />)}
+            </View>
+            <View style={styles.listEnd}>
+              <Text style={styles.listEndText}>Bu kategorideki tum urunleri gordun.</Text>
+            </View>
+          </>
         ) : isCatalogLoading ? (
           <EmptyState title="Urunler yukleniyor" message="Urunler backend'den getiriliyor." />
         ) : catalogError ? (
