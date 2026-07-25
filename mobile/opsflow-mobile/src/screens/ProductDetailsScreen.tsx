@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import type { Product } from '../types/catalog';
 import { useProductDetails } from '../hooks/useProductDetails';
@@ -17,6 +17,7 @@ export function ProductDetailsScreen({ product, onBack, onAdd }: ProductDetailsS
     <View style={styles.container}>
       <AppHeader title={product.name} subtitle="Urununu kendi zevkine gore hazirla" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {product.imageUrl ? <Image source={{ uri: product.imageUrl }} style={styles.image} resizeMode="cover" /> : null}
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.description}>{product.description}</Text>
 

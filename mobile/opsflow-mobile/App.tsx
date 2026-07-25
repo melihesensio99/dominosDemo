@@ -54,7 +54,14 @@ function AppShell() {
                 products={app.products}
                 isCatalogLoading={app.status.catalog.isLoading}
                 catalogError={app.status.catalog.error}
-                onAdd={setSelectedProduct}
+                onAdd={(product) => {
+                  if (product.optionGroups.length === 0) {
+                    void app.addItem(product.id);
+                    return;
+                  }
+
+                  setSelectedProduct(product);
+                }}
                 lastOrderStatus={app.lastOrderStatus}
                 isLoading={app.status.orders.isLoading}
                 error={app.status.orders.error}
