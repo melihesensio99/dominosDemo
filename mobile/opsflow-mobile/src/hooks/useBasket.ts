@@ -6,6 +6,7 @@ import type { Basket } from '../types/basket';
 export function useBasket(customerId?: string | null) {
   const queryClient = useQueryClient();
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [isUpdatingItem, setIsUpdatingItem] = useState(false);
   const [actionError, setActionError] = useState<Error | null>(null);
 
   const basketQuery = useQuery({
@@ -38,11 +39,48 @@ export function useBasket(customerId?: string | null) {
     }
   };
 
+  const updateItem = async (itemId: string, quantity: number) => {
+    try {
+      setIsUpdatingItem(true);
+      setActionError(null);
+
+      if (quantity <= 0) {
+        await basketService.removeItem(itemId);
+      } else {
+        await basketService.updateItem(itemId, { quantity });
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['basket'] });
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause : new Error('Sepet guncellenemedi.'));
+      throw cause;
+    } finally {
+      setIsUpdatingItem(false);
+    }
+  };
+
+  const removeItem = async (itemId: string) => {
+    try {
+      setIsUpdatingItem(true);
+      setActionError(null);
+      await basketService.removeItem(itemId);
+      await queryClient.invalidateQueries({ queryKey: ['basket'] });
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause : new Error('Urun sepetten silinemedi.'));
+      throw cause;
+    } finally {
+      setIsUpdatingItem(false);
+    }
+  };
+
   return {
     basket: basketQuery.data as Basket | null,
     isLoading: basketQuery.isLoading,
     error: actionError ?? basketQuery.error ?? null,
     isAddingItem,
+    isUpdatingItem,
     addItem,
+    updateItem,
+    removeItem,
   };
 }

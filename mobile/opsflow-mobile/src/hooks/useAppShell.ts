@@ -52,6 +52,22 @@ export function useAppShell() {
     }
   };
 
+  const updateBasketItem = async (itemId: string, quantity: number) => {
+    try {
+      await basket.updateItem(itemId, quantity);
+    } catch (error) {
+      appStatus.showError(error instanceof Error ? error.message : 'Sepet guncellenemedi.');
+    }
+  };
+
+  const removeBasketItem = async (itemId: string) => {
+    try {
+      await basket.removeItem(itemId);
+    } catch (error) {
+      appStatus.showError(error instanceof Error ? error.message : 'Urun sepetten silinemedi.');
+    }
+  };
+
   const placeOrder = async (payload: Parameters<typeof orders.placeOrder>[0]) => {
     try {
       appStatus.showLoading('Siparis olusturuluyor...');
@@ -89,7 +105,7 @@ export function useAppShell() {
     error: catalog.error,
   };
   const basketStatus = {
-    isLoading: basket.isLoading || basket.isAddingItem,
+    isLoading: basket.isLoading || basket.isAddingItem || basket.isUpdatingItem,
     error: basket.error,
   };
   const ordersStatus = {
@@ -167,6 +183,8 @@ export function useAppShell() {
     lastOrderStatus: orders.lastOrder?.status,
     signIn,
     addItem,
+    updateBasketItem,
+    removeBasketItem,
     placeOrder,
     signOut,
   };

@@ -76,6 +76,8 @@ function AppShell() {
                 error={app.status.basket.error}
                 onProceedCheckout={app.checkout.begin}
                 onGoMenu={() => app.setTab(ROUTES.HOME)}
+                onUpdateQuantity={(itemId, quantity) => void app.updateBasketItem(itemId, quantity)}
+                onRemoveItem={(itemId) => void app.removeBasketItem(itemId)}
               />
             )}
             {!selectedProduct && app.tab === ROUTES.BASKET && app.checkout.step === 'address' && (
