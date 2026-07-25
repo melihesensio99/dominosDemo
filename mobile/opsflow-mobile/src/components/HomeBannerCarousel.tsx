@@ -13,7 +13,7 @@ const bannerImages = [
 
 export function HomeBannerCarousel() {
   const { width: windowWidth } = useWindowDimensions();
-  const bannerWidth = Math.max(windowWidth - 32, 280);
+  const bannerWidth = Math.max(windowWidth - 48, 280);
 
   return (
     <View style={[styles.container, { width: windowWidth }]}>

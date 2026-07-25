@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   content: {
     gap: 32,
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: 24,
     alignItems: 'center',
   },
   image: {
