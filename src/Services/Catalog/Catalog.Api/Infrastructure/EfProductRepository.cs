@@ -7,11 +7,15 @@ public sealed class EfProductRepository(CatalogDbContext dbContext) : IProductRe
     public Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.Products
             .Include(x => x.Category)
+            .Include(x => x.OptionGroups)
+                .ThenInclude(x => x.Options)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken cancellationToken) =>
         await dbContext.Products
             .Include(x => x.Category)
+            .Include(x => x.OptionGroups)
+                .ThenInclude(x => x.Options)
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
 

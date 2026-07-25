@@ -8,6 +8,10 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
 
     public DbSet<Category> Categories => Set<Category>();
 
+    public DbSet<ProductOptionGroup> ProductOptionGroups => Set<ProductOptionGroup>();
+
+    public DbSet<ProductOption> ProductOptions => Set<ProductOption>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -40,6 +44,36 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ProductOptionGroup>(entity =>
+        {
+            entity.ToTable("product_option_groups");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            entity.Property(x => x.SelectionType).IsRequired().HasMaxLength(20);
+            entity.Property(x => x.IsRequired).IsRequired();
+            entity.Property(x => x.DisplayOrder).IsRequired();
+            entity.HasIndex(x => new { x.ProductId, x.DisplayOrder });
+            entity.HasOne(x => x.Product)
+                .WithMany(x => x.OptionGroups)
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ProductOption>(entity =>
+        {
+            entity.ToTable("product_options");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            entity.Property(x => x.PriceAdjustment).HasPrecision(18, 2);
+            entity.Property(x => x.IsActive).IsRequired();
+            entity.Property(x => x.DisplayOrder).IsRequired();
+            entity.HasIndex(x => new { x.ProductOptionGroupId, x.DisplayOrder });
+            entity.HasOne(x => x.ProductOptionGroup)
+                .WithMany(x => x.Options)
+                .HasForeignKey(x => x.ProductOptionGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
