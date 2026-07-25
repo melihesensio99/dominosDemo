@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace BuildingBlocks.Web;
 
@@ -21,6 +23,7 @@ public static class GlobalExceptionHandlerExtensions
                 }
 
                 context.Response.ContentType = "application/problem+json";
+                var environment = context.RequestServices.GetRequiredService<IHostEnvironment>();
 
                 switch (exception)
                 {
@@ -47,7 +50,9 @@ public static class GlobalExceptionHandlerExtensions
                         {
                             Status = StatusCodes.Status500InternalServerError,
                             Title = "Unexpected error",
-                            Detail = "An unexpected error occurred.",
+                            Detail = environment.IsDevelopment()
+                                ? exception.Message
+                                : "An unexpected error occurred.",
                         });
                         break;
                 }
