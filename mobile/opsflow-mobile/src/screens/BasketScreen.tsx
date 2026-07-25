@@ -109,7 +109,7 @@ export function BasketScreen({
                       style={styles.deleteButton}
                       onPress={() => onRemoveItem(item.id)}
                     >
-                      <Text style={styles.deleteIcon}>♧</Text>
+                      <Text style={styles.deleteIcon}>🗑</Text>
                     </Pressable>
                   </View>
                 </View>
