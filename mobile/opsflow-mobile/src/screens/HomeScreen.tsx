@@ -59,18 +59,20 @@ export function HomeScreen({
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <HomeBannerCarousel />
 
-        <SectionTitle title="Sipariş durumu" />
-        <View style={styles.statusCard}>
-          <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
-            {lastOrderStatus
-              ? getOrderStatusText(lastOrderStatus)
-              : isLoading
-                ? 'Son sipariş bilgisi yükleniyor...'
-                : error
-                  ? error instanceof Error ? error.message : 'Sipariş verilemedi.'
-                  : 'Henüz aktif bir siparişin yok.'}
-          </Text>
-        </View>
+        {lastOrderStatus || isLoading || error ? (
+          <>
+            <SectionTitle title="Sipariş durumu" />
+            <View style={styles.statusCard}>
+              <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
+                {lastOrderStatus
+                  ? getOrderStatusText(lastOrderStatus)
+                  : isLoading
+                    ? 'Son sipariş bilgisi yükleniyor...'
+                    : error instanceof Error ? error.message : 'Sipariş verilemedi.'}
+              </Text>
+            </View>
+          </>
+        ) : null}
 
         <SectionTitle title="Kategoriler" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
@@ -83,13 +85,6 @@ export function HomeScreen({
             />
           ))}
         </ScrollView>
-
-        {lastOrderStatus ? (
-          <View style={styles.orderBanner}>
-            <Text style={styles.orderBannerTitle}>Siparisiniz alindi</Text>
-            <Text style={styles.orderBannerText}>{getOrderStatusText(lastOrderStatus)}</Text>
-          </View>
-        ) : null}
 
         <SectionTitle title={selectedCategory === null ? 'Tum urunler' : 'Secilen kategori'} />
         {visibleProducts.length > 0 ? (

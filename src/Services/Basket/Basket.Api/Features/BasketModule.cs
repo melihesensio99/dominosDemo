@@ -31,7 +31,21 @@ public static class BasketModule
         });
 
         services.AddSingleton(_ =>
-            GrpcChannel.ForAddress(configuration["InventoryGrpc:Url"] ?? "http://localhost:5083"));
+        {
+            var channelOptions = new GrpcChannelOptions();
+
+            if (configuration.GetValue<bool>("InventoryGrpc:AllowInvalidCertificate"))
+            {
+                channelOptions.HttpHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+                };
+            }
+
+            return GrpcChannel.ForAddress(
+                configuration["InventoryGrpc:Url"] ?? "http://localhost:5083",
+                channelOptions);
+        });
         services.AddSingleton(sp =>
             new InventoryStockService.InventoryStockServiceClient(sp.GetRequiredService<GrpcChannel>()));
         services.AddSingleton<IInventoryStockClient, InventoryGrpcStockClient>();
