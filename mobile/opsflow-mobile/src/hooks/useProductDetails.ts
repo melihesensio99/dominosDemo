@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Product } from '../types/catalog';
 
 export function useProductDetails(product: Product) {
+  const [quantity, setQuantity] = useState(1);
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(() =>
     product.optionGroups
       .flatMap((group) => group.options)
@@ -35,7 +36,10 @@ export function useProductDetails(product: Product) {
 
   return {
     selectedOptionIds,
-    totalPrice: product.price + selectedOptions.reduce((total, option) => total + option.priceAdjustment, 0),
+    quantity,
+    increaseQuantity: () => setQuantity((current) => current + 1),
+    decreaseQuantity: () => setQuantity((current) => Math.max(1, current - 1)),
+    totalPrice: (product.price + selectedOptions.reduce((total, option) => total + option.priceAdjustment, 0)) * quantity,
     missingRequiredGroupName: missingRequiredGroup?.name,
     toggleOption,
   };

@@ -8,6 +8,9 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 12,
   },
+  imageContainer: { position: 'relative' },
+  imageAction: { position: 'absolute', right: 10, bottom: 10, width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, borderWidth: 3, borderColor: theme.colors.surface },
+  imageActionText: { color: '#fff', fontSize: 30, lineHeight: 32, fontWeight: '400' },
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,

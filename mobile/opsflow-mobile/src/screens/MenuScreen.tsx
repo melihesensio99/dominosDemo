@@ -12,9 +12,10 @@ interface MenuScreenProps {
   isLoading?: boolean;
   error?: unknown;
   onAdd: (product: Product) => void;
+  onOpenProduct?: (product: Product) => void;
 }
 
-export function MenuScreen({ categories, products, isLoading, error, onAdd }: MenuScreenProps) {
+export function MenuScreen({ categories, products, isLoading, error, onAdd, onOpenProduct }: MenuScreenProps) {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const visibleProducts = useMemo(() => {
@@ -60,7 +61,7 @@ export function MenuScreen({ categories, products, isLoading, error, onAdd }: Me
         {visibleProducts.length > 0 ? (
           <View style={styles.list}>
             {visibleProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={onAdd} />
+              <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />
             ))}
           </View>
         ) : isLoading ? (

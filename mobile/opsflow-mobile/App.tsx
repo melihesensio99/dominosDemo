@@ -43,9 +43,9 @@ function AppShell() {
               <ProductDetailsScreen
                 product={selectedProduct}
                 onBack={() => setSelectedProduct(null)}
-                onAdd={(optionIds) => {
+                onAdd={(optionIds, quantity) => {
                   setSelectedProduct(null);
-                  void app.addItem(selectedProduct.id, optionIds);
+                  void app.addItem(selectedProduct.id, optionIds, quantity);
                 }}
               />
             ) : app.tab === ROUTES.HOME && (
@@ -62,6 +62,7 @@ function AppShell() {
 
                   setSelectedProduct(product);
                 }}
+                onOpenProduct={setSelectedProduct}
                 lastOrderStatus={app.lastOrderStatus}
                 isLoading={app.status.orders.isLoading}
                 error={app.status.orders.error}

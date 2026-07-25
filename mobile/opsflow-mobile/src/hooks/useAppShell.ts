@@ -34,7 +34,7 @@ export function useAppShell() {
     }
   };
 
-  const addItem = async (productId: string, selectedOptionIds: string[] = []) => {
+  const addItem = async (productId: string, selectedOptionIds: string[] = [], quantity = 1) => {
     if (!auth.user) {
       ui.setTab(ROUTES.ACCOUNT);
       return;
@@ -42,7 +42,7 @@ export function useAppShell() {
 
     try {
       appStatus.showLoading('Urun sepete ekleniyor...');
-      await basket.addItem(productId, selectedOptionIds);
+      await basket.addItem(productId, selectedOptionIds, quantity);
       appStatus.hideLoading();
       appStatus.showSuccess('Urun sepete eklendi.');
       ui.setTab(ROUTES.BASKET);

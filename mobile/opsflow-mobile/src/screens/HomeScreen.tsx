@@ -13,6 +13,7 @@ interface HomeScreenProps {
   isCatalogLoading?: boolean;
   catalogError?: unknown;
   onAdd: (product: Product) => void;
+  onOpenProduct?: (product: Product) => void;
   lastOrderStatus?: string;
   isLoading?: boolean;
   error?: unknown;
@@ -37,6 +38,7 @@ export function HomeScreen({
   isCatalogLoading,
   catalogError,
   onAdd,
+  onOpenProduct,
   lastOrderStatus,
   isLoading,
   error,
@@ -89,7 +91,7 @@ export function HomeScreen({
         <SectionTitle title={selectedCategory === null ? 'Tum urunler' : 'Secilen kategori'} />
         {visibleProducts.length > 0 ? (
           <View style={styles.productList}>
-            {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} />)}
+            {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />)}
           </View>
         ) : isCatalogLoading ? (
           <EmptyState title="Urunler yukleniyor" message="Urunler backend'den getiriliyor." />

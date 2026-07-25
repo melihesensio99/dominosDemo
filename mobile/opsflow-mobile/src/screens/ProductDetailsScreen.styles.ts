@@ -3,7 +3,7 @@ import { theme } from '../theme';
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: theme.spacing.lg, paddingBottom: 36, gap: 16 },
+  content: { padding: theme.spacing.lg, paddingBottom: 150, gap: 16 },
   image: { width: '100%', height: 220, borderRadius: theme.radius.lg, backgroundColor: theme.colors.surface },
   title: { color: theme.colors.text, fontSize: 26, fontWeight: '900' },
   description: { color: theme.colors.muted, lineHeight: 21 },
@@ -14,6 +14,12 @@ export const styles = StyleSheet.create({
   optionName: { color: theme.colors.text, fontWeight: '700' },
   optionPrice: { color: theme.colors.muted, fontWeight: '700' },
   error: { color: theme.colors.danger, fontWeight: '700' },
-  addButton: { backgroundColor: theme.colors.primary, borderRadius: 18, paddingVertical: 16, alignItems: 'center' },
+  bottomBar: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: theme.colors.surface, borderTopWidth: 1, borderTopColor: theme.colors.border },
+  quantityControl: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.colors.surfaceSoft, borderRadius: 18, padding: 6 },
+  quantityButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary },
+  quantityButtonText: { color: '#fff', fontSize: 24, lineHeight: 26, fontWeight: '800' },
+  quantity: { minWidth: 22, textAlign: 'center', color: theme.colors.text, fontSize: 17, fontWeight: '800' },
+  addButton: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', backgroundColor: theme.colors.success, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 15, alignItems: 'center' },
   addButtonText: { color: '#fff', fontSize: 16, fontWeight: '900' },
+  addButtonPrice: { color: '#fff', fontSize: 17, fontWeight: '900' },
 });

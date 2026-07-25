@@ -20,7 +20,7 @@ export function useBasket(customerId?: string | null) {
     },
   });
 
-  const addItem = async (productId: string, selectedOptionIds: string[] = []) => {
+  const addItem = async (productId: string, selectedOptionIds: string[] = [], quantity = 1) => {
     if (!customerId) {
       return;
     }
@@ -28,7 +28,7 @@ export function useBasket(customerId?: string | null) {
     try {
       setIsAddingItem(true);
       setActionError(null);
-      await basketService.addItem({ productId, quantity: 1, selectedOptionIds });
+      await basketService.addItem({ productId, quantity, selectedOptionIds });
       await queryClient.invalidateQueries({ queryKey: ['basket'] });
     } catch (cause) {
       setActionError(cause instanceof Error ? cause : new Error('Sepete eklenemedi.'));

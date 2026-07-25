@@ -3,14 +3,17 @@ import { theme } from '../theme';
 
 export const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: 18,
     paddingBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
+  backButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  backText: { color: '#fff', fontSize: 38, lineHeight: 38, fontWeight: '300' },
   title: {
     color: '#fff',
     fontSize: 20,
