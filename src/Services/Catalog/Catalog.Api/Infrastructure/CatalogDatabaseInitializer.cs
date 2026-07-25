@@ -72,12 +72,12 @@ public static class CatalogDatabaseInitializer
 
         var pizzaDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Ac\u0131l\u0131 Kavurma"] = "Pizza sosu, mozzarella peyniri, kavurma, yesil biber ve aci biber.",
+            ["Ac\u0131l\u0131 Kavurma"] = "Pizza sosu, mozzarella peyniri, kavurma, ye\u015fil biber ve ac\u0131 biber.",
             ["D\u00f6rt Peynirli"] = "Pizza sosu, mozzarella, cheddar, gorgonzola ve parmesan peyniri.",
-            ["Kar\u0131\u015f\u0131k Lezzet"] = "Pizza sosu, mozzarella peyniri, sucuk, mantar, yesil biber ve kirmizi biber.",
-            ["Margarita"] = "Pizza sosu, mozzarella peyniri ve taze feslegen.",
+            ["Kar\u0131\u015f\u0131k Lezzet"] = "Pizza sosu, mozzarella peyniri, sucuk, mantar, ye\u015fil biber ve k\u0131rm\u0131z\u0131 biber.",
+            ["Margarita"] = "Pizza sosu, mozzarella peyniri ve taze fesle\u011fen.",
             ["Pepperoni"] = "Pizza sosu, mozzarella peyniri ve pepperoni.",
-            ["Vejetaryen"] = "Pizza sosu, mozzarella peyniri, mantar, yesil biber, kirmizi biber, misir, siyah zeytin ve sogan.",
+            ["Vejetaryen"] = "Pizza sosu, mozzarella peyniri, mantar, ye\u015fil biber, k\u0131rm\u0131z\u0131 biber, m\u0131s\u0131r, siyah zeytin ve so\u011fan.",
         };
 
         var pizzas = await dbContext.Products
