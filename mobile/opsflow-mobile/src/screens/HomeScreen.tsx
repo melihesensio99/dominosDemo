@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
+import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
 import { ProductCard } from '../components/ProductCard';
 import type { Category, Product } from '../types/catalog';
 import { styles } from './HomeScreen.styles';
@@ -56,6 +57,21 @@ export function HomeScreen({
     <View style={styles.container}>
       <AppHeader title="Domino's benzeri" subtitle="Urunleri kesfet ve sepete ekle" badge="MVP" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <HomeBannerCarousel />
+
+        <SectionTitle title="Sipariş durumu" />
+        <View style={styles.statusCard}>
+          <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
+            {lastOrderStatus
+              ? getOrderStatusText(lastOrderStatus)
+              : isLoading
+                ? 'Son sipariş bilgisi yükleniyor...'
+                : error
+                  ? error instanceof Error ? error.message : 'Sipariş verilemedi.'
+                  : 'Henüz aktif bir siparişin yok.'}
+          </Text>
+        </View>
+
         <SectionTitle title="Kategoriler" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           {orderedCategories.map((category) => (
@@ -91,18 +107,6 @@ export function HomeScreen({
           <EmptyState title="Bu kategoride urun yok" message="Bu kategoriye urun eklendiginde burada gorunecek." />
         )}
 
-        <SectionTitle title="Son durum" />
-        <View style={styles.statusCard}>
-          <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
-            {lastOrderStatus
-              ? getOrderStatusText(lastOrderStatus)
-              : isLoading
-                ? 'Son siparis bilgisi yukleniyor...'
-                : error
-                  ? error instanceof Error ? error.message : 'Siparis verilemedi.'
-                  : 'Henuz siparis yok.'}
-          </Text>
-        </View>
       </ScrollView>
     </View>
   );
