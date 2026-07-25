@@ -4,7 +4,12 @@ import { theme } from '../theme';
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: theme.spacing.lg, paddingBottom: 150, gap: 16 },
-  image: { width: '100%', height: 220, borderRadius: theme.radius.lg, backgroundColor: theme.colors.surface },
+  image: {
+    width: '100%',
+    aspectRatio: 1.6,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.surface,
+  },
   title: { color: theme.colors.text, fontSize: 26, fontWeight: '900' },
   description: { color: theme.colors.muted, lineHeight: 21 },
   group: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: 16, gap: 10, borderWidth: 1, borderColor: theme.colors.border },
