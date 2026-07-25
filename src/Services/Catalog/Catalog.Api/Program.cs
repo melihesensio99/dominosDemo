@@ -3,6 +3,9 @@ using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 CatalogModule.ConfigureServices(builder.Services, builder.Configuration);
 
 builder.Services.AddMassTransit(x =>
