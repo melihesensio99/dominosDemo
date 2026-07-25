@@ -1,48 +1,113 @@
-import { Pressable, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
-import { SectionCard } from '../components/SectionCard';
+import { EmptyState } from '../components/EmptyState';
+import { ProductCard } from '../components/ProductCard';
+import type { Category, Product } from '../types/catalog';
 import { styles } from './HomeScreen.styles';
 
 interface HomeScreenProps {
-  onGoMenu: () => void;
+  categories: Category[];
+  products: Product[];
+  isCatalogLoading?: boolean;
+  catalogError?: unknown;
+  onAdd: (product: Product) => void;
   lastOrderStatus?: string;
   isLoading?: boolean;
   error?: unknown;
 }
 
-export function HomeScreen({ onGoMenu, lastOrderStatus, isLoading, error }: HomeScreenProps) {
+function getOrderStatusText(status?: string) {
+  switch (status) {
+    case 'pending': return 'Siparisiniz alindi, hazirlaniyor.';
+    case 'confirmed': return 'Siparisiniz onaylandi.';
+    case 'preparing': return 'Siparisiniz hazirlaniyor.';
+    case 'shipped': return 'Siparisiniz yola cikti.';
+    case 'delivered': return 'Siparisiniz teslim edildi.';
+    default: return status;
+  }
+}
+
+export function HomeScreen({
+  categories,
+  products,
+  isCatalogLoading,
+  catalogError,
+  onAdd,
+  lastOrderStatus,
+  isLoading,
+  error,
+}: HomeScreenProps) {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const visibleProducts = useMemo(
+    () => selectedCategory === 'all'
+      ? products
+      : products.filter((product) => product.categoryId === selectedCategory),
+    [products, selectedCategory],
+  );
+
   return (
     <View style={styles.container}>
-      <AppHeader title="Domino's benzeri" subtitle="Basit sipariş uygulaması" badge="MVP" />
+      <AppHeader title="Domino's benzeri" subtitle="Urunleri kesfet ve sepete ekle" badge="MVP" />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <SectionTitle title="Kategoriler" />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+          <Pressable
+            onPress={() => setSelectedCategory('all')}
+            style={[styles.chip, selectedCategory === 'all' && styles.chipActive]}
+          >
+            <Text style={[styles.chipText, selectedCategory === 'all' && styles.chipTextActive]}>Tumu</Text>
+          </Pressable>
+          {categories.map((category) => (
+            <Pressable
+              key={category.id}
+              onPress={() => setSelectedCategory(category.id)}
+              style={[styles.chip, selectedCategory === category.id && styles.chipActive]}
+            >
+              <Text style={[styles.chipText, selectedCategory === category.id && styles.chipTextActive]}>
+                {category.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
 
-      <View style={styles.content}>
-        <SectionCard>
-          <Text style={styles.heroTitle}>Sıcak pizza, hızlı sepet, net sipariş.</Text>
-          <Text style={styles.heroText}>Menüye gir, ürünü seç, sepete ekle ve sipariş ver.</Text>
-          <View style={styles.actions}>
-            <Pressable style={styles.primaryButton} onPress={onGoMenu}>
-              <Text style={styles.primaryButtonText}>Menüye Git</Text>
-            </Pressable>
-            <Pressable style={styles.secondaryButton} onPress={onGoMenu}>
-              <Text style={styles.secondaryButtonText}>Siparişe Başla</Text>
-            </Pressable>
+        {lastOrderStatus ? (
+          <View style={styles.orderBanner}>
+            <Text style={styles.orderBannerTitle}>Siparisiniz alindi</Text>
+            <Text style={styles.orderBannerText}>{getOrderStatusText(lastOrderStatus)}</Text>
           </View>
-        </SectionCard>
+        ) : null}
 
-        <SectionCard title="Son durum">
-          <Text style={styles.infoText}>
+        <SectionTitle title={selectedCategory === 'all' ? 'Tum urunler' : 'Secilen kategori'} />
+        {visibleProducts.length > 0 ? (
+          <View style={styles.productList}>
+            {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} />)}
+          </View>
+        ) : isCatalogLoading ? (
+          <EmptyState title="Urunler yukleniyor" message="Urunler backend'den getiriliyor." />
+        ) : catalogError ? (
+          <EmptyState title="Urunler alinamadi" message={catalogError instanceof Error ? catalogError.message : 'Urunler su anda getirilemedi.'} />
+        ) : (
+          <EmptyState title="Bu kategoride urun yok" message="Bu kategoriye urun eklendiginde burada gorunecek." />
+        )}
+
+        <SectionTitle title="Son durum" />
+        <View style={styles.statusCard}>
+          <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
             {lastOrderStatus
-              ? `Son sipariş durumun: ${lastOrderStatus}`
+              ? getOrderStatusText(lastOrderStatus)
               : isLoading
-                ? 'Son sipariş bilgisi yükleniyor...'
+                ? 'Son siparis bilgisi yukleniyor...'
                 : error
-                  ? error instanceof Error
-                    ? error.message
-                    : 'Sipariş verilemedi.'
-                  : 'Henüz sipariş yok.'}
+                  ? error instanceof Error ? error.message : 'Siparis verilemedi.'
+                  : 'Henuz siparis yok.'}
           </Text>
-        </SectionCard>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
+}
+
+function SectionTitle({ title }: { title: string }) {
+  return <Text style={styles.sectionTitle}>{title}</Text>;
 }

@@ -11,7 +11,6 @@ interface BottomTabBarProps {
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: ROUTES.HOME, label: ROUTE_LABELS.home },
-  { key: ROUTES.MENU, label: ROUTE_LABELS.menu },
   { key: ROUTES.BASKET, label: ROUTE_LABELS.basket },
   { key: ROUTES.ACCOUNT, label: ROUTE_LABELS.account },
 ];

@@ -3,6 +3,7 @@ import type { UserAddress } from '../types/auth';
 import type { Address } from '../types/common';
 
 export type CheckoutStep = 'basket' | 'address' | 'payment';
+export type AddressMode = 'list' | 'create';
 
 const emptyAddress: Address = {
   street: '',
@@ -14,6 +15,7 @@ const emptyAddress: Address = {
 
 export function useCheckout(addresses: UserAddress[]) {
   const [step, setStep] = useState<CheckoutStep>('basket');
+  const [addressMode, setAddressMode] = useState<AddressMode>('list');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [draftAddress, setDraftAddress] = useState<Address>(emptyAddress);
   const [paymentMethod, setPaymentMethod] = useState(0);
@@ -26,6 +28,7 @@ export function useCheckout(addresses: UserAddress[]) {
 
   return {
     step,
+    addressMode,
     selectedAddress: addresses.find((address) => address.id === selectedAddressId),
     selectedAddressId,
     draftAddress,
@@ -34,10 +37,13 @@ export function useCheckout(addresses: UserAddress[]) {
     setDraftAddress,
     selectAddress: setSelectedAddressId,
     begin: () => setStep('address'),
+    beginAddAddress: () => setAddressMode('create'),
+    cancelAddAddress: () => setAddressMode('list'),
     goToPayment: () => setStep('payment'),
     goBack: () => setStep((current) => (current === 'payment' ? 'address' : 'basket')),
     reset: () => {
       setStep('basket');
+      setAddressMode('list');
       setSelectedAddressId(null);
       setDraftAddress(emptyAddress);
       setPaymentMethod(0);
