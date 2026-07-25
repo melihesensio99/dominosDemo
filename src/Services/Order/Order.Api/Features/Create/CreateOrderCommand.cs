@@ -18,7 +18,10 @@ public sealed record CreateOrderCommand(
     AddressRequest BillingAddress,
     PaymentMethod PaymentMethod) : IRequest<Result<OrderResponse>>;
 
-public sealed record CreateOrderItemRequest(string ProductId, int Quantity);
+public sealed record CreateOrderItemRequest(
+    string ProductId,
+    int Quantity,
+    List<Guid>? SelectedOptionIds = null);
 
 public sealed record AddressRequest(
     string Street,

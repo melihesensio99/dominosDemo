@@ -1,6 +1,6 @@
 namespace Order.Api.Features.Common;
 
-public sealed record OrderItemResponse(string ProductId, int Quantity);
+public sealed record OrderItemResponse(string ProductId, int Quantity, IReadOnlyList<Guid> SelectedOptionIds);
 
 public sealed record AddressResponse(
     string Street,

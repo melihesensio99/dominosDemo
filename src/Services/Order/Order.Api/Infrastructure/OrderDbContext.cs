@@ -54,6 +54,7 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
                 items.HasKey("Id");
                 items.Property(x => x.ProductId).IsRequired().HasMaxLength(100);
                 items.Property(x => x.Quantity).IsRequired();
+                items.Property(x => x.SelectedOptionIdsJson).IsRequired().HasMaxLength(4000);
                 items.HasIndex("OrderId");
             });
         });

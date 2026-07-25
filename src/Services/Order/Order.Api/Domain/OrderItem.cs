@@ -1,3 +1,3 @@
 namespace Order.Api.Domain;
 
-public sealed record OrderItem(string ProductId, int Quantity);
+public sealed record OrderItem(string ProductId, int Quantity, string SelectedOptionIdsJson = "[]");

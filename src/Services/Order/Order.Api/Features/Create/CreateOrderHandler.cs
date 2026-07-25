@@ -1,4 +1,5 @@
 using BuildingBlocks.Common;
+using System.Text.Json;
 using Order.Api.Abstractions;
 using Order.Api.Domain;
 using Order.Api.Features.Common;
@@ -14,7 +15,10 @@ public sealed class CreateOrderHandler(
     {
         var order = OrderEntity.Create(
             request.CustomerId,
-            request.Items.Select(item => new OrderItem(item.ProductId, item.Quantity)),
+            request.Items.Select(item => new OrderItem(
+                item.ProductId,
+                item.Quantity,
+                JsonSerializer.Serialize(item.SelectedOptionIds ?? []))),
             Address.Create(
                 request.ShippingAddress.Street,
                 request.ShippingAddress.District,

@@ -1,5 +1,7 @@
 using OrderEntity = Order.Api.Domain.Order;
 
+using System.Text.Json;
+
 namespace Order.Api.Features.Common;
 
 public static class OrderMapper
@@ -8,7 +10,10 @@ public static class OrderMapper
         new(
             order.Id,
             order.CustomerId,
-            order.Items.Select(item => new OrderItemResponse(item.ProductId, item.Quantity)).ToList(),
+            order.Items.Select(item => new OrderItemResponse(
+                item.ProductId,
+                item.Quantity,
+                JsonSerializer.Deserialize<List<Guid>>(item.SelectedOptionIdsJson) ?? [])).ToList(),
             new AddressResponse(
                 order.ShippingAddress.Street,
                 order.ShippingAddress.District,

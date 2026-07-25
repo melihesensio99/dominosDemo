@@ -152,7 +152,7 @@ export function getMyOrders() {
 }
 
 export function createOrder(body: {
-  items: { productId: string; quantity: number }[];
+  items: { productId: string; quantity: number; selectedOptionIds: string[] }[];
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: number;

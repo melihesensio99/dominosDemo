@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { orderService } from '../services';
+import { basketService, orderService } from '../services';
 import type { Address } from '../types/common';
 import type { Basket } from '../types/basket';
 
@@ -48,12 +48,15 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
         items: basket.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          selectedOptionIds: item.selectedOptions.map((option) => option.optionId),
         })),
         shippingAddress,
         billingAddress,
         paymentMethod,
       });
 
+      // The order is now owned by Order API; remove the checkout basket afterwards.
+      await basketService.clearBasket();
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       await queryClient.invalidateQueries({ queryKey: ['basket'] });
       return order;
