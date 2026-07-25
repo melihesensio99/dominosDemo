@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
 import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
@@ -75,15 +75,12 @@ export function HomeScreen({
         <SectionTitle title="Kategoriler" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           {orderedCategories.map((category) => (
-            <Pressable
+            <AnimatedCategoryChip
               key={category.id}
+              category={category}
+              active={selectedCategory === category.id}
               onPress={() => setSelectedCategory(category.id)}
-              style={[styles.chip, selectedCategory === category.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, selectedCategory === category.id && styles.chipTextActive]}>
-                {category.name}
-              </Text>
-            </Pressable>
+            />
           ))}
         </ScrollView>
 
@@ -114,4 +111,41 @@ export function HomeScreen({
 
 function SectionTitle({ title }: { title: string }) {
   return <Text style={styles.sectionTitle}>{title}</Text>;
+}
+
+function AnimatedCategoryChip({
+  category,
+  active,
+  onPress,
+}: {
+  category: Category;
+  active: boolean;
+  onPress: () => void;
+}) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const iconBySlug: Record<string, string> = {
+    pizzalar: '🍕',
+    patatesler: '🍟',
+    tatlilar: '🍰',
+    soslar: '🥣',
+    icecekler: '🥤',
+  };
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: active ? 1.05 : 1,
+      useNativeDriver: true,
+      friction: 7,
+      tension: 90,
+    }).start();
+  }, [active, scale]);
+
+  return (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+        <Text style={styles.categoryIcon}>{iconBySlug[category.slug] ?? '🍽️'}</Text>
+        <Text style={[styles.chipText, active && styles.chipTextActive]}>{category.name}</Text>
+      </Pressable>
+    </Animated.View>
+  );
 }

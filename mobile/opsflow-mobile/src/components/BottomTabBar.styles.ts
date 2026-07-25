@@ -17,6 +17,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
+  iconWrap: { height: 24, alignItems: 'center', justifyContent: 'center' },
+  icon: { color: theme.colors.muted, fontSize: 21 },
+  iconActive: { color: theme.colors.primary },
   label: {
     color: theme.colors.muted,
     fontSize: 11,
