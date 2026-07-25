@@ -12,7 +12,7 @@ public sealed class RemoveBasketItemHandler(IBasketRepository basketRepository) 
             return Result<BasketResponse>.Success(ShoppingBasket.Create(request.CustomerId).ToResponse());
         }
 
-        if (!basket.RemoveItem(request.ProductId))
+        if (!basket.RemoveItem(request.ItemId))
         {
             return Result<BasketResponse>.NotFound("basket.item_not_found", "Basket item was not found.");
         }

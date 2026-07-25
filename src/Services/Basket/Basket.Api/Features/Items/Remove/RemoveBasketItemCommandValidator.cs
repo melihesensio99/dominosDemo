@@ -7,6 +7,6 @@ public sealed class RemoveBasketItemCommandValidator : AbstractValidator<RemoveB
     public RemoveBasketItemCommandValidator()
     {
         RuleFor(x => x.CustomerId).NotEmpty();
-        RuleFor(x => x.ProductId).NotEmpty();
+        RuleFor(x => x.ItemId).NotEmpty();
     }
 }

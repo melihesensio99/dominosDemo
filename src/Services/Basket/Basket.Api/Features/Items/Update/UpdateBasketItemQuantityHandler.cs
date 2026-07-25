@@ -6,7 +6,19 @@ public sealed class UpdateBasketItemQuantityHandler(IBasketRepository basketRepo
 {
     public async Task<Result<BasketResponse>> Handle(UpdateBasketItemQuantityCommand request, CancellationToken cancellationToken)
     {
-        var stockResult = await stockClient.GetStockAsync(request.ProductId, cancellationToken);
+        var basket = await basketRepository.GetAsync(request.CustomerId, cancellationToken);
+        if (basket is null)
+        {
+            return Result<BasketResponse>.NotFound("basket.not_found", "Basket was not found.");
+        }
+
+        var basketItem = basket.Items.FirstOrDefault(item => item.Id == request.ItemId);
+        if (basketItem is null)
+        {
+            return Result<BasketResponse>.NotFound("basket.item_not_found", "Basket item was not found.");
+        }
+
+        var stockResult = await stockClient.GetStockAsync(basketItem.ProductId, cancellationToken);
         if (!stockResult.IsSuccess || stockResult.Value is null)
         {
             return Result<BasketResponse>.Failure(stockResult.Error?.Code ?? "stock_error", stockResult.Error?.Message ?? "Stock could not be loaded.");
@@ -15,16 +27,10 @@ public sealed class UpdateBasketItemQuantityHandler(IBasketRepository basketRepo
         var stock = stockResult.Value;
         if (!stock.CanFit(request.Quantity))
         {
-            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for product {request.ProductId}.");
+            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for product {basketItem.ProductId}.");
         }
 
-        var basket = await basketRepository.GetAsync(request.CustomerId, cancellationToken);
-        if (basket is null)
-        {
-            return Result<BasketResponse>.NotFound("basket.not_found", "Basket was not found.");
-        }
-
-        if (!basket.UpdateItemQuantity(request.ProductId, request.Quantity))
+        if (!basket.UpdateItemQuantity(request.ItemId, request.Quantity))
         {
             return Result<BasketResponse>.NotFound("basket.item_not_found", "Basket item was not found.");
         }

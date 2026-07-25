@@ -25,6 +25,11 @@ public static class BasketModule
 
         services.AddSingleton<IBasketRepository, RedisBasketRepository>();
 
+        services.AddHttpClient<ICatalogProductClient, CatalogProductClient>(client =>
+        {
+            client.BaseAddress = new Uri(configuration["CatalogApi:Url"] ?? "http://localhost:5174/");
+        });
+
         services.AddSingleton(_ =>
             GrpcChannel.ForAddress(configuration["InventoryGrpc:Url"] ?? "http://localhost:5083"));
         services.AddSingleton(sp =>

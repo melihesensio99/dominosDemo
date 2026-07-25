@@ -8,14 +8,14 @@ public static class RemoveBasketItemEndpoint
 {
     public static IEndpointRouteBuilder MapRemoveBasketItemEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapDelete("/baskets/me/items/{productId}", async (ClaimsPrincipal user, string productId, ISender sender, CancellationToken cancellationToken) =>
+        app.MapDelete("/baskets/me/items/{itemId}", async (ClaimsPrincipal user, Guid itemId, ISender sender, CancellationToken cancellationToken) =>
         {
             if (!user.TryGetUserId(out var customerId))
             {
                 return Results.Unauthorized();
             }
 
-            var result = await sender.Send(new RemoveBasketItemCommand(customerId, productId), cancellationToken);
+            var result = await sender.Send(new RemoveBasketItemCommand(customerId, itemId), cancellationToken);
             return result.ToHttpResult();
         }).RequireAuthorization();
 

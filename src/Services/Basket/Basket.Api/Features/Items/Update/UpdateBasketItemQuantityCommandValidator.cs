@@ -7,7 +7,7 @@ public sealed class UpdateBasketItemQuantityCommandValidator : AbstractValidator
     public UpdateBasketItemQuantityCommandValidator()
     {
         RuleFor(x => x.CustomerId).NotEmpty();
-        RuleFor(x => x.ProductId).NotEmpty();
+        RuleFor(x => x.ItemId).NotEmpty();
         RuleFor(x => x.Quantity).GreaterThan(0);
     }
 }
