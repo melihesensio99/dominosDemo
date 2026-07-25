@@ -44,6 +44,7 @@ public sealed class CreateProductHandler(
                             Name = option.Name.Trim(),
                             PriceAdjustment = option.PriceAdjustment,
                             DisplayOrder = option.DisplayOrder,
+                            IsDefault = option.IsDefault,
                         })
                         .ToList(),
                 })

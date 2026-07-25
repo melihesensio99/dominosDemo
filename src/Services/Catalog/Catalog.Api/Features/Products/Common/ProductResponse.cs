@@ -26,5 +26,6 @@ public sealed record ProductOptionResponse(
     Guid Id,
     string Name,
     decimal PriceAdjustment,
+    bool IsDefault,
     bool IsActive,
     int DisplayOrder);

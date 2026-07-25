@@ -22,4 +22,5 @@ public sealed record CreateProductOptionGroup(
 public sealed record CreateProductOption(
     string Name,
     decimal PriceAdjustment,
-    int DisplayOrder = 0);
+    int DisplayOrder = 0,
+    bool IsDefault = false);

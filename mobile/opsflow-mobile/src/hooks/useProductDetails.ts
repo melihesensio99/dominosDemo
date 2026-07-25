@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react';
 import type { Product } from '../types/catalog';
 
 export function useProductDetails(product: Product) {
-  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
+  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(() =>
+    product.optionGroups
+      .flatMap((group) => group.options)
+      .filter((option) => option.isDefault)
+      .map((option) => option.id),
+  );
 
   const toggleOption = (groupId: string, optionId: string, selectionType: 'single' | 'multiple') => {
     const group = product.optionGroups.find((item) => item.id === groupId);

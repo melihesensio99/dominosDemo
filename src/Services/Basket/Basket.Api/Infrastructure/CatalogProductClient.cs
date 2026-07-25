@@ -31,6 +31,7 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
                         group.Name,
                         option.Name,
                         option.PriceAdjustment,
+                        option.IsDefault,
                         option.IsActive)).ToArray())).ToArray()));
         }
 
@@ -57,6 +58,7 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
         Guid Id,
         string Name,
         decimal PriceAdjustment,
+        bool IsDefault,
         bool IsActive,
         int DisplayOrder);
 }

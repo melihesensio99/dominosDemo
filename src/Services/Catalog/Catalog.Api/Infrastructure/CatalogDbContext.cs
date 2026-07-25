@@ -68,6 +68,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).IsRequired().HasMaxLength(150);
             entity.Property(x => x.PriceAdjustment).HasPrecision(18, 2);
+            entity.Property(x => x.IsDefault).IsRequired();
             entity.Property(x => x.IsActive).IsRequired();
             entity.Property(x => x.DisplayOrder).IsRequired();
             entity.HasIndex(x => new { x.ProductOptionGroupId, x.DisplayOrder });

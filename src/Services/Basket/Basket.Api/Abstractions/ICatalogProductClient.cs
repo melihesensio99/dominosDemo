@@ -24,4 +24,5 @@ public sealed record CatalogOptionSnapshot(
     string GroupName,
     string Name,
     decimal PriceAdjustment,
+    bool IsDefault,
     bool IsActive);

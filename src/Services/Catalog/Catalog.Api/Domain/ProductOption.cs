@@ -12,6 +12,8 @@ public sealed class ProductOption
 
     public decimal PriceAdjustment { get; set; }
 
+    public bool IsDefault { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     public int DisplayOrder { get; set; }

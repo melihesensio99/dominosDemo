@@ -27,6 +27,7 @@ public static class ProductMapper
                             option.Id,
                             option.Name,
                             option.PriceAdjustment,
+                            option.IsDefault,
                             option.IsActive,
                             option.DisplayOrder))
                         .ToArray()))

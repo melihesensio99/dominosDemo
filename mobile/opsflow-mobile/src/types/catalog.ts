@@ -26,6 +26,7 @@ export interface ProductOption {
   id: string;
   name: string;
   priceAdjustment: number;
+  isDefault: boolean;
   isActive: boolean;
   displayOrder: number;
 }
