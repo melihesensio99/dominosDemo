@@ -2,6 +2,7 @@ import { Dimensions, Image, ScrollView, View } from 'react-native';
 import { styles } from './HomeBannerCarousel.styles';
 
 const bannerWidth = Dimensions.get('window').width - 32;
+const bannerGap = 32;
 
 const bannerImages = [
   'https://res.cloudinary.com/dc2j01x6b/image/upload/WhatsApp_Image_2026-07-25_at_19.14.43.jpg',
@@ -19,7 +20,7 @@ export function HomeBannerCarousel() {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
-        snapToInterval={bannerWidth + 12}
+        snapToInterval={bannerWidth + bannerGap}
         contentContainerStyle={styles.content}
       >
         {bannerImages.map((imageUrl) => (

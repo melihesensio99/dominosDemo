@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: -theme.spacing.lg,
   },
   content: {
-    gap: 12,
+    gap: 32,
     paddingHorizontal: theme.spacing.lg,
   },
   image: {
