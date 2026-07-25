@@ -56,12 +56,50 @@ public static class CatalogDatabaseInitializer
             .Where(category => !existingSlugs.Contains(category.Slug))
             .ToArray();
 
-        if (missingCategories.Length == 0)
+        if (missingCategories.Length > 0)
+        {
+            await dbContext.Categories.AddRangeAsync(missingCategories, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var pizzaCategory = await dbContext.Categories
+            .SingleOrDefaultAsync(category => category.Slug == "pizzalar", cancellationToken);
+
+        if (pizzaCategory is null)
         {
             return;
         }
 
-        await dbContext.Categories.AddRangeAsync(missingCategories, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var pizzaDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Ac\u0131l\u0131 Kavurma"] = "Pizza sosu, mozzarella peyniri, kavurma, yesil biber ve aci biber.",
+            ["D\u00f6rt Peynirli"] = "Pizza sosu, mozzarella, cheddar, gorgonzola ve parmesan peyniri.",
+            ["Kar\u0131\u015f\u0131k Lezzet"] = "Pizza sosu, mozzarella peyniri, sucuk, mantar, yesil biber ve kirmizi biber.",
+            ["Margarita"] = "Pizza sosu, mozzarella peyniri ve taze feslegen.",
+            ["Pepperoni"] = "Pizza sosu, mozzarella peyniri ve pepperoni.",
+            ["Vejetaryen"] = "Pizza sosu, mozzarella peyniri, mantar, yesil biber, kirmizi biber, misir, siyah zeytin ve sogan.",
+        };
+
+        var pizzas = await dbContext.Products
+            .Where(product => product.CategoryId == pizzaCategory.Id)
+            .ToListAsync(cancellationToken);
+
+        var descriptionsChanged = false;
+        foreach (var pizza in pizzas)
+        {
+            if (!pizzaDescriptions.TryGetValue(pizza.Name, out var description) || pizza.Description == description)
+            {
+                continue;
+            }
+
+            pizza.Description = description;
+            pizza.UpdatedAt = DateTimeOffset.UtcNow;
+            descriptionsChanged = true;
+        }
+
+        if (descriptionsChanged)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }
