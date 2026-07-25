@@ -30,6 +30,58 @@ function getOrderStatusText(status?: string) {
   }
 }
 
+const orderSteps = [
+  { key: 'pending', label: 'Alindi' },
+  { key: 'confirmed', label: 'Onaylandi' },
+  { key: 'preparing', label: 'Hazirlaniyor' },
+  { key: 'shipped', label: 'Yolda' },
+  { key: 'delivered', label: 'Teslim edildi' },
+];
+
+function AnimatedOrderStatus({ status }: { status: string }) {
+  const pulse = useRef(new Animated.Value(0.92)).current;
+  const activeIndex = Math.max(orderSteps.findIndex((step) => step.key === status), 0);
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.92, duration: 900, useNativeDriver: true }),
+      ]),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [pulse]);
+
+  return (
+    <View style={styles.statusCard}>
+      <View style={styles.statusHeader}>
+        <Animated.View style={[styles.statusPulse, { transform: [{ scale: pulse }] }]} />
+        <View style={styles.statusHeaderText}>
+          <Text style={styles.statusTitle}>Siparisin yolda</Text>
+          <Text style={styles.orderStatus}>{getOrderStatusText(status)}</Text>
+        </View>
+      </View>
+      <View style={styles.orderTimeline}>
+        {orderSteps.map((step, index) => {
+          const isCompleted = index <= activeIndex;
+          return (
+            <View key={step.key} style={styles.timelineStep}>
+              <View style={[styles.timelineDot, isCompleted && styles.timelineDotActive]}>
+                <Text style={[styles.timelineCheck, isCompleted && styles.timelineCheckActive]}>{isCompleted ? '✓' : ''}</Text>
+              </View>
+              <Text style={[styles.timelineLabel, isCompleted && styles.timelineLabelActive]}>{step.label}</Text>
+              {index < orderSteps.length - 1 ? (
+                <View style={[styles.timelineLine, index < activeIndex && styles.timelineLineActive]} />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
 const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/logo/logo.jpg';
 
@@ -65,7 +117,7 @@ export function HomeScreen({
         {lastOrderStatus || isLoading || error ? (
           <>
             <SectionTitle title="Sipariş durumu" />
-            <View style={styles.statusCard}>
+            {lastOrderStatus ? <AnimatedOrderStatus status={lastOrderStatus} /> : <View style={styles.statusCard}>
               <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
                 {lastOrderStatus
                   ? getOrderStatusText(lastOrderStatus)
@@ -73,7 +125,7 @@ export function HomeScreen({
                     ? 'Son sipariş bilgisi yükleniyor...'
                     : error instanceof Error ? error.message : 'Sipariş verilemedi.'}
               </Text>
-            </View>
+            </View>}
           </>
         ) : null}
 
@@ -89,7 +141,7 @@ export function HomeScreen({
           ))}
         </ScrollView>
 
-        <SectionTitle title={selectedCategory === null ? 'Tum urunler' : 'Secilen kategori'} />
+        <SectionTitle title={selectedCategory === null ? 'Tum urunler' : categories.find((category) => category.id === selectedCategory)?.name ?? 'Urunler'} />
         {visibleProducts.length > 0 ? (
           <>
             <View style={styles.productList}>
