@@ -35,6 +35,17 @@ public static class OrderOutboxMessageFactory
                     yield return CreateMessage("order.cancelled", cancelled.OccurredAt, integrationEvent);
                     break;
                 }
+                case OrderStatusChangedDomainEvent statusChanged:
+                {
+                    var integrationEvent = new OrderStatusChangedIntegrationEvent(
+                        statusChanged.OrderId,
+                        statusChanged.CustomerId,
+                        statusChanged.PreviousStatus.ToString().ToLowerInvariant(),
+                        statusChanged.NewStatus.ToString().ToLowerInvariant());
+
+                    yield return CreateMessage("order.status-changed", statusChanged.OccurredAt, integrationEvent);
+                    break;
+                }
             }
         }
     }

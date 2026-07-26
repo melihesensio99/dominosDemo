@@ -80,14 +80,31 @@ public sealed class Order
 
     public bool Cancel()
     {
-        if (Status == OrderStatus.Cancelled)
+        return ChangeStatus(OrderStatus.Cancelled);
+    }
+
+    public bool ChangeStatus(OrderStatus newStatus)
+    {
+        if (!CanTransition(Status, newStatus))
         {
             return false;
         }
 
-        Status = OrderStatus.Cancelled;
+        var previousStatus = Status;
+        Status = newStatus;
         UpdatedAt = DateTimeOffset.UtcNow;
-        AddDomainEvent(new OrderCancelledDomainEvent(Id, CustomerId));
+
+        AddDomainEvent(new OrderStatusChangedDomainEvent(
+            Id,
+            CustomerId,
+            previousStatus,
+            newStatus));
+
+        if (newStatus == OrderStatus.Cancelled)
+        {
+            AddDomainEvent(new OrderCancelledDomainEvent(Id, CustomerId));
+        }
+
         return true;
     }
 
@@ -106,4 +123,17 @@ public sealed class Order
     }
 
     private void AddDomainEvent(IDomainEvent domainEvent) => domainEvents.Add(domainEvent);
+
+    private static bool CanTransition(OrderStatus currentStatus, OrderStatus newStatus) =>
+        (currentStatus, newStatus) switch
+        {
+            (OrderStatus.Pending, OrderStatus.Confirmed) => true,
+            (OrderStatus.Pending, OrderStatus.Cancelled) => true,
+            (OrderStatus.Confirmed, OrderStatus.Preparing) => true,
+            (OrderStatus.Confirmed, OrderStatus.Cancelled) => true,
+            (OrderStatus.Preparing, OrderStatus.Shipped) => true,
+            (OrderStatus.Preparing, OrderStatus.Cancelled) => true,
+            (OrderStatus.Shipped, OrderStatus.Delivered) => true,
+            _ => false,
+        };
 }

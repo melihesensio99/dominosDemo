@@ -86,6 +86,9 @@ public sealed class OrderOutboxDispatcher(IServiceScopeFactory scopeFactory) : B
             "order.cancelled" => publishEndpoint.Publish(
                 JsonSerializer.Deserialize<OrderCancelledIntegrationEvent>(message.Payload, JsonOptions)!,
                 cancellationToken),
+            "order.status-changed" => publishEndpoint.Publish(
+                JsonSerializer.Deserialize<OrderStatusChangedIntegrationEvent>(message.Payload, JsonOptions)!,
+                cancellationToken),
             _ => Task.CompletedTask,
         };
     }
