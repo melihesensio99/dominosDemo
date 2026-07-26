@@ -2,10 +2,18 @@ using Order.Api.Features;
 using Order.Api.Infrastructure;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.ClearProviders();
+    builder.Logging.AddConsole();
+    builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
+}
 
 OrderModule.ConfigureServices(builder.Services, builder.Configuration);
 
