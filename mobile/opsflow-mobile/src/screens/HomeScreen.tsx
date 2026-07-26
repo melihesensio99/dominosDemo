@@ -21,19 +21,30 @@ interface HomeScreenProps {
 
 function getOrderStatusText(status?: string) {
   switch (status) {
-    case 'pending': return 'Siparisiniz alindi, hazirlaniyor.';
-    case 'confirmed': return 'Siparisiniz onaylandi.';
-    case 'preparing': return 'Siparisiniz hazirlaniyor.';
-    case 'shipped': return 'Siparisiniz yola cikti.';
-    case 'delivered': return 'Siparisiniz teslim edildi.';
+    case 'pending': return 'Siparişiniz oluşturuldu.';
+    case 'confirmed': return 'Siparişiniz onaylandı.';
+    case 'preparing': return 'Siparişiniz hazırlanıyor.';
+    case 'shipped': return 'Siparişiniz yola çıktı.';
+    case 'delivered': return 'Siparişiniz teslim edildi.';
     default: return status;
   }
 }
 
+function getOrderStatusTitle(status: string) {
+  switch (status) {
+    case 'pending': return 'Sipariş oluşturuldu';
+    case 'confirmed': return 'Sipariş onaylandı';
+    case 'preparing': return 'Sipariş hazırlanıyor';
+    case 'shipped': return 'Siparişiniz yolda';
+    case 'delivered': return 'Sipariş teslim edildi';
+    default: return 'Sipariş durumu';
+  }
+}
+
 const orderSteps = [
-  { key: 'pending', label: 'Alindi' },
-  { key: 'confirmed', label: 'Onaylandi' },
-  { key: 'preparing', label: 'Hazirlaniyor' },
+  { key: 'pending', label: 'Oluşturuldu' },
+  { key: 'confirmed', label: 'Onaylandı' },
+  { key: 'preparing', label: 'Hazırlanıyor' },
   { key: 'shipped', label: 'Yolda' },
   { key: 'delivered', label: 'Teslim edildi' },
 ];
@@ -58,7 +69,7 @@ function AnimatedOrderStatus({ status }: { status: string }) {
       <View style={styles.statusHeader}>
         <Animated.View style={[styles.statusPulse, { transform: [{ scale: pulse }] }]} />
         <View style={styles.statusHeaderText}>
-          <Text style={styles.statusTitle}>Siparisin yolda</Text>
+          <Text style={styles.statusTitle}>{getOrderStatusTitle(status)}</Text>
           <Text style={styles.orderStatus}>{getOrderStatusText(status)}</Text>
         </View>
       </View>

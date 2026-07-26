@@ -27,6 +27,10 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
     },
   });
 
+  const activeOrder = ordersQuery.data?.find((order) =>
+    ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status),
+  );
+
   const placeOrder = async ({
     shippingAddress,
     billingAddress,
@@ -73,7 +77,7 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
 
   return {
     orders: ordersQuery.data ?? [],
-    lastOrder: ordersQuery.data?.[0],
+    lastOrder: activeOrder,
     isLoading: ordersQuery.isLoading,
     error: actionError ?? ordersQuery.error ?? null,
     isPlacingOrder,
