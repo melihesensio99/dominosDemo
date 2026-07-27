@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Melo's Pizza | Siparis Yonetimi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #1e293b; background: #f5f7fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #2563eb; color: white; padding: 22px max(20px, calc((100% - 1120px) / 2)); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    header h1 { margin: 0; font-size: 22px; } header p { margin: 4px 0 0; opacity: .82; font-size: 13px; }
+    main { max-width: 1120px; margin: 28px auto; padding: 0 20px; }
+    .panel, .order { background: white; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 8px 24px #0f172a0b; }
+    .panel { padding: 20px; max-width: 520px; margin: 0 auto 24px; }
+    .panel h2 { margin: 0 0 16px; font-size: 18px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    input { flex: 1 1 190px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font: inherit; }
+    button { border: 0; border-radius: 10px; padding: 11px 15px; background: #2563eb; color: white; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #e2e8f0; color: #1e293b; } button.danger { background: #dc2626; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; }
+    .toolbar h2 { margin: 0; font-size: 20px; } .muted { color: #64748b; font-size: 13px; }
+    .orders { display: grid; gap: 14px; }
+    .order { padding: 18px; display: grid; gap: 14px; }
+    .order-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .order-id { font-weight: 800; overflow-wrap: anywhere; } .date { color: #64748b; font-size: 12px; margin-top: 4px; }
+    .status { display: inline-flex; border-radius: 999px; padding: 6px 10px; background: #dbeafe; color: #1d4ed8; font-weight: 800; font-size: 12px; white-space: nowrap; }
+    .status.delivered { background: #dcfce7; color: #15803d; } .status.cancelled { background: #fee2e2; color: #b91c1c; }
+    .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; color: #475569; font-size: 13px; }
+    .details strong { display: block; color: #1e293b; margin-bottom: 3px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+    .empty { text-align: center; color: #64748b; padding: 38px 20px; background: white; border-radius: 18px; border: 1px dashed #cbd5e1; }
+    .message { margin: 12px auto; max-width: 520px; padding: 12px 14px; border-radius: 10px; display: none; }
+    .message.error { display: block; background: #fee2e2; color: #991b1b; } .message.ok { display: block; background: #dcfce7; color: #166534; }
+    @media (max-width: 620px) { header { align-items: flex-start; flex-direction: column; } .order-top { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Melo's Pizza | Admin</h1><p>Siparisleri onayla, hazirla ve teslimat durumunu yonet.</p></div>
+    <button id="logoutButton" class="secondary" hidden>Cikis yap</button>
+  </header>
+
+  <main>
+    <section id="loginPanel" class="panel">
+      <h2>Admin girisi</h2>
+      <div class="row">
+        <input id="emailInput" type="email" value="admin@opsflow.ai" placeholder="E-posta" />
+        <input id="passwordInput" type="password" value="P@ssw0rd123" placeholder="Sifre" />
+        <button id="loginButton">Giris yap</button>
+      </div>
+    </section>
+    <div id="message" class="message"></div>
+
+    <section id="ordersPanel" hidden>
+      <div class="toolbar"><div><h2>Siparisler</h2><span id="connectionState" class="muted">Baglanti bekleniyor...</span></div><button id="refreshButton" class="secondary">Yenile</button></div>
+      <div id="orders" class="orders"></div>
+    </section>
+  </main>
+
+  <script>
+    const GATEWAY_URL = 'http://localhost:5022';
+    const ORDER_API_URL = 'http://localhost:5093';
+    const tokenKey = 'opsflow_admin_token';
+    const labels = { pending: 'Siparis alindi', confirmed: 'Onaylandi', preparing: 'Hazirlaniyor', shipped: 'Yolda', delivered: 'Teslim edildi', cancelled: 'Iptal edildi' };
+    const transitions = { pending: [['confirmed', 'Siparisi onayla'], ['cancelled', 'Iptal et']], confirmed: [['preparing', 'Hazirlamaya al']], preparing: [['shipped', 'Kuryeye teslim et']], shipped: [['delivered', 'Teslim edildi']], delivered: [], cancelled: [] };
+    let accessToken = localStorage.getItem(tokenKey);
+    let connection;
+
+    const $ = (id) => document.getElementById(id);
+    function showMessage(text, type = 'error') { const el = $('message'); el.textContent = text; el.className = `message ${type}`; }
+    function clearMessage() { $('message').className = 'message'; $('message').textContent = ''; }
+    function authHeaders() { return { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` }; }
+    async function api(path, options = {}) {
+      const response = await fetch(`${GATEWAY_URL}${path}`, { ...options, headers: { ...authHeaders(), ...(options.headers || {}) } });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.message || body.error || `Istek basarisiz (${response.status})`);
+      return body;
+    }
+    async function login() {
+      clearMessage(); $('loginButton').disabled = true;
+      try {
+        const response = await fetch(`${GATEWAY_URL}/proxy/auth/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('emailInput').value, password: $('passwordInput').value }) });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.message || body.error || 'Giris basarisiz.');
+        if (body.role !== 'Admin') throw new Error('Bu panel sadece Admin rolu icin kullanilabilir.');
+        accessToken = body.accessToken; localStorage.setItem(tokenKey, accessToken); await showAdminPanel(); showMessage('Admin paneline giris yapildi.', 'ok');
+      } catch (error) { showMessage(error.message); } finally { $('loginButton').disabled = false; }
+    }
+    async function loadOrders() {
+      try { renderOrders(await api('/proxy/order/orders')); } catch (error) { showMessage(error.message); }
+    }
+    function renderOrders(orders) {
+      const root = $('orders');
+      if (!orders.length) { root.innerHTML = '<div class="empty">Henuz yonetilecek siparis yok.</div>'; return; }
+      root.innerHTML = orders.map(order => {
+        const actions = (transitions[order.status] || []).map(([status, text]) => `<button data-order="${order.id}" data-status="${status}" class="${status === 'cancelled' ? 'danger' : ''}">${text}</button>`).join('');
+        const address = order.shippingAddress ? `${order.shippingAddress.district}, ${order.shippingAddress.city}` : '-';
+        return `<article class="order"><div class="order-top"><div><div class="order-id">#${order.id}</div><div class="date">${new Date(order.createdAt).toLocaleString('tr-TR')}</div></div><span class="status ${order.status}">${labels[order.status] || order.status}</span></div><div class="details"><div><strong>Musteri</strong>${order.customerId}</div><div><strong>Urun adedi</strong>${order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0}</div><div><strong>Teslimat</strong>${address}</div><div><strong>Not</strong>${order.note || 'Not yok'}</div></div>${actions ? `<div class="actions">${actions}</div>` : '<div class="muted">Bu siparis icin bekleyen bir islem yok.</div>'}</article>`;
+      }).join('');
+      root.querySelectorAll('[data-order]').forEach(button => button.addEventListener('click', () => changeStatus(button.dataset.order, button.dataset.status, button)));
+    }
+    async function changeStatus(orderId, status, button) {
+      button.disabled = true; clearMessage();
+      try { await api(`/proxy/order/admin/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }); showMessage('Siparis durumu guncellendi.', 'ok'); await loadOrders(); }
+      catch (error) { showMessage(error.message); button.disabled = false; }
+    }
+    async function startLiveUpdates() {
+      if (!window.signalR) { $('connectionState').textContent = 'Canli kutuphane yok, REST yenileme aktif.'; return; }
+      connection = new signalR.HubConnectionBuilder().withUrl(`${ORDER_API_URL}/hubs/orders`, { accessTokenFactory: () => accessToken }).withAutomaticReconnect().build();
+      connection.on('NewOrderCreated', loadOrders); connection.on('OrderStatusChanged', loadOrders);
+      try { await connection.start(); $('connectionState').textContent = 'Canli baglanti aktif'; } catch { $('connectionState').textContent = 'Canli baglanti kurulamadi, REST yenileme aktif.'; }
+    }
+    async function showAdminPanel() { $('loginPanel').hidden = true; $('ordersPanel').hidden = false; $('logoutButton').hidden = false; await loadOrders(); await startLiveUpdates(); }
+    function logout() { localStorage.removeItem(tokenKey); accessToken = null; if (connection) connection.stop(); location.reload(); }
+    $('loginButton').addEventListener('click', login); $('refreshButton').addEventListener('click', loadOrders); $('logoutButton').addEventListener('click', logout);
+    if (accessToken) showAdminPanel();
+  </script>
+</body>
+</html>

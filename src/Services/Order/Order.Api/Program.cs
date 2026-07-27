@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Connections;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,18 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.AddConsole();
     builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
 }
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AdminPanel", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(_ => true)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 OrderModule.ConfigureServices(builder.Services, builder.Configuration);
 
@@ -57,6 +70,8 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSigningKey)),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
+            NameClaimType = "sub",
+            RoleClaimType = ClaimTypes.Role,
         };
     });
 
@@ -86,6 +101,7 @@ builder.Services.AddMassTransit(x =>
 var app = builder.Build();
 
 app.UseGlobalExceptionHandler();
+app.UseCors("AdminPanel");
 app.UseAuthentication();
 app.UseAuthorization();
 

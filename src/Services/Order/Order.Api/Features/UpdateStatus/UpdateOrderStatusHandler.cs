@@ -41,15 +41,19 @@ public sealed class UpdateOrderStatusHandler(
 
         try
         {
+            var notification = new
+            {
+                orderId = order.Id,
+                customerId = order.CustomerId,
+                status = response.Status,
+                updatedAt = response.UpdatedAt,
+            };
+
             await hubContext.Clients.User(order.CustomerId).SendAsync(
-                "OrderStatusChanged",
-                new
-                {
-                    orderId = order.Id,
-                    status = response.Status,
-                    updatedAt = response.UpdatedAt,
-                },
-                cancellationToken);
+                "OrderStatusChanged", notification, cancellationToken);
+
+            await hubContext.Clients.Group(OrderTrackingHub.AdminGroup).SendAsync(
+                "OrderStatusChanged", notification, cancellationToken);
         }
         catch (Exception exception)
         {

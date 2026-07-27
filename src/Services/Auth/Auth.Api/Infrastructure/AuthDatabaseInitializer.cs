@@ -12,6 +12,7 @@ public static class AuthDatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
         await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await SeedAdminUserAsync(dbContext, cancellationToken);
     }
 
     private static async Task SeedAdminUserAsync(AuthDbContext dbContext, CancellationToken cancellationToken)
