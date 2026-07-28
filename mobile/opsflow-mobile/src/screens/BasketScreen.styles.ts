@@ -4,9 +4,10 @@ import { theme } from '../theme';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    minHeight: 0,
     backgroundColor: theme.colors.background,
   },
-  scroll: { flex: 1 },
+  scroll: { flex: 1, minHeight: 0 },
   content: {
     paddingBottom: 28,
     gap: 12,

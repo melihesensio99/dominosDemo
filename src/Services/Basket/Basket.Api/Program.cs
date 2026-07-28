@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
 {
+    AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
     builder.Logging.ClearProviders();
     builder.Logging.AddConsole();
     builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();

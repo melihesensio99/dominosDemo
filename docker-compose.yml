@@ -72,7 +72,11 @@ services:
       - SERVICE_NAME=basket
       - PORT=8006
       - ConnectionStrings__Redis=redis:6379
-      - InventoryGrpc__Url=http://inventory:8004
+      - CatalogApi__Url=http://catalog:8002/
+      - InventoryGrpc__Url=http://inventory:8007
+      - Jwt__Issuer=OpsFlow.Auth.Docker
+      - Jwt__Audience=OpsFlow.Api.Docker
+      - Jwt__SigningKey=dev-only-change-this-key-before-production-opsflow-2026
     depends_on:
       - redis
       - inventory

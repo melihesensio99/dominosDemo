@@ -8,6 +8,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    minHeight: 0,
     backgroundColor: theme.colors.background,
   },
 });
