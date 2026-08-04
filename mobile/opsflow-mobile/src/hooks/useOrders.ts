@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { basketService, orderService } from '../services';
+import { createOrderTrackingConnection } from '../services/orderTracking.service';
+import type { Order } from '../types/order';
 import type { Address } from '../types/common';
 import type { Basket } from '../types/basket';
 
@@ -17,7 +19,9 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
   const ordersQuery = useQuery({
     queryKey: ['orders', customerId],
     enabled: Boolean(customerId),
-    refetchInterval: 10000,
+    // SignalR is the primary update channel. Polling remains as a recovery
+    // path for a dropped connection or a temporarily unavailable hub.
+    refetchInterval: 30000,
     queryFn: async () => {
       if (!customerId) {
         return [];
@@ -26,6 +30,45 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       return orderService.getMyOrders();
     },
   });
+
+  useEffect(() => {
+    if (!customerId) {
+      return;
+    }
+
+    const connection = createOrderTrackingConnection((notification) => {
+      queryClient.setQueryData<Order[]>(['orders', customerId], (orders) =>
+        orders?.map((order) =>
+          order.id === notification.orderId
+            ? {
+                ...order,
+                status: notification.status,
+                updatedAt: notification.updatedAt,
+              }
+            : order,
+        ),
+      );
+
+      void queryClient.invalidateQueries({
+        queryKey: ['orders', customerId],
+      });
+    });
+
+    const startConnection = async () => {
+      try {
+        await connection.start();
+      } catch {
+        // React Query polling keeps order tracking functional while SignalR
+        // reconnects or the local Order API is unavailable.
+      }
+    };
+
+    void startConnection();
+
+    return () => {
+      void connection.stop();
+    };
+  }, [customerId, queryClient]);
 
   const activeOrder = ordersQuery.data?.find((order) =>
     ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status),

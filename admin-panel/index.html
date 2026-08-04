@@ -68,6 +68,7 @@
     const transitions = { pending: [['confirmed', 'Siparisi onayla'], ['cancelled', 'Iptal et']], confirmed: [['preparing', 'Hazirlamaya al']], preparing: [['shipped', 'Kuryeye teslim et']], shipped: [['delivered', 'Teslim edildi']], delivered: [], cancelled: [] };
     let accessToken = localStorage.getItem(tokenKey);
     let connection;
+    let fallbackRefreshTimer;
 
     const $ = (id) => document.getElementById(id);
     function showMessage(text, type = 'error') { const el = $('message'); el.textContent = text; el.className = `message ${type}`; }
@@ -111,10 +112,14 @@
       if (!window.signalR) { $('connectionState').textContent = 'Canli kutuphane yok, REST yenileme aktif.'; return; }
       connection = new signalR.HubConnectionBuilder().withUrl(`${ORDER_API_URL}/hubs/orders`, { accessTokenFactory: () => accessToken }).withAutomaticReconnect().build();
       connection.on('NewOrderCreated', loadOrders); connection.on('OrderStatusChanged', loadOrders);
+      connection.onreconnecting(() => { $('connectionState').textContent = 'Canli baglanti yeniden kuruluyor, REST yenileme aktif.'; });
+      connection.onreconnected(() => { $('connectionState').textContent = 'Canli baglanti aktif'; void loadOrders(); });
+      connection.onclose(() => { $('connectionState').textContent = 'Canli baglanti kapali, REST yenileme aktif.'; });
       try { await connection.start(); $('connectionState').textContent = 'Canli baglanti aktif'; } catch { $('connectionState').textContent = 'Canli baglanti kurulamadi, REST yenileme aktif.'; }
+      fallbackRefreshTimer = window.setInterval(() => void loadOrders(), 15000);
     }
     async function showAdminPanel() { $('loginPanel').hidden = true; $('ordersPanel').hidden = false; $('logoutButton').hidden = false; await loadOrders(); await startLiveUpdates(); }
-    function logout() { localStorage.removeItem(tokenKey); accessToken = null; if (connection) connection.stop(); location.reload(); }
+    function logout() { localStorage.removeItem(tokenKey); accessToken = null; if (fallbackRefreshTimer) window.clearInterval(fallbackRefreshTimer); if (connection) connection.stop(); location.reload(); }
     $('loginButton').addEventListener('click', login); $('refreshButton').addEventListener('click', loadOrders); $('logoutButton').addEventListener('click', logout);
     if (accessToken) showAdminPanel();
   </script>
