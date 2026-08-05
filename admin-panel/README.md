@@ -11,4 +11,4 @@ Siparis durum akisi:
 
 `pending` -> `confirmed` -> `preparing` -> `shipped` -> `delivered`
 
-Paneldeki butonlar bu kurala gore otomatik gorunur. Yeni siparis ve durum degisiklikleri SignalR ile geldiginde liste yenilenir; SignalR baglanamazsa `Yenile` butonu ve REST akisi calismaya devam eder.
+Paneldeki butonlar bu kurala gore otomatik gorunur. Notification API'den yeni siparis ve durum degisikligi SignalR ile geldiginde liste yenilenir; SignalR baglanamazsa `Yenile` butonu ve REST akisi calismaya devam eder.

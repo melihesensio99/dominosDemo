@@ -62,7 +62,7 @@
 
   <script>
     const GATEWAY_URL = 'http://localhost:5022';
-    const ORDER_API_URL = 'http://localhost:5093';
+    const NOTIFICATION_API_URL = 'http://localhost:5044';
     const tokenKey = 'opsflow_admin_token';
     const labels = { pending: 'Siparis alindi', confirmed: 'Onaylandi', preparing: 'Hazirlaniyor', shipped: 'Yolda', delivered: 'Teslim edildi', cancelled: 'Iptal edildi' };
     const transitions = { pending: [['confirmed', 'Siparisi onayla'], ['cancelled', 'Iptal et']], confirmed: [['preparing', 'Hazirlamaya al']], preparing: [['shipped', 'Kuryeye teslim et']], shipped: [['delivered', 'Teslim edildi']], delivered: [], cancelled: [] };
@@ -110,7 +110,7 @@
     }
     async function startLiveUpdates() {
       if (!window.signalR) { $('connectionState').textContent = 'Canli kutuphane yok, REST yenileme aktif.'; return; }
-      connection = new signalR.HubConnectionBuilder().withUrl(`${ORDER_API_URL}/hubs/orders`, { accessTokenFactory: () => accessToken }).withAutomaticReconnect().build();
+      connection = new signalR.HubConnectionBuilder().withUrl(`${NOTIFICATION_API_URL}/hubs/notifications`, { accessTokenFactory: () => accessToken }).withAutomaticReconnect().build();
       connection.on('NewOrderCreated', loadOrders); connection.on('OrderStatusChanged', loadOrders);
       connection.onreconnecting(() => { $('connectionState').textContent = 'Canli baglanti yeniden kuruluyor, REST yenileme aktif.'; });
       connection.onreconnected(() => { $('connectionState').textContent = 'Canli baglanti aktif'; void loadOrders(); });
