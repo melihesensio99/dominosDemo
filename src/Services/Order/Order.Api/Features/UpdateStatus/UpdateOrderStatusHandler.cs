@@ -50,7 +50,7 @@ public sealed class UpdateOrderStatusHandler(
             };
 
             await hubContext.Clients.User(order.CustomerId).SendAsync(
-                "OrderStatusChanged", notification, cancellationToken);
+                "OrderStatusChanged",  notification, cancellationToken);
 
             await hubContext.Clients.Group(OrderTrackingHub.AdminGroup).SendAsync(
                 "OrderStatusChanged", notification, cancellationToken);
