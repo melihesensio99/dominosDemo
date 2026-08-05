@@ -19,16 +19,37 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
 
     public async Task<NotificationDocument> AddAsync(string recipientId, string message, string status = "queued", CancellationToken cancellationToken = default)
     {
+        return await AddAsync(
+            Guid.NewGuid(),
+            recipientId,
+            message,
+            status,
+            cancellationToken);
+    }
+
+    public async Task<NotificationDocument> AddAsync(
+        Guid eventId,
+        string recipientId,
+        string message,
+        string status = "queued",
+        CancellationToken cancellationToken = default)
+    {
         var notification = new NotificationDocument
         {
-            Id = Guid.NewGuid().ToString("N"),
+            Id = eventId.ToString("N"),
+            EventId = eventId,
             RecipientId = recipientId,
             Message = message,
             Status = status,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
-        await collection.InsertOneAsync(notification, cancellationToken: cancellationToken);
+        await collection.ReplaceOneAsync(
+            item => item.EventId == eventId,
+            notification,
+            new ReplaceOptions { IsUpsert = true },
+            cancellationToken);
+
         return notification;
     }
 }

@@ -18,6 +18,11 @@ public sealed class StockChangedConsumer(MongoNotificationStore store) : IConsum
         };
 
         var message = $"Stock for product '{evt.ProductId}' was {direction}. Change: {evt.Quantity}. Available: {evt.Available}, Reserved: {evt.Reserved}.";
-        await store.AddAsync("inventory", message, "received", context.CancellationToken);
+        await store.AddAsync(
+            evt.EventId,
+            "inventory",
+            message,
+            "received",
+            context.CancellationToken);
     }
 }

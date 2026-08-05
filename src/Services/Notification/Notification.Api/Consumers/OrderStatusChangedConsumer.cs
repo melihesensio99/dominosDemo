@@ -5,15 +5,16 @@ using Notification.Api.Infrastructure;
 
 namespace Notification.Api.Consumers;
 
-public sealed class OrderCreatedConsumer(
+public sealed class OrderStatusChangedConsumer(
     MongoNotificationStore store,
     IRealtimeNotificationPublisher realtimePublisher)
-    : IConsumer<OrderCreatedIntegrationEvent>
+    : IConsumer<OrderStatusChangedIntegrationEvent>
 {
-    public async Task Consume(ConsumeContext<OrderCreatedIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<OrderStatusChangedIntegrationEvent> context)
     {
         var evt = context.Message;
-        var message = $"Order '{evt.OrderId}' was created for customer '{evt.CustomerId}' with {evt.ItemCount} items.";
+        var message = $"Order '{evt.OrderId}' status changed from '{evt.PreviousStatus}' to '{evt.Status}'.";
+
         await store.AddAsync(
             evt.EventId,
             evt.CustomerId,
@@ -21,12 +22,11 @@ public sealed class OrderCreatedConsumer(
             "received",
             context.CancellationToken);
 
-        await realtimePublisher.NotifyNewOrderAsync(
-            new NewOrderNotification(
+        await realtimePublisher.NotifyOrderStatusChangedAsync(
+            new OrderStatusChangedNotification(
                 evt.OrderId,
                 evt.CustomerId,
                 evt.Status,
-                evt.ItemCount,
                 evt.OccurredAt));
     }
 }
