@@ -1,9 +1,10 @@
 using BuildingBlocks.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain;
+using Order.Api.Infrastructure.Outbox;
 using OrderEntity = Order.Api.Domain.Order;
 
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Persistence;
 
 public static class OrderDatabaseInitializer
 {

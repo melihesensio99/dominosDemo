@@ -1,4 +1,4 @@
-namespace Order.Api.Features.Common;
+namespace Order.Api.Features.Shared;
 
 public sealed record OrderItemResponse(string ProductId, int Quantity, IReadOnlyList<Guid> SelectedOptionIds);
 

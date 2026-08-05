@@ -1,12 +1,11 @@
 using Order.Api.Features;
-using Order.Api.Infrastructure;
+using Order.Api.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http.Connections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,22 +43,6 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var requestPath = context.HttpContext.Request.Path;
-
-                if (!string.IsNullOrEmpty(accessToken) && requestPath.StartsWithSegments("/hubs/orders"))
-                {
-                    context.Token = accessToken;
-                }
-
-                return Task.CompletedTask;
-            },
-        };
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

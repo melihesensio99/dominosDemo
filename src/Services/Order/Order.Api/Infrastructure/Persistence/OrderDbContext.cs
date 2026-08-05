@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Order.Api.Infrastructure.Outbox;
 using OrderEntity = Order.Api.Domain.Order;
 
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Persistence;
 
 public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContext(options)
 {

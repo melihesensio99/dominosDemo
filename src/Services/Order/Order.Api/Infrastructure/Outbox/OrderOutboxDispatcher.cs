@@ -3,10 +3,14 @@ using Inventory.Contracts.IntegrationEvents.Order;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Order.Api.Infrastructure.Persistence;
 
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Outbox;
 
-public sealed class OrderOutboxDispatcher(IServiceScopeFactory scopeFactory) : BackgroundService
+public sealed class OrderOutboxDispatcher(
+    IServiceScopeFactory scopeFactory,
+    ILogger<OrderOutboxDispatcher> logger) : BackgroundService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const int MaxRetries = 5;
@@ -61,22 +65,40 @@ public sealed class OrderOutboxDispatcher(IServiceScopeFactory scopeFactory) : B
                         if (message.RetryCount >= MaxRetries)
                         {
                             message.FailedAt = DateTimeOffset.UtcNow;
+                            logger.LogError(
+                                exception,
+                                "Outbox message permanently failed after {RetryCount} attempts. Type: {Type}, MessageId: {MessageId}",
+                                message.RetryCount,
+                                message.Type,
+                                message.Id);
+                        }
+                        else
+                        {
+                            logger.LogWarning(
+                                exception,
+                                "Outbox message failed and will be retried. Attempt: {RetryCount}, Type: {Type}, MessageId: {MessageId}",
+                                message.RetryCount,
+                                message.Type,
+                                message.Id);
                         }
                     }
                 }
 
                 await dbContext.SaveChangesAsync(stoppingToken);
             }
-            catch
+            catch (Exception exception)
             {
-                // basit öğrenme projesi icin sessiz tekrar dene
+                logger.LogError(exception, "Order outbox polling failed; the dispatcher will retry.");
             }
 
             await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
         }
     }
 
-    private static Task PublishAsync(IPublishEndpoint publishEndpoint, OutboxMessage message, CancellationToken cancellationToken)
+    private static Task PublishAsync(
+        IPublishEndpoint publishEndpoint,
+        OutboxMessage message,
+        CancellationToken cancellationToken)
     {
         return message.Type switch
         {

@@ -1,6 +1,6 @@
 using BuildingBlocks.Common;
 using MediatR;
-using Order.Api.Features.Common;
+using Order.Api.Features.Shared;
 
 namespace Order.Api.Features.List;
 

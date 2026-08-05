@@ -1,7 +1,8 @@
 using FluentValidation;
 using MediatR;
 using Order.Api.Abstractions;
-using Order.Api.Infrastructure;
+using Order.Api.Infrastructure.Outbox;
+using Order.Api.Infrastructure.Persistence;
 using Order.Api.Features.Cancel;
 using Order.Api.Features.Create;
 using Order.Api.Features.Get;
@@ -9,7 +10,6 @@ using Order.Api.Features.GetByCustomer;
 using Order.Api.Features.List;
 using Order.Api.Features.UpdateStatus;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Order.Api.Features;
 
@@ -26,7 +26,6 @@ public static class OrderModule
 
         services.AddDbContext<OrderDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IOrderRepository, EfOrderRepository>();
-        services.AddSignalR();
         services.AddHostedService<OrderOutboxDispatcher>();
     }
 
@@ -39,7 +38,6 @@ public static class OrderModule
         app.MapGetCustomerOrdersEndpoint();
         app.MapCancelOrderEndpoint();
         app.MapUpdateOrderStatusEndpoint();
-        app.MapHub<OrderTrackingHub>("/hubs/orders");
         return app;
     }
 }

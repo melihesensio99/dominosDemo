@@ -1,6 +1,6 @@
 using BuildingBlocks.Common;
 using Order.Api.Abstractions;
-using Order.Api.Features.Common;
+using Order.Api.Features.Shared;
 
 namespace Order.Api.Features.GetByCustomer;
 

@@ -1,4 +1,4 @@
-using Order.Api.Features.Common;
+using Order.Api.Features.Shared;
 
 namespace Order.Api.Features.UpdateStatus;
 

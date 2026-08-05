@@ -1,14 +1,11 @@
 using Order.Api.Abstractions;
 using Order.Api.Domain;
-using Order.Api.Features.Common;
-using Order.Api.Infrastructure;
+using Order.Api.Features.Shared;
 
 namespace Order.Api.Features.UpdateStatus;
 
 public sealed class UpdateOrderStatusHandler(
-    IOrderRepository orderRepository,
-    IHubContext<OrderTrackingHub> hubContext,
-    ILogger<UpdateOrderStatusHandler> logger)
+    IOrderRepository orderRepository)
     : IRequestHandler<UpdateOrderStatusCommand, Result<OrderResponse>>
 {
     public async Task<Result<OrderResponse>> Handle(
@@ -38,27 +35,6 @@ public sealed class UpdateOrderStatusHandler(
 
         await orderRepository.SaveAsync(order, cancellationToken);
         var response = OrderMapper.ToResponse(order);
-
-        try
-        {
-            var notification = new
-            {
-                orderId = order.Id,
-                customerId = order.CustomerId,
-                status = response.Status,
-                updatedAt = response.UpdatedAt,
-            };
-
-            await hubContext.Clients.User(order.CustomerId).SendAsync(
-                "OrderStatusChanged",  notification, cancellationToken);
-
-            await hubContext.Clients.Group(OrderTrackingHub.AdminGroup).SendAsync(
-                "OrderStatusChanged", notification, cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Order status was saved but live notification failed for {OrderId}.", order.Id);
-        }
 
         return Result<OrderResponse>.Success(response);
     }

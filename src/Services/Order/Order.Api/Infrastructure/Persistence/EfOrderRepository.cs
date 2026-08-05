@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain.Events;
 using Order.Api.Abstractions;
+using Order.Api.Infrastructure.Outbox;
 using OrderEntity = Order.Api.Domain.Order;
 
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Persistence;
 
 public sealed class EfOrderRepository(OrderDbContext dbContext) : IOrderRepository
 {

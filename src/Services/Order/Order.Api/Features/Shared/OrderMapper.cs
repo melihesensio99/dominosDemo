@@ -2,7 +2,7 @@ using OrderEntity = Order.Api.Domain.Order;
 
 using System.Text.Json;
 
-namespace Order.Api.Features.Common;
+namespace Order.Api.Features.Shared;
 
 public static class OrderMapper
 {

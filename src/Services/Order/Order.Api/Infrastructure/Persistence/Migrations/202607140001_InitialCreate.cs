@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
-namespace Order.Api.Migrations;
+namespace Order.Api.Infrastructure.Persistence.Migrations;
 
 [Migration("202607140001_InitialCreate")]
 public partial class InitialCreate : Migration

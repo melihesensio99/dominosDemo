@@ -1,4 +1,4 @@
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Outbox;
 
 public sealed class OutboxMessage
 {

@@ -2,7 +2,7 @@ using System.Text.Json;
 using Inventory.Contracts.IntegrationEvents.Order;
 using Order.Api.Domain.Events;
 
-namespace Order.Api.Infrastructure;
+namespace Order.Api.Infrastructure.Outbox;
 
 public static class OrderOutboxMessageFactory
 {
