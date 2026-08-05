@@ -16,23 +16,23 @@ Bu klasör, OpsFlow projesinin React Native + Expo tabanlı mobil uygulamasıdı
 
 ## Siparis durumlari icin SignalR
 
-Mobil uygulama, giris yapan kullanicinin siparis durumlarini Order API'deki SignalR hub'ina baglanarak dinler. Hub adresi `EXPO_PUBLIC_ORDER_HUB_URL` ile verilir.
+Mobil uygulama, giris yapan kullanicinin siparis durumlarini Notification API'deki SignalR hub'ina baglanarak dinler. Hub adresi `EXPO_PUBLIC_NOTIFICATION_HUB_URL` ile verilir.
 
 Masaustu web testinde varsayilan adres kullanilir:
 
 ```text
-http://localhost:5093/hubs/orders
+http://localhost:5044/hubs/notifications
 ```
 
 Fiziksel telefonda `localhost` telefonun kendisini ifade eder. Bu nedenle bilgisayarin yerel IP adresini kullan:
 
 ```powershell
 $env:EXPO_PUBLIC_API_BASE_URL="http://192.168.1.10:5022"
-$env:EXPO_PUBLIC_ORDER_HUB_URL="http://192.168.1.10:5093/hubs/orders"
+$env:EXPO_PUBLIC_NOTIFICATION_HUB_URL="http://192.168.1.10:5044/hubs/notifications"
 npm run start
 ```
 
-Buradaki IP adresini API'lerin calistigi bilgisayarin LAN IP adresiyle degistir. Telefon ve bilgisayar ayni Wi-Fi aginda olmali, Windows guvenlik duvari da `5022` ve `5093` portlarina izin vermelidir.
+Buradaki IP adresini API'lerin calistigi bilgisayarin LAN IP adresiyle degistir. Telefon ve bilgisayar ayni Wi-Fi aginda olmali, Windows guvenlik duvari da `5022` ve `5044` portlarina izin vermelidir.
 
 SignalR baglantisi kullanicinin JWT'sini `accessTokenFactory` ile otomatik olarak gonderir. `OrderStatusChanged` mesaji geldiginde `useOrders` React Query onbellegini gunceller. Baglanti gecici olarak kullanilamazsa 30 saniyelik polling yedegi calismaya devam eder.
 

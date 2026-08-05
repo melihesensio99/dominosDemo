@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { basketService, orderService } from '../services';
-import { createOrderTrackingConnection } from '../services/orderTracking.service';
+import { createNotificationTrackingConnection } from '../services/notificationTracking.service';
 import type { Order } from '../types/order';
 import type { Address } from '../types/common';
 import type { Basket } from '../types/basket';
@@ -36,7 +36,7 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       return;
     }
 
-    const connection = createOrderTrackingConnection((notification) => {
+    const connection = createNotificationTrackingConnection((notification) => {
       queryClient.setQueryData<Order[]>(['orders', customerId], (orders) =>
         orders?.map((order) =>
           order.id === notification.orderId

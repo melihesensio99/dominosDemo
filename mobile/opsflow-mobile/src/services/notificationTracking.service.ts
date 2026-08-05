@@ -9,14 +9,14 @@ export interface OrderStatusChangedNotification {
   orderId: string;
   customerId: string;
   status: string;
-  updatedAt: string | null;
+  updatedAt: string;
 }
 
 const hubUrl =
-  process.env.EXPO_PUBLIC_ORDER_HUB_URL ??
-  'http://localhost:5093/hubs/orders';
+  process.env.EXPO_PUBLIC_NOTIFICATION_HUB_URL ??
+  'http://localhost:5044/hubs/notifications';
 
-export function createOrderTrackingConnection(
+export function createNotificationTrackingConnection(
   onStatusChanged: (notification: OrderStatusChangedNotification) => void,
 ): HubConnection {
   const connection = new HubConnectionBuilder()
