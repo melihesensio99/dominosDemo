@@ -139,6 +139,9 @@ public static class NotificationModule
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                // SignalR groups customers by the JWT subject claim. Keep the
+                // original claim names instead of mapping "sub" to a .NET URI.
+                options.MapInboundClaims = false;
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
