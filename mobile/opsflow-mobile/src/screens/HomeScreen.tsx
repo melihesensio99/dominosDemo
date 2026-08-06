@@ -3,94 +3,23 @@ import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { EmptyState } from '../components/EmptyState';
 import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
+import { OrderStatusCard } from '../components/OrderStatusCard';
 import { ProductCard } from '../components/ProductCard';
 import type { Category, Product } from '../types/catalog';
+import type { Order } from '../types/order';
 import { styles } from './HomeScreen.styles';
 
 interface HomeScreenProps {
   categories: Category[];
   products: Product[];
+  orders: Order[];
+  hasActiveOrders: boolean;
   isCatalogLoading?: boolean;
   catalogError?: unknown;
   onAdd: (product: Product) => void;
   onOpenProduct?: (product: Product) => void;
-  lastOrderStatus?: string;
   isLoading?: boolean;
   error?: unknown;
-}
-
-function getOrderStatusText(status?: string) {
-  switch (status) {
-    case 'pending': return 'Siparişiniz oluşturuldu.';
-    case 'confirmed': return 'Siparişiniz onaylandı.';
-    case 'preparing': return 'Siparişiniz hazırlanıyor.';
-    case 'shipped': return 'Siparişiniz yola çıktı.';
-    case 'delivered': return 'Siparişiniz teslim edildi.';
-    default: return status;
-  }
-}
-
-function getOrderStatusTitle(status: string) {
-  switch (status) {
-    case 'pending': return 'Sipariş oluşturuldu';
-    case 'confirmed': return 'Sipariş onaylandı';
-    case 'preparing': return 'Sipariş hazırlanıyor';
-    case 'shipped': return 'Siparişiniz yolda';
-    case 'delivered': return 'Sipariş teslim edildi';
-    default: return 'Sipariş durumu';
-  }
-}
-
-const orderSteps = [
-  { key: 'pending', label: 'Oluşturuldu' },
-  { key: 'confirmed', label: 'Onaylandı' },
-  { key: 'preparing', label: 'Hazırlanıyor' },
-  { key: 'shipped', label: 'Yolda' },
-  { key: 'delivered', label: 'Teslim edildi' },
-];
-
-function AnimatedOrderStatus({ status }: { status: string }) {
-  const pulse = useRef(new Animated.Value(0.92)).current;
-  const activeIndex = Math.max(orderSteps.findIndex((step) => step.key === status), 0);
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 900, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0.92, duration: 900, useNativeDriver: true }),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [pulse]);
-
-  return (
-    <View style={styles.statusCard}>
-      <View style={styles.statusHeader}>
-        <Animated.View style={[styles.statusPulse, { transform: [{ scale: pulse }] }]} />
-        <View style={styles.statusHeaderText}>
-          <Text style={styles.statusTitle}>{getOrderStatusTitle(status)}</Text>
-          <Text style={styles.orderStatus}>{getOrderStatusText(status)}</Text>
-        </View>
-      </View>
-      <View style={styles.orderTimeline}>
-        {orderSteps.map((step, index) => {
-          const isCompleted = index <= activeIndex;
-          return (
-            <View key={step.key} style={styles.timelineStep}>
-              <View style={[styles.timelineDot, isCompleted && styles.timelineDotActive]}>
-                <Text style={[styles.timelineCheck, isCompleted && styles.timelineCheckActive]}>{isCompleted ? '✓' : ''}</Text>
-              </View>
-              <Text style={[styles.timelineLabel, isCompleted && styles.timelineLabelActive]}>{step.label}</Text>
-              {index < orderSteps.length - 1 ? (
-                <View style={[styles.timelineLine, index < activeIndex && styles.timelineLineActive]} />
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  );
 }
 
 const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
@@ -99,11 +28,12 @@ const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1785012397/A
 export function HomeScreen({
   categories,
   products,
+  orders,
+  hasActiveOrders,
   isCatalogLoading,
   catalogError,
   onAdd,
   onOpenProduct,
-  lastOrderStatus,
   isLoading,
   error,
 }: HomeScreenProps) {
@@ -121,22 +51,34 @@ export function HomeScreen({
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Melo's Pizza" subtitle="Urunleri kesfet ve sepete ekle" logoUrl={logoUrl} />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={false} alwaysBounceVertical={false}>
+      <AppHeader title="Melo's Pizza" subtitle="Ürünleri keşfet ve sepete ekle" logoUrl={logoUrl} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        alwaysBounceVertical={false}
+      >
         <HomeBannerCarousel />
 
-        {lastOrderStatus || isLoading || error ? (
+        {orders.length > 0 || isLoading || error ? (
           <>
-            <SectionTitle title="Sipariş durumu" />
-            {lastOrderStatus ? <AnimatedOrderStatus status={lastOrderStatus} /> : <View style={styles.statusCard}>
-              <Text style={lastOrderStatus ? styles.orderStatus : styles.infoText}>
-                {lastOrderStatus
-                  ? getOrderStatusText(lastOrderStatus)
-                  : isLoading
-                    ? 'Son sipariş bilgisi yükleniyor...'
-                    : error instanceof Error ? error.message : 'Sipariş verilemedi.'}
-              </Text>
-            </View>}
+            <SectionTitle title={hasActiveOrders ? 'Aktif siparişlerim' : 'Son siparişim'} />
+            {orders.length > 0 ? (
+              <View style={styles.orderCards}>
+                {orders.map((order) => (
+                  <OrderStatusCard key={order.id} order={order} products={products} />
+                ))}
+              </View>
+            ) : (
+              <View style={styles.statusCard}>
+                <Text style={styles.infoText}>
+                  {isLoading
+                    ? 'Sipariş bilgileri yükleniyor...'
+                    : error instanceof Error ? error.message : 'Sipariş bilgileri alınamadı.'}
+                </Text>
+              </View>
+            )}
           </>
         ) : null}
 
@@ -152,21 +94,27 @@ export function HomeScreen({
           ))}
         </ScrollView>
 
-        <SectionTitle title={selectedCategory === null ? 'Tum urunler' : categories.find((category) => category.id === selectedCategory)?.name ?? 'Urunler'} />
+        <SectionTitle
+          title={selectedCategory === null
+            ? 'Tüm ürünler'
+            : categories.find((category) => category.id === selectedCategory)?.name ?? 'Ürünler'}
+        />
         {visibleProducts.length > 0 ? (
-          <>
-            <View style={styles.productList}>
-              {visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />)}
-            </View>
-          </>
+          <View style={styles.productList}>
+            {visibleProducts.map((product) => (
+              <ProductCard key={product.id} product={product} onAdd={onAdd} onOpen={onOpenProduct} />
+            ))}
+          </View>
         ) : isCatalogLoading ? (
-          <EmptyState title="Urunler yukleniyor" message="Urunler backend'den getiriliyor." />
+          <EmptyState title="Ürünler yükleniyor" message="Ürünler backend'den getiriliyor." />
         ) : catalogError ? (
-          <EmptyState title="Urunler alinamadi" message={catalogError instanceof Error ? catalogError.message : 'Urunler su anda getirilemedi.'} />
+          <EmptyState
+            title="Ürünler alınamadı"
+            message={catalogError instanceof Error ? catalogError.message : 'Ürünler şu anda getirilemedi.'}
+          />
         ) : (
-          <EmptyState title="Bu kategoride urun yok" message="Bu kategoriye urun eklendiginde burada gorunecek." />
+          <EmptyState title="Bu kategoride ürün yok" message="Bu kategoriye ürün eklendiğinde burada görünecek." />
         )}
-
       </ScrollView>
     </View>
   );

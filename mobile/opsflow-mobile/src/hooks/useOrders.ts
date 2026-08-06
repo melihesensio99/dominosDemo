@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { HubConnectionState } from '@microsoft/signalr';
+import { useEffect, useMemo, useState } from 'react';
 import { basketService, orderService } from '../services';
 import { createNotificationTrackingConnection } from '../services/notificationTracking.service';
 import type { Order } from '../types/order';
@@ -36,43 +37,77 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       return;
     }
 
+    let isDisposed = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const refreshOrders = () => queryClient.invalidateQueries({
+      queryKey: ['orders', customerId],
+    });
+
     const connection = createNotificationTrackingConnection((notification) => {
       queryClient.setQueryData<Order[]>(['orders', customerId], (orders) =>
         orders?.map((order) =>
           order.id === notification.orderId
             ? {
                 ...order,
-                status: notification.status,
+                status: notification.status.toLowerCase(),
                 updatedAt: notification.updatedAt,
               }
             : order,
         ),
       );
 
-      void queryClient.invalidateQueries({
-        queryKey: ['orders', customerId],
-      });
+      void refreshOrders();
     });
 
-    const startConnection = async () => {
+    const startConnection = async (): Promise<void> => {
+      if (isDisposed || connection.state !== HubConnectionState.Disconnected) {
+        return;
+      }
+
       try {
         await connection.start();
       } catch {
-        // React Query polling keeps order tracking functional while SignalR
-        // reconnects or the local Order API is unavailable.
+        if (!isDisposed) {
+          retryTimer = setTimeout(() => void startConnection(), 5000);
+        }
       }
     };
+
+    connection.onreconnected(() => {
+      void refreshOrders();
+    });
+    connection.onclose(() => {
+      if (!isDisposed) {
+        retryTimer = setTimeout(() => void startConnection(), 5000);
+      }
+    });
 
     void startConnection();
 
     return () => {
+      isDisposed = true;
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+      }
       void connection.stop();
     };
   }, [customerId, queryClient]);
 
-  const activeOrder = ordersQuery.data?.find((order) =>
-    ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status),
-  );
+  const { activeOrders, latestDeliveredOrder, visibleOrders } = useMemo(() => {
+    const orders = [...(ordersQuery.data ?? [])]
+      .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt));
+    const active = orders.filter((order) =>
+      ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status.toLowerCase()),
+    );
+    const latestDelivered = orders.find((order) => order.status.toLowerCase() === 'delivered') ?? null;
+
+    return {
+      activeOrders: active,
+      latestDeliveredOrder: latestDelivered,
+      visibleOrders: active.length > 0 ? active : latestDelivered ? [latestDelivered] : [],
+    };
+  }, [ordersQuery.data]);
 
   const placeOrder = async ({
     shippingAddress,
@@ -120,7 +155,9 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
 
   return {
     orders: ordersQuery.data ?? [],
-    lastOrder: activeOrder,
+    activeOrders,
+    latestDeliveredOrder,
+    visibleOrders,
     isLoading: ordersQuery.isLoading,
     error: actionError ?? ordersQuery.error ?? null,
     isPlacingOrder,

@@ -75,7 +75,8 @@ function AppShell() {
                     setSelectedProduct(product);
                   }
                 }}
-                lastOrderStatus={app.lastOrderStatus}
+                orders={app.visibleOrders}
+                hasActiveOrders={app.activeOrders.length > 0}
                 isLoading={app.status.orders.isLoading}
                 error={app.status.orders.error}
               />

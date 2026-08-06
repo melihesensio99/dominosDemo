@@ -3,6 +3,7 @@ import type { Address } from './common';
 export interface OrderItem {
   productId: string;
   quantity: number;
+  selectedOptionIds: string[];
 }
 
 export interface Order {
