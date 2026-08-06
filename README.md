@@ -66,6 +66,20 @@ curl -X POST http://localhost:8001/auth/login ^
   -d "{\"email\":\"admin@opsflow.ai\",\"password\":\"P@ssw0rd123\"}"
 ```
 
+## Database naming
+
+Local API processes and Docker Compose use the same PostgreSQL databases:
+
+- `auth_db`
+- `catalog_db`
+- `inventory_db`
+- `order_db`
+
+Only the PostgreSQL host changes between runtime modes. APIs started with
+`dotnet run` connect to `localhost`, while APIs running inside Docker Compose
+connect to the `postgres` service. Database names must not receive `_local`
+suffixes, so both modes always read and write the same data.
+
 ## MVP flow
 
 1. Login through `auth`
