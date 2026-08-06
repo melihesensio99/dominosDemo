@@ -34,10 +34,11 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
         string status = "queued",
         CancellationToken cancellationToken = default)
     {
+        var eventKey = eventId.ToString("N");
         var notification = new NotificationDocument
         {
-            Id = eventId.ToString("N"),
-            EventId = eventId,
+            Id = eventKey,
+            EventId = eventKey,
             RecipientId = recipientId,
             Message = message,
             Status = status,
@@ -45,7 +46,7 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
         };
 
         await collection.ReplaceOneAsync(
-            item => item.EventId == eventId,
+            item => item.EventId == eventKey,
             notification,
             new ReplaceOptions { IsUpsert = true },
             cancellationToken);
