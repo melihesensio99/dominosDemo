@@ -8,14 +8,17 @@ namespace Order.Api.Infrastructure.Persistence;
 
 public static class OrderDatabaseInitializer
 {
-    public static async Task InitializeOrderDatabaseAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    public static async Task InitializeOrderDatabaseAsync(
+        this IServiceProvider services,
+        bool seedDemoOrder,
+        CancellationToken cancellationToken = default)
     {
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
 
         await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
 
-        if (await dbContext.Orders.AnyAsync(cancellationToken))
+        if (!seedDemoOrder || await dbContext.Orders.AnyAsync(cancellationToken))
         {
             return;
         }
