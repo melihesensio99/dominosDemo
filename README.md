@@ -40,6 +40,45 @@ The rest of the services currently start as simple minimal APIs so we can learn 
 
 ## Quick start
 
+### Recommended local development mode
+
+Run infrastructure in Docker and applications locally with one command:
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+The script stops previous project processes, starts PostgreSQL, RabbitMQ,
+Redis and MongoDB, builds the solution, runs every API in the correct order,
+then starts the admin panel and Expo. It also verifies the important ports and
+HTTP endpoints before reporting success.
+
+Useful options:
+
+```powershell
+# Force Docker infrastructure containers to restart too
+.\scripts\start-local.ps1 -RestartInfrastructure
+
+# Reuse the latest build
+.\scripts\start-local.ps1 -SkipBuild
+
+# Reset the Expo cache
+.\scripts\start-local.ps1 -ClearExpoCache
+
+# Stop local applications but keep Docker infrastructure running
+.\scripts\stop-local.ps1
+```
+
+Local URLs:
+
+- Gateway: `http://localhost:5022`
+- Admin panel: `http://localhost:7070`
+- Expo web: `http://localhost:8081`
+
+Runtime logs are written to `outputs/local-runtime` and are ignored by Git.
+
+### Full Docker mode
+
 1. Build and run the stack:
 
 ```bash

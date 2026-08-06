@@ -179,6 +179,7 @@ export function useAppShell() {
     checkout,
     continueToPayment,
     saveNewAddress,
+    orders: orders.orders,
     activeOrders: orders.activeOrders,
     latestDeliveredOrder: orders.latestDeliveredOrder,
     visibleOrders: orders.visibleOrders,

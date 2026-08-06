@@ -147,6 +147,8 @@ function AppShell() {
                 onChangePassword={app.setPassword}
                 onAuth={() => void app.signIn()}
                 onSignOut={app.signOut}
+                orders={app.orders}
+                products={app.products}
               />
             )}
             {!selectedProduct && app.checkout.step === 'basket' && (
