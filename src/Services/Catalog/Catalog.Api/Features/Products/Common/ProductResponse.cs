@@ -7,6 +7,8 @@ public sealed record ProductResponse(
     string? ImageUrl,
     decimal Price,
     int Stock,
+    string InventoryTrackingType,
+    string? InventoryKey,
     Guid CategoryId,
     string? CategoryName,
     IReadOnlyList<ProductOptionGroupResponse> OptionGroups,
@@ -26,6 +28,7 @@ public sealed record ProductOptionResponse(
     Guid Id,
     string Name,
     decimal PriceAdjustment,
+    string? InventoryKey,
     bool IsDefault,
     bool IsActive,
     int DisplayOrder);

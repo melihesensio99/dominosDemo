@@ -20,5 +20,6 @@ public sealed record OrderResponse(
     PaymentResponse Payment,
     string Note,
     string Status,
+    decimal TotalPrice,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt);

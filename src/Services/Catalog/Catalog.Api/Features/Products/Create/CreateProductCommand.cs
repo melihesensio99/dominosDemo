@@ -10,7 +10,9 @@ public sealed record CreateProductCommand(
     Guid CategoryId,
     int ReorderLevel = 5,
     IReadOnlyList<CreateProductOptionGroup>? OptionGroups = null,
-    string? ImageUrl = null) : IRequest<Result<ProductResponse>>;
+    string? ImageUrl = null,
+    InventoryTrackingType InventoryTrackingType = InventoryTrackingType.Direct,
+    string? InventoryKey = null) : IRequest<Result<ProductResponse>>;
 
 public sealed record CreateProductOptionGroup(
     string Name,
@@ -23,4 +25,5 @@ public sealed record CreateProductOption(
     string Name,
     decimal PriceAdjustment,
     int DisplayOrder = 0,
-    bool IsDefault = false);
+    bool IsDefault = false,
+    string? InventoryKey = null);

@@ -1,6 +1,7 @@
 export interface BasketItem {
   id: string;
   productId: string;
+  stockKey: string;
   productName: string;
   basePrice: number;
   unitPrice: number;

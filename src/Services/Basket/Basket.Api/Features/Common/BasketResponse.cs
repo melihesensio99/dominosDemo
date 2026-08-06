@@ -4,6 +4,7 @@ public sealed record BasketItemResponse(
     Guid Id,
     string ProductId,
     string ProductName,
+    string StockKey,
     decimal BasePrice,
     decimal UnitPrice,
     decimal TotalPrice,

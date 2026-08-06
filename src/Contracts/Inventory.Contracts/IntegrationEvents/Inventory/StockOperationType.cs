@@ -5,4 +5,5 @@ public enum StockOperationType
     Reserved,
     Released,
     Adjusted,
+    Committed,
 }

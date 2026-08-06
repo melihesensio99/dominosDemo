@@ -4,12 +4,13 @@ namespace Inventory.Api.Infrastructure;
 
 public sealed class EfStockRepository(InventoryDbContext dbContext) : IStockRepository
 {
-    public Task<StockItem?> GetByProductIdAsync(string productId, CancellationToken cancellationToken) =>
-        dbContext.StockItems.FirstOrDefaultAsync(x => x.ProductId == productId, cancellationToken);
+    public Task<StockItem?> GetByStockKeyAsync(string stockKey, CancellationToken cancellationToken) =>
+        dbContext.StockItems.FirstOrDefaultAsync(x => x.StockKey == stockKey, cancellationToken);
 
     public async Task<IReadOnlyList<StockItem>> GetAllAsync(CancellationToken cancellationToken) =>
         await dbContext.StockItems
-            .OrderBy(x => x.ProductId)
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.DisplayName)
             .ToListAsync(cancellationToken);
 
     public async Task AddAsync(StockItem stockItem, CancellationToken cancellationToken)

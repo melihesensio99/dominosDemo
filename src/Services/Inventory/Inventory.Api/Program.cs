@@ -48,7 +48,9 @@ builder.Services.AddGrpc();
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<ProductCreatedConsumer>();
-    x.SetKebabCaseEndpointNameFormatter();
+    x.AddConsumer<OrderCancelledConsumer>();
+    x.AddConsumer<OrderStatusChangedConsumer>();
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("inventory", false));
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -61,6 +63,11 @@ builder.Services.AddMassTransit(x =>
             h.Username(username);
             h.Password(password);
         });
+
+        cfg.UseMessageRetry(retry => retry.Intervals(
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromSeconds(10)));
 
         cfg.ConfigureEndpoints(context);
     });

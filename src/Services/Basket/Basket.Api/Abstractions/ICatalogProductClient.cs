@@ -10,6 +10,8 @@ public sealed record CatalogProductSnapshot(
     string Name,
     decimal Price,
     bool IsActive,
+    string InventoryTrackingType,
+    string? InventoryKey,
     IReadOnlyList<CatalogOptionGroupSnapshot> OptionGroups);
 
 public sealed record CatalogOptionGroupSnapshot(
@@ -24,5 +26,6 @@ public sealed record CatalogOptionSnapshot(
     string GroupName,
     string Name,
     decimal PriceAdjustment,
+    string? InventoryKey,
     bool IsDefault,
     bool IsActive);

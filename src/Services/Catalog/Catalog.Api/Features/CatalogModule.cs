@@ -19,6 +19,7 @@ public static class CatalogModule
         services.AddDbContext<CatalogDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IProductRepository, EfProductRepository>();
         services.AddScoped<ICategoryRepository, EfCategoryRepository>();
+        services.AddHostedService<CatalogInventorySyncWorker>();
 
         return services;
     }

@@ -35,6 +35,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.Property(x => x.ImageUrl).HasMaxLength(1000);
             entity.Property(x => x.Price).HasPrecision(18, 2);
             entity.Property(x => x.Stock).IsRequired();
+            entity.Property(x => x.InventoryTrackingType).IsRequired();
+            entity.Property(x => x.InventoryKey).HasMaxLength(100);
             entity.Property(x => x.IsActive).IsRequired();
             entity.Property(x => x.CategoryId).IsRequired();
             entity.Property(x => x.CreatedAt).IsRequired();
@@ -68,6 +70,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).IsRequired().HasMaxLength(150);
             entity.Property(x => x.PriceAdjustment).HasPrecision(18, 2);
+            entity.Property(x => x.InventoryKey).HasMaxLength(100);
             entity.Property(x => x.IsDefault).IsRequired();
             entity.Property(x => x.IsActive).IsRequired();
             entity.Property(x => x.DisplayOrder).IsRequired();

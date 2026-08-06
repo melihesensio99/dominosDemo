@@ -10,7 +10,7 @@ public sealed class ReleaseStockHandler(
 {
     public async Task<Result<StockResponse>> Handle(ReleaseStockCommand request, CancellationToken cancellationToken)
     {
-        var stockItem = await stockRepository.GetByProductIdAsync(request.ProductId, cancellationToken);
+        var stockItem = await stockRepository.GetByStockKeyAsync(request.ProductId, cancellationToken);
         if (stockItem is null)
         {
             return Result<StockResponse>.NotFound("inventory.stock_not_found", "Stock item was not found.");
@@ -28,7 +28,7 @@ public sealed class ReleaseStockHandler(
         await stockRepository.UpdateAsync(stockItem, cancellationToken);
         await publishEndpoint.Publish(
             new StockChangedIntegrationEvent(
-                stockItem.ProductId,
+                stockItem.StockKey,
                 request.Quantity,
                 stockItem.Available,
                 stockItem.Reserved,

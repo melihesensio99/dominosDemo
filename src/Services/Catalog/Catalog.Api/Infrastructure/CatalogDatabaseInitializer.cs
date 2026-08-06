@@ -82,11 +82,23 @@ public static class CatalogDatabaseInitializer
 
         var pizzas = await dbContext.Products
             .Where(product => product.CategoryId == pizzaCategory.Id)
+            .Include(product => product.OptionGroups)
+                .ThenInclude(group => group.Options)
             .ToListAsync(cancellationToken);
 
         var descriptionsChanged = false;
         foreach (var pizza in pizzas)
         {
+            pizza.InventoryTrackingType = InventoryTrackingType.Dough;
+            pizza.InventoryKey = null;
+
+            foreach (var option in pizza.OptionGroups
+                         .Where(group => group.Name.Contains("Boyut", StringComparison.OrdinalIgnoreCase))
+                         .SelectMany(group => group.Options))
+            {
+                option.InventoryKey = ResolveDoughStockKey(option.Name);
+            }
+
             if (!pizzaDescriptions.TryGetValue(pizza.Name, out var description) || pizza.Description == description)
             {
                 continue;
@@ -101,5 +113,50 @@ public static class CatalogDatabaseInitializer
         {
             await dbContext.SaveChangesAsync(cancellationToken);
         }
+
+        var directProducts = await dbContext.Products
+            .Where(product => product.CategoryId != pizzaCategory.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var product in directProducts)
+        {
+            product.InventoryTrackingType = InventoryTrackingType.Direct;
+            product.InventoryKey = product.Id.ToString();
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static string? ResolveDoughStockKey(string optionName)
+    {
+        var normalized = optionName.ToLowerInvariant();
+        if (normalized.Contains("xl", StringComparison.Ordinal))
+        {
+            return "dough-xl";
+        }
+
+        if (normalized.Contains("k\u00fc\u00e7\u00fck", StringComparison.Ordinal))
+        {
+            return "dough-small";
+        }
+
+        if (normalized.Contains("b\u00fcy\u00fck", StringComparison.Ordinal))
+        {
+            return "dough-large";
+        }
+
+        if (normalized.Contains("küçük", StringComparison.Ordinal) || normalized.Contains("kucuk", StringComparison.Ordinal))
+        {
+            return "dough-small";
+        }
+
+        if (normalized.Contains("orta", StringComparison.Ordinal))
+        {
+            return "dough-medium";
+        }
+
+        return normalized.Contains("büyük", StringComparison.Ordinal) || normalized.Contains("buyuk", StringComparison.Ordinal)
+            ? "dough-large"
+            : null;
     }
 }

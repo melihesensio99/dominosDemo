@@ -30,6 +30,8 @@ public sealed class CreateProductHandler(
             ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim(),
             Price = request.Price,
             Stock = request.Stock,
+            InventoryTrackingType = request.InventoryTrackingType,
+            InventoryKey = string.IsNullOrWhiteSpace(request.InventoryKey) ? null : request.InventoryKey.Trim(),
             CategoryId = request.CategoryId,
             OptionGroups = request.OptionGroups?
                 .Select(group => new ProductOptionGroup
@@ -43,6 +45,7 @@ public sealed class CreateProductHandler(
                         {
                             Name = option.Name.Trim(),
                             PriceAdjustment = option.PriceAdjustment,
+                            InventoryKey = string.IsNullOrWhiteSpace(option.InventoryKey) ? null : option.InventoryKey.Trim(),
                             DisplayOrder = option.DisplayOrder,
                             IsDefault = option.IsDefault,
                         })
@@ -56,6 +59,9 @@ public sealed class CreateProductHandler(
         await publishEndpoint.Publish(
             new ProductCreatedIntegrationEvent(
                 product.Id.ToString(),
+                product.Name,
+                product.InventoryTrackingType.ToString().ToLowerInvariant(),
+                product.InventoryKey,
                 product.Stock,
                 request.ReorderLevel),
             cancellationToken);

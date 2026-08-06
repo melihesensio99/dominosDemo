@@ -5,17 +5,17 @@ namespace Basket.Api.Infrastructure;
 
 public sealed class InventoryGrpcStockClient(InventoryStockService.InventoryStockServiceClient client) : IInventoryStockClient
 {
-    public async Task<Result<StockSnapshot>> GetStockAsync(string productId, CancellationToken cancellationToken)
+    public async Task<Result<StockSnapshot>> GetStockAsync(string stockKey, CancellationToken cancellationToken)
     {
         try
         {
             var response = await client.GetStockAsync(new GetStockRequest
             {
-                ProductId = productId,
+                StockKey = stockKey,
             }, cancellationToken: cancellationToken);
 
             return Result<StockSnapshot>.Success(new StockSnapshot(
-                response.ProductId,
+                response.StockKey,
                 response.Available,
                 response.Reserved,
                 response.ReorderLevel));

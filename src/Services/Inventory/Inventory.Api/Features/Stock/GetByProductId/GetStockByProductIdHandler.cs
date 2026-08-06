@@ -6,7 +6,7 @@ public sealed class GetStockByProductIdHandler(IStockRepository stockRepository)
 {
     public async Task<Result<StockResponse>> Handle(GetStockByProductIdQuery request, CancellationToken cancellationToken)
     {
-        var stockItem = await stockRepository.GetByProductIdAsync(request.ProductId, cancellationToken);
+        var stockItem = await stockRepository.GetByStockKeyAsync(request.ProductId, cancellationToken);
         if (stockItem is null)
         {
             return Result<StockResponse>.NotFound("inventory.stock_not_found", "Stock item was not found.");

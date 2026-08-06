@@ -17,7 +17,11 @@ public sealed class ShoppingBasket
         UpdatedAt = DateTimeOffset.UtcNow,
     };
 
-    public void AddItem(CatalogProductSnapshot product, IReadOnlyList<CatalogOptionSnapshot> selectedOptions, int quantity)
+    public void AddItem(
+        CatalogProductSnapshot product,
+        IReadOnlyList<CatalogOptionSnapshot> selectedOptions,
+        string stockKey,
+        int quantity)
     {
         var configurationKey = BuildConfigurationKey(product.Id, selectedOptions);
         var unitPrice = product.Price + selectedOptions.Sum(option => option.PriceAdjustment);
@@ -28,6 +32,7 @@ public sealed class ShoppingBasket
             {
                 ProductId = product.Id,
                 ProductName = product.Name,
+                StockKey = stockKey,
                 BasePrice = product.Price,
                 UnitPrice = unitPrice,
                 TotalPrice = unitPrice * quantity,

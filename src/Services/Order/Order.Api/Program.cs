@@ -90,7 +90,6 @@ app.UseAuthorization();
 
 app.MapOrderEndpoints();
 
-await app.Services.InitializeOrderDatabaseAsync(
-    builder.Configuration.GetValue<bool>("SeedData:OrderDemo"));
+await app.Services.InitializeOrderDatabaseAsync();
 
 app.Run();

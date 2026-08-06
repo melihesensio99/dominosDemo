@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\..\Contracts\Inventory.Contracts\Inventory.Contracts.csproj" />
     <PackageReference Include="MassTransit" Version="8.2.2" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.2" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.70.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />

@@ -23,6 +23,7 @@ public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : D
             entity.Property(x => x.CreatedAt).IsRequired();
             entity.Property(x => x.UpdatedAt);
             entity.Property(x => x.Note).IsRequired().HasMaxLength(500);
+            entity.Property(x => x.TotalPrice).IsRequired();
 
             entity.OwnsOne(x => x.ShippingAddress, address =>
             {

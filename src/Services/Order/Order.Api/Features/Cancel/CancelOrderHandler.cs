@@ -15,6 +15,11 @@ public sealed class CancelOrderHandler(
             return Result<OrderResponse>.NotFound("order.not_found", "Order was not found.");
         }
 
+        if (!order.CustomerId.Equals(request.CustomerId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<OrderResponse>.Forbidden("order.forbidden", "You cannot cancel another customer's order.");
+        }
+
         if (!order.Cancel())
         {
             return Result<OrderResponse>.Conflict("order.already_cancelled", "Order is already cancelled.");

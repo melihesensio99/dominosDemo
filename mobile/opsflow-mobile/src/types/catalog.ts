@@ -6,6 +6,8 @@ export interface Product {
   price: number;
   categoryId: string;
   categoryName: string | null;
+  inventoryTrackingType: 'direct' | 'dough';
+  inventoryKey: string | null;
   optionGroups: ProductOptionGroup[];
   isActive: boolean;
   createdAt: string;
@@ -25,6 +27,7 @@ export interface ProductOption {
   id: string;
   name: string;
   priceAdjustment: number;
+  inventoryKey: string | null;
   isDefault: boolean;
   isActive: boolean;
   displayOrder: number;

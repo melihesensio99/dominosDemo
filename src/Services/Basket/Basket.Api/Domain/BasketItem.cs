@@ -8,6 +8,8 @@ public sealed class BasketItem
 
     public string ProductName { get; set; } = string.Empty;
 
+    public string StockKey { get; set; } = string.Empty;
+
     public decimal BasePrice { get; set; }
 
     public decimal UnitPrice { get; set; }

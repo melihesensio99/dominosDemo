@@ -53,4 +53,37 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
 
         return notification;
     }
+
+    public async Task<NotificationDocument> AddLowStockAsync(
+        Guid eventId,
+        string stockKey,
+        string displayName,
+        int available,
+        int reorderLevel,
+        CancellationToken cancellationToken)
+    {
+        var eventKey = eventId.ToString("N");
+        var notification = new NotificationDocument
+        {
+            Id = eventKey,
+            EventId = eventKey,
+            RecipientId = "admins",
+            Type = "low-stock",
+            Title = "Kritik stok seviyesi",
+            Message = $"{displayName} kritik seviyeye ulaştı. Kalan: {available}.",
+            Status = "unread",
+            StockKey = stockKey,
+            Available = available,
+            ReorderLevel = reorderLevel,
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+
+        await collection.ReplaceOneAsync(
+            item => item.EventId == eventKey,
+            notification,
+            new ReplaceOptions { IsUpsert = true },
+            cancellationToken);
+
+        return notification;
+    }
 }

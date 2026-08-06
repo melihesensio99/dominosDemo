@@ -39,10 +39,11 @@ public static class NotificationModule
         services.AddMassTransit(x =>
         {
             x.AddConsumer<StockChangedConsumer>();
+            x.AddConsumer<LowStockDetectedConsumer>();
             x.AddConsumer<OrderCreatedConsumer>();
             x.AddConsumer<OrderCancelledConsumer>();
             x.AddConsumer<OrderStatusChangedConsumer>();
-            x.SetKebabCaseEndpointNameFormatter();
+            x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("notification", false));
 
             x.UsingRabbitMq((context, cfg) =>
             {

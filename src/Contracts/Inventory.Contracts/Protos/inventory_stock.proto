@@ -6,15 +6,39 @@ package inventory.stock;
 
 service InventoryStockService {
   rpc GetStock (GetStockRequest) returns (GetStockResponse);
+  rpc ReserveOrderStock (ReserveOrderStockRequest) returns (StockReservationResponse);
+  rpc ReleaseOrderStock (OrderStockReservationRequest) returns (StockReservationResponse);
+  rpc CommitOrderStock (OrderStockReservationRequest) returns (StockReservationResponse);
 }
 
 message GetStockRequest {
-  string product_id = 1;
+  string stock_key = 1;
 }
 
 message GetStockResponse {
-  string product_id = 1;
+  string stock_key = 1;
   int32 available = 2;
   int32 reserved = 3;
   int32 reorder_level = 4;
+  string display_name = 5;
+}
+
+message StockRequirement {
+  string stock_key = 1;
+  int32 quantity = 2;
+}
+
+message ReserveOrderStockRequest {
+  string order_id = 1;
+  repeated StockRequirement items = 2;
+}
+
+message OrderStockReservationRequest {
+  string order_id = 1;
+}
+
+message StockReservationResponse {
+  bool success = 1;
+  string error_code = 2;
+  string message = 3;
 }

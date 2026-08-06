@@ -18,4 +18,9 @@ public sealed class SignalRNotificationPublisher(
                 .OrderStatusChanged(notification),
             hubContext.Clients.Group(NotificationHub.AdminGroup)
                 .OrderStatusChanged(notification));
+
+    public Task NotifyLowStockAsync(LowStockNotification notification) =>
+        hubContext.Clients
+            .Group(NotificationHub.AdminGroup)
+            .LowStockDetected(notification);
 }

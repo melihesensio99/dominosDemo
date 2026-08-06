@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HubConnectionState } from '@microsoft/signalr';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAppStatus } from '../app-status';
 import { basketService, orderService } from '../services';
 import { createNotificationTrackingConnection } from '../services/notificationTracking.service';
 import type { Order } from '../types/order';
@@ -14,6 +15,9 @@ interface UseOrdersParams {
 
 export function useOrders({ customerId, basket }: UseOrdersParams) {
   const queryClient = useQueryClient();
+  const { showError } = useAppStatus();
+  const statusFeedbackRef = useRef({ showError });
+  statusFeedbackRef.current = { showError };
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [actionError, setActionError] = useState<Error | null>(null);
 
@@ -45,12 +49,21 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
     });
 
     const connection = createNotificationTrackingConnection((notification) => {
+      const normalizedStatus = notification.status.toLowerCase();
+
+      if (normalizedStatus === 'cancelled') {
+        statusFeedbackRef.current.showError(
+          'Siparişiniz iptal edildi. Rezerve edilen ürünler stoğa geri bırakıldı.',
+          8000,
+        );
+      }
+
       queryClient.setQueryData<Order[]>(['orders', customerId], (orders) =>
         orders?.map((order) =>
           order.id === notification.orderId
             ? {
                 ...order,
-                status: notification.status.toLowerCase(),
+                status: normalizedStatus,
                 updatedAt: notification.updatedAt,
               }
             : order,
@@ -101,11 +114,14 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
       ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status.toLowerCase()),
     );
     const latestDelivered = orders.find((order) => order.status.toLowerCase() === 'delivered') ?? null;
+    const latestFinished = orders.find((order) =>
+      ['delivered', 'cancelled'].includes(order.status.toLowerCase()),
+    ) ?? null;
 
     return {
       activeOrders: active,
       latestDeliveredOrder: latestDelivered,
-      visibleOrders: active.length > 0 ? active : latestDelivered ? [latestDelivered] : [],
+      visibleOrders: active.length > 0 ? active : latestFinished ? [latestFinished] : [],
     };
   }, [ordersQuery.data]);
 

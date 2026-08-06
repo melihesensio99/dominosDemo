@@ -11,6 +11,10 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     gap: 16,
   },
+  cardCancelled: {
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FFF7F7',
+  },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   pulse: {
     width: 16,
@@ -20,9 +24,14 @@ export const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: '#D8F4E5',
   },
+  pulseCancelled: {
+    backgroundColor: '#DC2626',
+    borderColor: '#FEE2E2',
+  },
   headerText: { flex: 1, gap: 3 },
   title: { color: theme.colors.text, fontSize: 16, fontWeight: '900' },
   status: { color: theme.colors.primaryDark, fontSize: 17, lineHeight: 22, fontWeight: '800' },
+  statusCancelled: { color: '#B91C1C' },
   orderNumber: { color: theme.colors.muted, fontSize: 11, fontWeight: '700', marginTop: 2 },
   items: { gap: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: theme.colors.border },
   itemRow: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -62,4 +71,17 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.border,
   },
   timelineLineActive: { backgroundColor: theme.colors.success },
+  cancelledNotice: {
+    borderRadius: theme.radius.md,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: '#FEE2E2',
+  },
+  cancelledNoticeText: {
+    color: '#991B1B',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
 });

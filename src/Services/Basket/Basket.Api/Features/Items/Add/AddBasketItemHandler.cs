@@ -9,18 +9,6 @@ public sealed class AddBasketItemHandler(
 {
     public async Task<Result<BasketResponse>> Handle(AddBasketItemCommand request, CancellationToken cancellationToken)
     {
-        var stockResult = await stockClient.GetStockAsync(request.ProductId, cancellationToken);
-        if (!stockResult.IsSuccess || stockResult.Value is null)
-        {
-            return Result<BasketResponse>.Failure(stockResult.Error?.Code ?? "stock_error", stockResult.Error?.Message ?? "Stock could not be loaded.");
-        }
-
-        var stock = stockResult.Value;
-        if (!stock.CanFit(request.Quantity))
-        {
-            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for product {request.ProductId}.");
-        }
-
         var productResult = await catalogProductClient.GetProductAsync(request.ProductId, cancellationToken);
         if (!productResult.IsSuccess || productResult.Value is null)
         {
@@ -60,16 +48,57 @@ public sealed class AddBasketItemHandler(
             }
         }
 
-        var basket = await basketRepository.GetAsync(request.CustomerId, cancellationToken) ?? ShoppingBasket.Create(request.CustomerId);
-        basket.AddItem(product, selectedOptions, request.Quantity);
-
-        var basketItem = basket.Items.First(x => x.ProductId == request.ProductId);
-        if (basketItem.Quantity > stock.Available)
+        var stockKeyResult = ResolveStockKey(product, selectedOptions);
+        if (!stockKeyResult.IsSuccess || stockKeyResult.Value is null)
         {
-            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for product {request.ProductId}.");
+            return Result<BasketResponse>.Validation(
+                stockKeyResult.Error?.Code ?? "basket.stock_mapping_missing",
+                stockKeyResult.Error?.Message ?? "Stock mapping is missing.");
+        }
+
+        var stockKey = stockKeyResult.Value;
+        var stockResult = await stockClient.GetStockAsync(stockKey, cancellationToken);
+        if (!stockResult.IsSuccess || stockResult.Value is null)
+        {
+            return Result<BasketResponse>.Failure(stockResult.Error?.Code ?? "stock_error", stockResult.Error?.Message ?? "Stock could not be loaded.");
+        }
+
+        var basket = await basketRepository.GetAsync(request.CustomerId, cancellationToken) ?? ShoppingBasket.Create(request.CustomerId);
+        basket.AddItem(product, selectedOptions, stockKey, request.Quantity);
+
+        var requestedFromPool = basket.Items
+            .Where(item => item.StockKey == stockKey)
+            .Sum(item => item.Quantity);
+        if (requestedFromPool > stockResult.Value.Available)
+        {
+            return Result<BasketResponse>.Validation(
+                "basket.stock_not_enough",
+                $"Only {stockResult.Value.Available} items are available for {stockKey}.");
         }
 
         await basketRepository.SaveAsync(basket, cancellationToken);
         return Result<BasketResponse>.Success(basket.ToResponse());
+    }
+
+    private static Result<string> ResolveStockKey(
+        CatalogProductSnapshot product,
+        IReadOnlyCollection<CatalogOptionSnapshot> selectedOptions)
+    {
+        if (product.InventoryTrackingType.Equals("direct", StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<string>.Success(product.InventoryKey ?? product.Id);
+        }
+
+        var stockKeys = selectedOptions
+            .Select(option => option.InventoryKey)
+            .Where(key => !string.IsNullOrWhiteSpace(key))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return stockKeys.Length == 1
+            ? Result<string>.Success(stockKeys[0]!)
+            : Result<string>.Validation(
+                "basket.stock_mapping_missing",
+                "The selected product size is not connected to a dough stock.");
     }
 }

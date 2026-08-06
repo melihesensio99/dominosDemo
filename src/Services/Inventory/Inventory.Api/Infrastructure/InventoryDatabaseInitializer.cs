@@ -11,44 +11,43 @@ public static class InventoryDatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
 
         await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await EnsureDoughStocksAsync(dbContext, cancellationToken);
     }
 
-    private static async Task SeedStockAsync(InventoryDbContext dbContext, CancellationToken cancellationToken)
+    private static async Task EnsureDoughStocksAsync(InventoryDbContext dbContext, CancellationToken cancellationToken)
     {
-        if (await dbContext.StockItems.AnyAsync(cancellationToken))
+        var definitions = new[]
         {
-            return;
-        }
+            new DoughStockDefinition("dough-small", "Küçük Boy Hamur", 40, 10),
+            new DoughStockDefinition("dough-medium", "Orta Boy Hamur", 80, 15),
+            new DoughStockDefinition("dough-large", "Büyük Boy Hamur", 50, 10),
+            new DoughStockDefinition("dough-xl", "XL Hamur", 20, 5),
+        };
 
-        dbContext.StockItems.AddRange(
-            new StockItem
+        var existingKeys = await dbContext.StockItems
+            .Where(item => definitions.Select(definition => definition.StockKey).Contains(item.StockKey))
+            .Select(item => item.StockKey)
+            .ToHashSetAsync(cancellationToken);
+
+        var missingStocks = definitions
+            .Where(definition => !existingKeys.Contains(definition.StockKey))
+            .Select(definition => new StockItem
             {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000002001"),
-                ProductId = "p-100",
-                Available = 25,
-                Reserved = 0,
-                ReorderLevel = 5,
-                CreatedAt = DateTimeOffset.UtcNow,
-            },
-            new StockItem
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000002002"),
-                ProductId = "p-200",
-                Available = 12,
-                Reserved = 0,
-                ReorderLevel = 3,
-                CreatedAt = DateTimeOffset.UtcNow,
-            },
-            new StockItem
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000002003"),
-                ProductId = "p-300",
-                Available = 5,
-                Reserved = 0,
-                ReorderLevel = 2,
-                CreatedAt = DateTimeOffset.UtcNow,
+                StockKey = definition.StockKey,
+                DisplayName = definition.DisplayName,
+                TrackingType = InventoryTrackingType.Dough,
+                Available = definition.InitialStock,
+                ReorderLevel = definition.ReorderLevel,
             });
+
+        await dbContext.StockItems.AddRangeAsync(missingStocks, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    private sealed record DoughStockDefinition(
+        string StockKey,
+        string DisplayName,
+        int InitialStock,
+        int ReorderLevel);
 }

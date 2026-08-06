@@ -21,6 +21,8 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
                 product.Name,
                 product.Price,
                 product.IsActive,
+                product.InventoryTrackingType,
+                product.InventoryKey,
                 product.OptionGroups.Select(group => new CatalogOptionGroupSnapshot(
                     group.Id,
                     group.Name,
@@ -31,6 +33,7 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
                         group.Name,
                         option.Name,
                         option.PriceAdjustment,
+                        option.InventoryKey,
                         option.IsDefault,
                         option.IsActive)).ToArray())).ToArray()));
         }
@@ -45,6 +48,8 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
         string Name,
         decimal Price,
         bool IsActive,
+        string InventoryTrackingType,
+        string? InventoryKey,
         IReadOnlyList<CatalogOptionGroupResponse> OptionGroups);
 
     private sealed record CatalogOptionGroupResponse(
@@ -58,6 +63,7 @@ public sealed class CatalogProductClient(HttpClient httpClient) : ICatalogProduc
         Guid Id,
         string Name,
         decimal PriceAdjustment,
+        string? InventoryKey,
         bool IsDefault,
         bool IsActive,
         int DisplayOrder);

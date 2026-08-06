@@ -18,16 +18,19 @@ public sealed class UpdateBasketItemQuantityHandler(IBasketRepository basketRepo
             return Result<BasketResponse>.NotFound("basket.item_not_found", "Basket item was not found.");
         }
 
-        var stockResult = await stockClient.GetStockAsync(basketItem.ProductId, cancellationToken);
+        var stockResult = await stockClient.GetStockAsync(basketItem.StockKey, cancellationToken);
         if (!stockResult.IsSuccess || stockResult.Value is null)
         {
             return Result<BasketResponse>.Failure(stockResult.Error?.Code ?? "stock_error", stockResult.Error?.Message ?? "Stock could not be loaded.");
         }
 
         var stock = stockResult.Value;
-        if (!stock.CanFit(request.Quantity))
+        var otherItemsFromPool = basket.Items
+            .Where(item => item.Id != basketItem.Id && item.StockKey == basketItem.StockKey)
+            .Sum(item => item.Quantity);
+        if (!stock.CanFit(otherItemsFromPool + request.Quantity))
         {
-            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for product {basketItem.ProductId}.");
+            return Result<BasketResponse>.Validation("basket.stock_not_enough", $"Only {stock.Available} items are available for {basketItem.StockKey}.");
         }
 
         if (!basket.UpdateItemQuantity(request.ItemId, request.Quantity))

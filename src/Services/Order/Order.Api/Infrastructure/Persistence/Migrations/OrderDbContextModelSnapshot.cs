@@ -91,6 +91,9 @@ partial class OrderDbContextModelSnapshot : ModelSnapshot
             b.Property<int>("Status")
                 .HasColumnType("integer");
 
+            b.Property<decimal>("TotalPrice")
+                .HasColumnType("numeric");
+
             b.Property<DateTimeOffset?>("UpdatedAt")
                 .HasColumnType("timestamp with time zone");
 

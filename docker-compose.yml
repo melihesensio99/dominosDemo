@@ -98,9 +98,13 @@ services:
       - RabbitMq__Host=rabbitmq
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
+      - CatalogApi__Url=http://catalog:8002/
+      - InventoryGrpc__Url=http://inventory:8007
     depends_on:
       - postgres
       - rabbitmq
+      - catalog
+      - inventory
 
   inventory:
     build:

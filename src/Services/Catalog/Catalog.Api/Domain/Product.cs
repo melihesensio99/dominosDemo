@@ -14,6 +14,10 @@ public sealed class Product
 
     public int Stock { get; set; }
 
+    public InventoryTrackingType InventoryTrackingType { get; set; } = InventoryTrackingType.Direct;
+
+    public string? InventoryKey { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     public Guid CategoryId { get; set; }

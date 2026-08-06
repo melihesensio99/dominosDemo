@@ -14,6 +14,7 @@ public sealed class StockChangedConsumer(MongoNotificationStore store) : IConsum
             StockOperationType.Reserved => "reserved",
             StockOperationType.Released => "released",
             StockOperationType.Adjusted => "adjusted",
+            StockOperationType.Committed => "consumed",
             _ => "updated",
         };
 

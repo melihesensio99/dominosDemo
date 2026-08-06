@@ -10,6 +10,9 @@ using Order.Api.Features.GetByCustomer;
 using Order.Api.Features.List;
 using Order.Api.Features.UpdateStatus;
 using Microsoft.EntityFrameworkCore;
+using Grpc.Net.Client;
+using Inventory.Contracts.Grpc;
+using Order.Api.Infrastructure.Clients;
 
 namespace Order.Api.Features;
 
@@ -26,6 +29,16 @@ public static class OrderModule
 
         services.AddDbContext<OrderDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IOrderRepository, EfOrderRepository>();
+        services.AddHttpClient<ICatalogInventoryClient, CatalogInventoryClient>(client =>
+        {
+            client.BaseAddress = new Uri(configuration["CatalogApi:Url"] ?? "http://localhost:5174/");
+        });
+        services.AddSingleton(_ => GrpcChannel.ForAddress(
+            configuration["InventoryGrpc:Url"] ?? "http://localhost:5142"));
+        services.AddSingleton(serviceProvider =>
+            new InventoryStockService.InventoryStockServiceClient(
+                serviceProvider.GetRequiredService<GrpcChannel>()));
+        services.AddSingleton<IOrderStockClient, OrderGrpcStockClient>();
         services.AddHostedService<OrderOutboxDispatcher>();
     }
 

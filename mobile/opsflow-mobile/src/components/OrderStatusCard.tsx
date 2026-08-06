@@ -28,8 +28,13 @@ const statusContent: Record<string, { title: string; message: string }> = {
 export function OrderStatusCard({ order, products }: OrderStatusCardProps) {
   const pulse = useRef(new Animated.Value(0.92)).current;
   const status = order.status.toLowerCase();
-  const activeIndex = Math.max(orderSteps.findIndex((step) => step.key === status), 0);
-  const content = statusContent[status] ?? { title: 'Sipariş durumu', message: order.status };
+  const isCancelled = status === 'cancelled';
+  const activeIndex = isCancelled
+    ? -1
+    : Math.max(orderSteps.findIndex((step) => step.key === status), 0);
+  const content = isCancelled
+    ? { title: 'Sipariş iptal edildi', message: 'Siparişiniz iptal edildi.' }
+    : statusContent[status] ?? { title: 'Sipariş durumu', message: order.status };
   const productMap = useMemo(
     () => new Map(products.map((product) => [product.id, product])),
     [products],
@@ -47,13 +52,24 @@ export function OrderStatusCard({ order, products }: OrderStatusCardProps) {
   }, [pulse]);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isCancelled && styles.cardCancelled]}>
       <View style={styles.header}>
-        <Animated.View style={[styles.pulse, { transform: [{ scale: pulse }] }]} />
+        <Animated.View
+          style={[
+            styles.pulse,
+            isCancelled && styles.pulseCancelled,
+            { transform: [{ scale: pulse }] },
+          ]}
+        />
         <View style={styles.headerText}>
           <Text style={styles.title}>{content.title}</Text>
-          <Text style={styles.status}>{content.message}</Text>
+          <Text style={[styles.status, isCancelled && styles.statusCancelled]}>{content.message}</Text>
           <Text style={styles.orderNumber}>Sipariş #{order.id.slice(-8).toUpperCase()}</Text>
+          {order.totalPrice ? (
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#16a34a', marginTop: 4 }}>
+              Toplam: {order.totalPrice.toFixed(2)} TL
+            </Text>
+          ) : null}
         </View>
       </View>
 
@@ -78,26 +94,34 @@ export function OrderStatusCard({ order, products }: OrderStatusCardProps) {
         })}
       </View>
 
-      <View style={styles.timeline}>
-        {orderSteps.map((step, index) => {
-          const isCompleted = index <= activeIndex;
-          return (
-            <View key={step.key} style={styles.timelineStep}>
-              <View style={[styles.timelineDot, isCompleted && styles.timelineDotActive]}>
-                <Text style={[styles.timelineCheck, isCompleted && styles.timelineCheckActive]}>
-                  {isCompleted ? '✓' : ''}
+      {isCancelled ? (
+        <View style={styles.cancelledNotice}>
+          <Text style={styles.cancelledNoticeText}>
+            Bu sipariş iptal edildi. Ayrılan stoklar tekrar kullanıma açıldı.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.timeline}>
+          {orderSteps.map((step, index) => {
+            const isCompleted = index <= activeIndex;
+            return (
+              <View key={step.key} style={styles.timelineStep}>
+                <View style={[styles.timelineDot, isCompleted && styles.timelineDotActive]}>
+                  <Text style={[styles.timelineCheck, isCompleted && styles.timelineCheckActive]}>
+                    {isCompleted ? '✓' : ''}
+                  </Text>
+                </View>
+                <Text style={[styles.timelineLabel, isCompleted && styles.timelineLabelActive]}>
+                  {step.label}
                 </Text>
+                {index < orderSteps.length - 1 ? (
+                  <View style={[styles.timelineLine, index < activeIndex && styles.timelineLineActive]} />
+                ) : null}
               </View>
-              <Text style={[styles.timelineLabel, isCompleted && styles.timelineLabelActive]}>
-                {step.label}
-              </Text>
-              {index < orderSteps.length - 1 ? (
-                <View style={[styles.timelineLine, index < activeIndex && styles.timelineLineActive]} />
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }

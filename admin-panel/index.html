@@ -28,12 +28,30 @@
     .order-id { font-weight: 800; overflow-wrap: anywhere; } .date { color: #64748b; font-size: 12px; margin-top: 4px; }
     .status { display: inline-flex; border-radius: 999px; padding: 6px 10px; background: #dbeafe; color: #1d4ed8; font-weight: 800; font-size: 12px; white-space: nowrap; }
     .status.delivered { background: #dcfce7; color: #15803d; } .status.cancelled { background: #fee2e2; color: #b91c1c; }
-    .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; color: #475569; font-size: 13px; }
+    .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; color: #475569; font-size: 13px; }
     .details strong { display: block; color: #1e293b; margin-bottom: 3px; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid #e2e8f0; padding-top: 14px; }
     .empty { text-align: center; color: #64748b; padding: 38px 20px; background: white; border-radius: 18px; border: 1px dashed #cbd5e1; }
     .message { margin: 12px auto; max-width: 520px; padding: 12px 14px; border-radius: 10px; display: none; }
     .message.error { display: block; background: #fee2e2; color: #991b1b; } .message.ok { display: block; background: #dcfce7; color: #166534; }
+    
+    .tabs { display: flex; gap: 8px; margin: 0 0 20px; flex-wrap: wrap; }
+    .tabs button { background: white; color: #475569; border: 1px solid #dbe3ef; }
+    .tabs button.active { background: #2563eb; color: white; border-color: #2563eb; }
+    
+    .stock-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .stock-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 17px; display: grid; gap: 12px; }
+    .stock-card.low { border-color: #fca5a5; background: #fffafa; }
+    .stock-head { display: flex; justify-content: space-between; gap: 12px; }
+    .stock-name { font-weight: 800; } .stock-key { color: #94a3b8; font-size: 11px; overflow-wrap: anywhere; }
+    .stock-count { font-size: 26px; font-weight: 900; color: #0f172a; }
+    .stock-count.low { color: #dc2626; }
+    .stock-meta { display: flex; justify-content: space-between; color: #64748b; font-size: 12px; }
+    .stock-adjust input { max-width: 120px; flex-basis: 100px; }
+    
+    .alert-list { display: grid; gap: 12px; }
+    .alert-card { border-left: 5px solid #dc2626; background: white; border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px #0f172a0b; }
+    .alert-card h3 { margin: 0 0 5px; font-size: 15px; } .alert-card p { margin: 0; color: #64748b; }
     @media (max-width: 620px) { header { align-items: flex-start; flex-direction: column; } .order-top { flex-direction: column; } }
   </style>
 </head>
@@ -55,8 +73,36 @@
     <div id="message" class="message"></div>
 
     <section id="ordersPanel" hidden>
-      <div class="toolbar"><div><h2>Siparisler</h2><span id="connectionState" class="muted">Baglanti bekleniyor...</span></div><button id="refreshButton" class="secondary">Yenile</button></div>
-      <div id="orders" class="orders"></div>
+      <nav class="tabs">
+        <button class="active" data-tab="ordersView">Siparisler</button>
+        <button data-tab="stocksView">Stoklar</button>
+        <button data-tab="alertsView">Kritik uyarilar</button>
+      </nav>
+
+      <div id="ordersView" class="tab-view">
+        <div class="toolbar"><div><h2>Siparisler</h2><span id="connectionState" class="muted">Baglanti bekleniyor...</span></div><button id="refreshButton" class="secondary">Yenile</button></div>
+        <div id="orders" class="orders"></div>
+      </div>
+
+      <div id="stocksView" class="tab-view" hidden>
+        <div class="toolbar"><div><h2>Stok yonetimi</h2><span class="muted">Hamurlar ortak havuzdan, hazir urunler dogrudan adetle izlenir.</span></div><button id="refreshStocksButton" class="secondary">Yenile</button></div>
+        
+        <nav class="tabs stock-filter-tabs" style="margin-bottom: 20px;">
+          <button class="active" data-filter="all">Tümü</button>
+          <button data-filter="pizzalar">🍕 Pizzalar</button>
+          <button data-filter="tatlilar">🍰 Tatlılar</button>
+          <button data-filter="patatesler">🍟 Patatesler</button>
+          <button data-filter="soslar">🍯 Soslar</button>
+          <button data-filter="icecekler">🥤 İçecekler</button>
+        </nav>
+
+        <div id="stocks" class="stock-grid"></div>
+      </div>
+
+      <div id="alertsView" class="tab-view" hidden>
+        <div class="toolbar"><div><h2>Kritik stok uyarilari</h2><span class="muted">Kritik esige ilk iniste tek bildirim olusur.</span></div><button id="refreshAlertsButton" class="secondary">Yenile</button></div>
+        <div id="alerts" class="alert-list"></div>
+      </div>
     </section>
   </main>
 
@@ -69,6 +115,7 @@
     let accessToken = localStorage.getItem(tokenKey);
     let connection;
     let fallbackRefreshTimer;
+    let activeStockFilter = 'all';
 
     const $ = (id) => document.getElementById(id);
     function showMessage(text, type = 'error') { const el = $('message'); el.textContent = text; el.className = `message ${type}`; }
@@ -93,34 +140,188 @@
     async function loadOrders() {
       try { renderOrders(await api('/proxy/order/orders')); } catch (error) { showMessage(error.message); }
     }
+    async function loadStocks() {
+      try { renderStocks(await api('/proxy/inventory/stock')); } catch (error) { showMessage(error.message); }
+    }
+    async function loadAlerts() {
+      try {
+        const response = await api('/proxy/notification/notifications');
+        renderAlerts((response.items || []).filter(item => item.type === 'low-stock'));
+      } catch (error) { showMessage(error.message); }
+    }
+
+    function renderAlerts(alerts) {
+      const root = $('alerts');
+      if (!alerts.length) { root.innerHTML = '<div class="empty">Kritik stok uyarisi yok.</div>'; return; }
+      root.innerHTML = alerts.map(alert => `<article class="alert-card"><h3>${alert.title || 'Kritik stok'}</h3><p>${alert.message}</p><div class="date">${new Date(alert.createdAt).toLocaleString('tr-TR')} · Esik: ${alert.reorderLevel}</div></article>`).join('');
+    }
+
+    function renderStocks(stocks) {
+      const root = $('stocks');
+      if (!stocks.length) { root.innerHTML = '<div class="empty">Stok kaydi bulunamadi.</div>'; return; }
+      
+      const categories = {
+        pizzalar: [],
+        tatlilar: [],
+        patatesler: [],
+        soslar: [],
+        icecekler: [],
+        diger: []
+      };
+
+      stocks.forEach(stock => {
+        const isDough = String(stock.trackingType).toLowerCase() === 'dough' || stock.trackingType === 1 || stock.stockKey.startsWith('dough');
+        if (isDough) {
+          categories.pizzalar.push(stock);
+          return;
+        }
+
+        const name = (stock.displayName || '').toLowerCase();
+        
+        if (name.includes('sufle') || name.includes('tatlı') || name.includes('tiramisu') || name.includes('puding') || name.includes('pasta') || name.includes('waffle') || name.includes('dondurma')) {
+          categories.tatlilar.push(stock);
+        } else if (name.includes('patates') || name.includes('fries') || name.includes('tırtıklı')) {
+          categories.patatesler.push(stock);
+        } else if (name.includes('sos') || name.includes('ketçap') || name.includes('mayonez') || name.includes('ranch') || name.includes('barbekü') || name.includes('sauce')) {
+          categories.soslar.push(stock);
+        } else if (name.includes('kola') || name.includes('coke') || name.includes('fanta') || name.includes('sprite') || name.includes('gazoz') || name.includes('su') || name.includes('ayran') || name.includes('şalgam') || name.includes('limonata') || name.includes('ice tea') || name.includes('içecek')) {
+          categories.icecekler.push(stock);
+        } else {
+          categories.diger.push(stock);
+        }
+      });
+
+      const renderCard = (stock) => {
+        const low = stock.isLowStock;
+        const type = String(stock.trackingType).toLowerCase() === 'dough' || stock.trackingType === 1 ? 'Hamur havuzu' : 'Hazir urun';
+        return `<article class="stock-card ${low ? 'low' : ''}"><div class="stock-head"><div><div class="stock-name">${stock.displayName}</div><div class="stock-key">${stock.stockKey}</div></div><div class="stock-count ${low ? 'low' : ''}">${stock.available}</div></div><div class="stock-meta"><span>${type}</span><span>Rezerve: ${stock.reserved}</span><span>Esik: ${stock.reorderLevel}</span></div><div class="row stock-adjust"><input type="number" value="10" data-quantity="${stock.stockKey}" /><button data-adjust="${stock.stockKey}">Stogu guncelle</button></div></article>`;
+      };
+
+      let html = '';
+      
+      const renderSection = (title, items, borderStyle, categoryKey) => {
+        if (!items.length) return '';
+        if (activeStockFilter !== 'all' && activeStockFilter !== categoryKey) return '';
+        let sectionHtml = `<div style="grid-column: 1 / -1; margin: 22px 0 8px;"><h3 style="margin: 0; font-size: 16px; border-bottom: 2px solid ${borderStyle.color}; display: inline-block; padding-bottom: 4px; color: ${borderStyle.color};">${borderStyle.icon} ${title}</h3></div>`;
+        sectionHtml += items.map(renderCard).join('');
+        return sectionHtml;
+      };
+
+      html += renderSection('Pizzalar (Hamur Havuzları)', categories.pizzalar, { icon: '🍕', color: '#2563eb' }, 'pizzalar');
+      html += renderSection('Tatlılar', categories.tatlilar, { icon: '🍰', color: '#db2777' }, 'tatlilar');
+      html += renderSection('Patatesler', categories.patatesler, { icon: '🍟', color: '#d97706' }, 'patatesler');
+      html += renderSection('Soslar', categories.soslar, { icon: '🍯', color: '#ea580c' }, 'soslar');
+      html += renderSection('İçecekler', categories.icecekler, { icon: '🥤', color: '#0d9488' }, 'icecekler');
+      html += renderSection('Diğer Ürünler', categories.diger, { icon: '📦', color: '#4b5563' }, 'diger');
+
+      if (!html.trim()) {
+        html = '<div class="empty" style="grid-column: 1 / -1;">Bu kategoride stok kaydı bulunamadı.</div>';
+      }
+
+      root.innerHTML = html;
+      root.querySelectorAll('[data-adjust]').forEach(button => button.addEventListener('click', () => adjustStock(button.dataset.adjust, button)));
+    }
+
+    async function adjustStock(stockKey, button) {
+      const input = document.querySelector(`[data-quantity="${CSS.escape(stockKey)}"]`);
+      const quantity = Number(input.value);
+      if (!Number.isInteger(quantity) || quantity < 0) { showMessage('Miktari gecerli bir pozitif tam sayi gir.'); return; }
+      button.disabled = true; clearMessage();
+      try { await api(`/proxy/inventory/stock/${encodeURIComponent(stockKey)}/adjust`, { method: 'POST', body: JSON.stringify({ productId: stockKey, quantity }) }); showMessage('Stok guncellendi.', 'ok'); await Promise.all([loadStocks(), loadAlerts()]); }
+      catch (error) { showMessage(error.message); } finally { button.disabled = false; }
+    }
+
     function renderOrders(orders) {
       const root = $('orders');
       if (!orders.length) { root.innerHTML = '<div class="empty">Henuz yonetilecek siparis yok.</div>'; return; }
       root.innerHTML = orders.map(order => {
         const actions = (transitions[order.status] || []).map(([status, text]) => `<button data-order="${order.id}" data-status="${status}" class="${status === 'cancelled' ? 'danger' : ''}">${text}</button>`).join('');
         const address = order.shippingAddress ? `${order.shippingAddress.district}, ${order.shippingAddress.city}` : '-';
-        return `<article class="order"><div class="order-top"><div><div class="order-id">#${order.id}</div><div class="date">${new Date(order.createdAt).toLocaleString('tr-TR')}</div></div><span class="status ${order.status}">${labels[order.status] || order.status}</span></div><div class="details"><div><strong>Musteri</strong>${order.customerId}</div><div><strong>Urun adedi</strong>${order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0}</div><div><strong>Teslimat</strong>${address}</div><div><strong>Not</strong>${order.note || 'Not yok'}</div></div>${actions ? `<div class="actions">${actions}</div>` : '<div class="muted">Bu siparis icin bekleyen bir islem yok.</div>'}</article>`;
+        const totalItems = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        
+        const itemsListHtml = (order.items || []).map(item => {
+          const shortProductId = item.productId.length > 8 ? `${item.productId.slice(0, 8)}...` : item.productId;
+          const optionsHtml = item.selectedOptionIds && item.selectedOptionIds.length 
+            ? `<div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">Seçenekler: ${item.selectedOptionIds.map(id => id.slice(0, 5) + '...').join(', ')}</div>` 
+            : '';
+          return `<li style="margin-bottom: 4px;" title="Ürün ID: ${item.productId}">
+            <span style="font-weight: 600; color: #0f172a;">${shortProductId}</span> x ${item.quantity} adet
+            ${optionsHtml}
+          </li>`;
+        }).join('');
+
+        const itemsDropdown = `
+          <div>
+            <strong>Urun adedi</strong>
+            <details style="margin-top: 3px; cursor: pointer;">
+              <summary style="font-weight: 700; color: #2563eb; outline: none; list-style: none; display: flex; align-items: center; gap: 4px;">
+                <span>${totalItems} adet</span>
+                <span style="font-size: 10px; opacity: 0.7;">▼</span>
+              </summary>
+              <ul style="margin: 8px 0 0 0; padding-left: 14px; font-size: 11px; color: #475569; list-style-type: square; text-align: left;">
+                ${itemsListHtml || '<li>Ürün detayı yok</li>'}
+              </ul>
+            </details>
+          </div>
+        `;
+
+        const priceHtml = `
+          <div>
+            <strong>Toplam Tutar</strong>
+            <span style="font-weight: 800; color: #16a34a; font-size: 14px;">${order.totalPrice ? order.totalPrice.toFixed(2) : '0.00'} TL</span>
+          </div>
+        `;
+
+        return `<article class="order"><div class="order-top"><div><div class="order-id">#${order.id}</div><div class="date">${new Date(order.createdAt).toLocaleString('tr-TR')}</div></div><span class="status ${order.status}">${labels[order.status] || order.status}</span></div><div class="details"><div><strong>Musteri</strong>${order.customerId}</div>${priceHtml}${itemsDropdown}<div><strong>Teslimat</strong>${address}</div><div><strong>Not</strong>${order.note || 'Not yok'}</div></div>${actions ? `<div class="actions">${actions}</div>` : '<div class="muted">Bu siparis icin bekleyen bir islem yok.</div>'}</article>`;
       }).join('');
       root.querySelectorAll('[data-order]').forEach(button => button.addEventListener('click', () => changeStatus(button.dataset.order, button.dataset.status, button)));
     }
+
     async function changeStatus(orderId, status, button) {
       button.disabled = true; clearMessage();
       try { await api(`/proxy/order/admin/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }); showMessage('Siparis durumu guncellendi.', 'ok'); await loadOrders(); }
-      catch (error) { showMessage(error.message); button.disabled = false; }
+      catch (error) { showMessage(error.message); } finally { button.disabled = false; }
     }
+
     async function startLiveUpdates() {
       if (!window.signalR) { $('connectionState').textContent = 'Canli kutuphane yok, REST yenileme aktif.'; return; }
       connection = new signalR.HubConnectionBuilder().withUrl(`${NOTIFICATION_API_URL}/hubs/notifications`, { accessTokenFactory: () => accessToken }).withAutomaticReconnect().build();
       connection.on('NewOrderCreated', loadOrders); connection.on('OrderStatusChanged', loadOrders);
+      connection.on('LowStockDetected', async notification => { showMessage(`${notification.displayName} kritik stok seviyesine indi.`, 'error'); await Promise.all([loadStocks(), loadAlerts()]); });
       connection.onreconnecting(() => { $('connectionState').textContent = 'Canli baglanti yeniden kuruluyor, REST yenileme aktif.'; });
       connection.onreconnected(() => { $('connectionState').textContent = 'Canli baglanti aktif'; void loadOrders(); });
       connection.onclose(() => { $('connectionState').textContent = 'Canli baglanti kapali, REST yenileme aktif.'; });
       try { await connection.start(); $('connectionState').textContent = 'Canli baglanti aktif'; } catch { $('connectionState').textContent = 'Canli baglanti kurulamadi, REST yenileme aktif.'; }
       fallbackRefreshTimer = window.setInterval(() => void loadOrders(), 15000);
     }
-    async function showAdminPanel() { $('loginPanel').hidden = true; $('ordersPanel').hidden = false; $('logoutButton').hidden = false; await loadOrders(); await startLiveUpdates(); }
+
+    async function showAdminPanel() { $('loginPanel').hidden = true; $('ordersPanel').hidden = false; $('logoutButton').hidden = false; await Promise.all([loadOrders(), loadStocks(), loadAlerts()]); await startLiveUpdates(); }
     function logout() { localStorage.removeItem(tokenKey); accessToken = null; if (fallbackRefreshTimer) window.clearInterval(fallbackRefreshTimer); if (connection) connection.stop(); location.reload(); }
-    $('loginButton').addEventListener('click', login); $('refreshButton').addEventListener('click', loadOrders); $('logoutButton').addEventListener('click', logout);
+    
+    document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => { 
+      document.querySelectorAll('[data-tab]').forEach(item => item.classList.toggle('active', item === button)); 
+      document.querySelectorAll('.tab-view').forEach(view => view.hidden = view.id !== button.dataset.tab); 
+    }));
+    
+    document.querySelectorAll('.stock-filter-tabs button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.stock-filter-tabs button').forEach(item => item.classList.toggle('active', item === button));
+        activeStockFilter = button.dataset.filter;
+        renderStocks(document.stocksDataCache || []);
+      });
+    });
+
+    // Cache the stocks data to make filter changes instantaneous without polling the server
+    const originalLoadStocks = loadStocks;
+    loadStocks = async () => {
+      try { 
+        const stocks = await api('/proxy/inventory/stock');
+        document.stocksDataCache = stocks;
+        renderStocks(stocks); 
+      } catch (error) { showMessage(error.message); }
+    };
+
+    $('loginButton').addEventListener('click', login); $('refreshButton').addEventListener('click', loadOrders); $('refreshStocksButton').addEventListener('click', loadStocks); $('refreshAlertsButton').addEventListener('click', loadAlerts); $('logoutButton').addEventListener('click', logout);
     if (accessToken) showAdminPanel();
   </script>
 </body>

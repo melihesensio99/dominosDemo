@@ -2,7 +2,7 @@ namespace Inventory.Api.Abstractions;
 
 public interface IStockRepository
 {
-    Task<StockItem?> GetByProductIdAsync(string productId, CancellationToken cancellationToken);
+    Task<StockItem?> GetByStockKeyAsync(string stockKey, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<StockItem>> GetAllAsync(CancellationToken cancellationToken);
 

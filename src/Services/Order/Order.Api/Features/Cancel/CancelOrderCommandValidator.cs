@@ -7,5 +7,6 @@ public sealed class CancelOrderCommandValidator : AbstractValidator<CancelOrderC
     public CancelOrderCommandValidator()
     {
         RuleFor(command => command.Id).NotEmpty();
+        RuleFor(command => command.CustomerId).NotEmpty();
     }
 }

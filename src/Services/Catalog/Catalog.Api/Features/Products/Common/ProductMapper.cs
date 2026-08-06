@@ -10,6 +10,8 @@ public static class ProductMapper
             product.ImageUrl,
             product.Price,
             product.Stock,
+            product.InventoryTrackingType.ToString().ToLowerInvariant(),
+            product.InventoryKey,
             product.CategoryId,
             categoryName ?? product.Category?.Name,
             product.OptionGroups
@@ -27,6 +29,7 @@ public static class ProductMapper
                             option.Id,
                             option.Name,
                             option.PriceAdjustment,
+                            option.InventoryKey,
                             option.IsDefault,
                             option.IsActive,
                             option.DisplayOrder))

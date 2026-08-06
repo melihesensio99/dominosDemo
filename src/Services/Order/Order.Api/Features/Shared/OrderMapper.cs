@@ -31,6 +31,7 @@ public static class OrderMapper
                 order.Payment.Status.ToString().ToLowerInvariant()),
             order.Note,
             order.Status.ToString().ToLowerInvariant(),
+            order.TotalPrice,
             order.CreatedAt,
             order.UpdatedAt);
 }

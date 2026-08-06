@@ -17,6 +17,7 @@ export interface Order {
     status: string;
   };
   status: string;
+  totalPrice: number;
   createdAt: string;
   updatedAt: string | null;
 }

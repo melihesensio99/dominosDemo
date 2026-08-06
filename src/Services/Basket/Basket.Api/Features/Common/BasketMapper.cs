@@ -9,6 +9,7 @@ public static class BasketMapper
                 x.Id,
                 x.ProductId,
                 x.ProductName,
+                x.StockKey,
                 x.BasePrice,
                 x.UnitPrice,
                 x.TotalPrice,

@@ -2,10 +2,13 @@ namespace Inventory.Api.Features.Stock.Common;
 
 public sealed record StockResponse(
     Guid Id,
-    string ProductId,
+    string StockKey,
+    string DisplayName,
+    InventoryTrackingType TrackingType,
     int Available,
     int Reserved,
     int ReorderLevel,
     bool IsLowStock,
+    bool LowStockNotified,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt);

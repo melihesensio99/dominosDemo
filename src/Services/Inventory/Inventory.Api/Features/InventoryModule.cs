@@ -1,5 +1,6 @@
 using FluentValidation;
 using Inventory.Api.Features.Stock;
+using Inventory.Api.Features.Reservations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Api.Features;
@@ -17,6 +18,7 @@ public static class InventoryModule
 
         services.AddDbContext<InventoryDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IStockRepository, EfStockRepository>();
+        services.AddScoped<StockReservationService>();
 
         return services;
     }
