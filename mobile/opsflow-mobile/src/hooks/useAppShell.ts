@@ -89,6 +89,10 @@ export function useAppShell() {
     }
   };
 
+  const cancelOrder = async (orderId: string) => {
+    await orders.cancelOrder(orderId);
+  };
+
   const signOut = () => {
     auth.signOut();
     checkout.reset();
@@ -183,11 +187,13 @@ export function useAppShell() {
     activeOrders: orders.activeOrders,
     latestDeliveredOrder: orders.latestDeliveredOrder,
     visibleOrders: orders.visibleOrders,
+    cancellingOrderId: orders.cancellingOrderId,
     signIn,
     addItem,
     updateBasketItem,
     removeBasketItem,
     placeOrder,
+    cancelOrder,
     signOut,
   };
 }

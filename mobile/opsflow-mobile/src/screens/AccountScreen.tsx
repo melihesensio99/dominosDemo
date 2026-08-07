@@ -21,6 +21,8 @@ interface AccountScreenProps {
   onSignOut: () => void;
   orders?: Order[];
   products?: Product[];
+  cancellingOrderId?: string | null;
+  onCancelOrder?: (orderId: string) => void;
 }
 
 export function AccountScreen({
@@ -37,6 +39,8 @@ export function AccountScreen({
   onSignOut,
   orders = [],
   products = [],
+  cancellingOrderId = null,
+  onCancelOrder,
 }: AccountScreenProps) {
   const isAuthenticated = Boolean(user);
 
@@ -81,6 +85,7 @@ export function AccountScreen({
                       order.status.toLowerCase() === 'shipped' ? 'Yolda' :
                       order.status.toLowerCase() === 'delivered' ? 'Teslim Edildi' :
                       order.status.toLowerCase() === 'cancelled' ? 'İptal Edildi' : order.status;
+                    const canCancel = ['pending', 'confirmed'].includes(order.status.toLowerCase());
 
                     return (
                       <View key={order.id} style={{ borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingVertical: 12 }}>
@@ -140,6 +145,18 @@ export function AccountScreen({
                             <Text style={{ fontSize: 12, color: theme.colors.muted }}>0.00 TL</Text>
                           )}
                         </View>
+
+                        {canCancel && onCancelOrder ? (
+                          <Pressable
+                            style={styles.cancelOrderButton}
+                            disabled={cancellingOrderId === order.id}
+                            onPress={() => onCancelOrder(order.id)}
+                          >
+                            <Text style={styles.cancelOrderText}>
+                              {cancellingOrderId === order.id ? 'İptal ediliyor...' : 'Siparişi İptal Et'}
+                            </Text>
+                          </Pressable>
+                        ) : null}
                       </View>
                     );
                   })

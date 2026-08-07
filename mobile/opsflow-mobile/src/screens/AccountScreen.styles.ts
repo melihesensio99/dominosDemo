@@ -74,6 +74,20 @@ export const styles = StyleSheet.create({
     color: theme.colors.danger,
     fontWeight: '800',
   },
+  cancelOrderButton: {
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    backgroundColor: '#fff1f2',
+    borderRadius: 14,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  cancelOrderText: {
+    color: '#b91c1c',
+    fontWeight: '800',
+    fontSize: 12,
+  },
   errorText: {
     color: theme.colors.danger,
     marginTop: 10,

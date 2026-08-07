@@ -149,6 +149,8 @@ function AppShell() {
                 onSignOut={app.signOut}
                 orders={app.orders}
                 products={app.products}
+                cancellingOrderId={app.cancellingOrderId}
+                onCancelOrder={(orderId) => void app.cancelOrder(orderId)}
               />
             )}
             {!selectedProduct && app.checkout.step === 'basket' && (

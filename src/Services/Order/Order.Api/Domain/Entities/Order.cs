@@ -59,6 +59,8 @@ public sealed class Order
 
     public IReadOnlyCollection<IDomainEvent> DomainEvents => domainEvents.ToArray();
 
+    public bool CanBeCancelled => Status is OrderStatus.Pending or OrderStatus.Confirmed;
+
     public static Order Create(
         string customerId,
         IEnumerable<OrderItem> items,
@@ -138,7 +140,6 @@ public sealed class Order
             (OrderStatus.Confirmed, OrderStatus.Preparing) => true,
             (OrderStatus.Confirmed, OrderStatus.Cancelled) => true,
             (OrderStatus.Preparing, OrderStatus.Shipped) => true,
-            (OrderStatus.Preparing, OrderStatus.Cancelled) => true,
             (OrderStatus.Shipped, OrderStatus.Delivered) => true,
             _ => false,
         };

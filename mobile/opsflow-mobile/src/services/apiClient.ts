@@ -160,3 +160,7 @@ export function createOrder(body: {
 }) {
   return request<Order>(endpoints.orders.create, { method: 'POST', body });
 }
+
+export function cancelOrder(orderId: string) {
+  return request<Order>(endpoints.orders.cancel(orderId), { method: 'POST' });
+}

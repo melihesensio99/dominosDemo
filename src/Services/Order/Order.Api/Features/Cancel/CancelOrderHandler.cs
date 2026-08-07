@@ -20,6 +20,13 @@ public sealed class CancelOrderHandler(
             return Result<OrderResponse>.Forbidden("order.forbidden", "You cannot cancel another customer's order.");
         }
 
+        if (!order.CanBeCancelled)
+        {
+            return Result<OrderResponse>.Conflict(
+                "order.cancellation_closed",
+                "The order cannot be cancelled after preparation has started.");
+        }
+
         if (!order.Cancel())
         {
             return Result<OrderResponse>.Conflict("order.already_cancelled", "Order is already cancelled.");

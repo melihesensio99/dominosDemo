@@ -18,5 +18,6 @@ export const endpoints = {
   orders: {
     me: '/proxy/order/orders/me',
     create: '/proxy/order/orders',
+    cancel: (orderId: string) => `/proxy/order/orders/${orderId}/cancel`,
   },
 } as const;

@@ -15,10 +15,11 @@ interface UseOrdersParams {
 
 export function useOrders({ customerId, basket }: UseOrdersParams) {
   const queryClient = useQueryClient();
-  const { showError } = useAppStatus();
+  const { showError, showSuccess } = useAppStatus();
   const statusFeedbackRef = useRef({ showError });
   statusFeedbackRef.current = { showError };
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<Error | null>(null);
 
   const ordersQuery = useQuery({
@@ -169,6 +170,22 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
     }
   };
 
+  const cancelOrder = async (orderId: string) => {
+    try {
+      setCancellingOrderId(orderId);
+      setActionError(null);
+      await orderService.cancelOrder(orderId);
+      await queryClient.invalidateQueries({ queryKey: ['orders', customerId] });
+      showSuccess('Siparişiniz iptal edildi.');
+    } catch (cause) {
+      const error = cause instanceof Error ? cause : new Error('Sipariş iptal edilemedi.');
+      setActionError(error);
+      showError(error.message);
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
+
   return {
     orders: ordersQuery.data ?? [],
     activeOrders,
@@ -177,6 +194,8 @@ export function useOrders({ customerId, basket }: UseOrdersParams) {
     isLoading: ordersQuery.isLoading,
     error: actionError ?? ordersQuery.error ?? null,
     isPlacingOrder,
+    cancellingOrderId,
     placeOrder,
+    cancelOrder,
   };
 }
