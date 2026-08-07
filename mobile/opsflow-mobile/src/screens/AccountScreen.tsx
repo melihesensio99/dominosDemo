@@ -76,23 +76,51 @@ export function AccountScreen({
         {isAuthenticated ? (
           <>
             {subView === 'profile' && (
-              <SectionCard title="Hesap Menüsü">
-                <Text style={[styles.info, { marginBottom: 16 }]}>E-posta: {user?.email}</Text>
+              <>
+                <View style={styles.profileCard}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {user?.email ? user.email.slice(0, 2).toUpperCase() : 'ME'}
+                    </Text>
+                  </View>
+                  <View style={styles.profileDetails}>
+                    <Text style={styles.profileName}>
+                      {user?.email ? user.email.split('@')[0] : 'melih esen'}
+                    </Text>
+                    <Text style={styles.profilePhone}>(538) 088 07 90</Text>
+                  </View>
+                  <Text style={styles.arrowRight}>➔</Text>
+                </View>
 
-                <Pressable style={styles.menuRow} onPress={() => setSubView('orders')}>
-                  <Text style={styles.menuRowText}>Sipariş Geçmişi</Text>
-                  <Text style={styles.menuRowArrow}>➔</Text>
-                </Pressable>
+                {/* Grid Navigation */}
+                <View style={styles.gridContainer}>
+                  <Pressable style={styles.gridItem} onPress={() => setSubView('orders')}>
+                    <View style={styles.gridIconWrap}>
+                      <Text style={styles.gridIcon}>🛍️</Text>
+                    </View>
+                    <Text style={styles.gridLabel}>Siparişlerim</Text>
+                  </Pressable>
 
-                <Pressable style={styles.menuRow} onPress={() => setSubView('addresses')}>
-                  <Text style={styles.menuRowText}>Adreslerim</Text>
-                  <Text style={styles.menuRowArrow}>➔</Text>
-                </Pressable>
+                  <Pressable style={styles.gridItem} onPress={() => setSubView('addresses')}>
+                    <View style={styles.gridIconWrap}>
+                      <Text style={styles.gridIcon}>📍</Text>
+                    </View>
+                    <Text style={styles.gridLabel}>Adreslerim</Text>
+                  </Pressable>
 
+                  <Pressable style={styles.gridItem} onPress={() => {}}>
+                    <View style={styles.gridIconWrap}>
+                      <Text style={styles.gridIcon}>💳</Text>
+                    </View>
+                    <Text style={styles.gridLabel}>Kartlarım</Text>
+                  </Pressable>
+                </View>
+
+                {/* Sign Out Button */}
                 <Pressable style={styles.signOutButton} onPress={onSignOut}>
                   <Text style={styles.signOutText}>Çıkış Yap</Text>
                 </Pressable>
-              </SectionCard>
+              </>
             )}
 
             {subView === 'orders' && (
