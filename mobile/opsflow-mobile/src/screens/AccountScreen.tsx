@@ -348,7 +348,7 @@ export function AccountScreen({
             <View style={{ alignItems: 'center', marginBottom: 14 }}>
               <Image
                 source={{ uri: 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg' }}
-                style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: '#e2e8f0' }}
+                style={{ width: 100, height: 100, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0' }}
                 resizeMode="cover"
               />
             </View>
