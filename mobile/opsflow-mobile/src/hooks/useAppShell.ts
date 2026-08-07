@@ -150,6 +150,27 @@ export function useAppShell() {
     }
   };
 
+  const addAddressDirect = async (
+    title: string,
+    street: string,
+    district: string,
+    city: string,
+    postalCode: string,
+    country: string
+  ) => {
+    try {
+      appStatus.showLoading('Adres kaydediliyor...');
+      const created = await addresses.addAddress({ title, street, district, city, postalCode, country });
+      appStatus.hideLoading();
+      appStatus.showSuccess('Adres başarıyla kaydedildi.');
+      return created;
+    } catch (error) {
+      appStatus.hideLoading();
+      appStatus.showError(error instanceof Error ? error.message : 'Adres kaydedilemedi.');
+      throw error;
+    }
+  };
+
   const status = {
     isLoading:
       authStatus.isLoading ||
@@ -195,5 +216,6 @@ export function useAppShell() {
     placeOrder,
     cancelOrder,
     signOut,
+    addAddress: addAddressDirect,
   };
 }

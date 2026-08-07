@@ -149,6 +149,8 @@ function AppShell() {
                 onSignOut={app.signOut}
                 orders={app.orders}
                 products={app.products}
+                addresses={app.addresses}
+                onAddAddress={app.addAddress}
                 cancellingOrderId={app.cancellingOrderId}
                 onCancelOrder={(orderId) => void app.cancelOrder(orderId)}
               />

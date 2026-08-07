@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { SectionCard } from '../components/SectionCard';
-import type { SessionUser } from '../types/auth';
+import type { SessionUser, UserAddress } from '../types/auth';
 import type { Order } from '../types/order';
 import type { Product } from '../types/catalog';
 import { styles } from './AccountScreen.styles';
@@ -21,6 +22,15 @@ interface AccountScreenProps {
   onSignOut: () => void;
   orders?: Order[];
   products?: Product[];
+  addresses?: UserAddress[];
+  onAddAddress?: (
+    title: string,
+    street: string,
+    district: string,
+    city: string,
+    postalCode: string,
+    country: string
+  ) => Promise<any>;
   cancellingOrderId?: string | null;
   onCancelOrder?: (orderId: string) => void;
 }
@@ -39,10 +49,21 @@ export function AccountScreen({
   onSignOut,
   orders = [],
   products = [],
+  addresses = [],
+  onAddAddress,
   cancellingOrderId = null,
   onCancelOrder,
 }: AccountScreenProps) {
   const isAuthenticated = Boolean(user);
+
+  const [subView, setSubView] = useState<'profile' | 'orders' | 'addresses'>('profile');
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newStreet, setNewStreet] = useState('');
+  const [newDistrict, setNewDistrict] = useState('');
+  const [newCity, setNewCity] = useState('');
+  const [newPostalCode, setNewPostalCode] = useState('');
+  const [newCountry, setNewCountry] = useState('Türkiye');
 
   return (
     <View style={styles.container}>
@@ -54,114 +75,245 @@ export function AccountScreen({
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {isAuthenticated ? (
           <>
-            <SectionCard title="Hesap Bilgileri">
-              <Text style={styles.info}>E-posta: {user?.email}</Text>
+            {subView === 'profile' && (
+              <SectionCard title="Hesap Menüsü">
+                <Text style={[styles.info, { marginBottom: 16 }]}>E-posta: {user?.email}</Text>
 
-              <Pressable style={styles.signOutButton} onPress={onSignOut}>
-                <Text style={styles.signOutText}>Çıkış Yap</Text>
-              </Pressable>
-            </SectionCard>
+                <Pressable style={styles.menuRow} onPress={() => setSubView('orders')}>
+                  <Text style={styles.menuRowText}>Sipariş Geçmişi</Text>
+                  <Text style={styles.menuRowArrow}>➔</Text>
+                </Pressable>
 
-            <SectionCard title="Sipariş Geçmişi">
-              {orders.length === 0 ? (
-                <Text style={{ color: theme.colors.muted, fontSize: 13, textAlign: 'center', marginVertical: 14 }}>
-                  Henüz sipariş geçmişiniz bulunmuyor.
-                </Text>
-              ) : (
-                [...orders]
-                  .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-                  .map((order) => {
-                    const date = new Date(order.createdAt).toLocaleDateString('tr-TR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    });
-                    const statusLabel =
-                      order.status.toLowerCase() === 'pending' ? 'Alındı' :
-                      order.status.toLowerCase() === 'confirmed' ? 'Onaylandı' :
-                      order.status.toLowerCase() === 'preparing' ? 'Hazırlanıyor' :
-                      order.status.toLowerCase() === 'shipped' ? 'Yolda' :
-                      order.status.toLowerCase() === 'delivered' ? 'Teslim Edildi' :
-                      order.status.toLowerCase() === 'cancelled' ? 'İptal Edildi' : order.status;
-                    const canCancel = ['pending', 'confirmed'].includes(order.status.toLowerCase());
+                <Pressable style={styles.menuRow} onPress={() => setSubView('addresses')}>
+                  <Text style={styles.menuRowText}>Adreslerim</Text>
+                  <Text style={styles.menuRowArrow}>➔</Text>
+                </Pressable>
 
-                    return (
-                      <View key={order.id} style={{ borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingVertical: 12 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                          <Text style={{ fontWeight: 'bold', fontSize: 13, color: '#0f172a' }}>
-                            #{order.id.slice(-8).toUpperCase()}
-                          </Text>
-                          <Text style={{ fontSize: 12, color: theme.colors.muted }}>
-                            {date}
-                          </Text>
-                        </View>
+                <Pressable style={styles.signOutButton} onPress={onSignOut}>
+                  <Text style={styles.signOutText}>Çıkış Yap</Text>
+                </Pressable>
+              </SectionCard>
+            )}
 
-                        <View style={{ marginBottom: 6 }}>
-                          {order.items.map((item, idx) => {
-                            const prod = products.find((p) => p.id === item.productId);
-                            const optionsStr = prod?.optionGroups
-                              ?.flatMap((g) => g.options)
-                              ?.filter((o) => item.selectedOptionIds?.includes(o.id))
-                              ?.map((o) => o.name)
-                              ?.join(', ');
+            {subView === 'orders' && (
+              <SectionCard title="Sipariş Geçmişi">
+                <Pressable style={styles.backButton} onPress={() => setSubView('profile')}>
+                  <Text style={styles.backButtonText}>⬅ Geri Dön</Text>
+                </Pressable>
 
-                            return (
-                              <View key={`${item.productId}-${idx}`} style={{ marginVertical: 2 }}>
-                                <Text style={{ fontSize: 13, color: '#334155' }}>
-                                  • {item.quantity} x {prod?.name ?? 'Ürün'}
-                                </Text>
-                                {optionsStr ? (
-                                  <Text style={{ fontSize: 11, color: '#94a3b8', marginLeft: 10 }}>
-                                    Tercih: {optionsStr}
-                                  </Text>
-                                ) : null}
-                              </View>
-                            );
-                          })}
-                        </View>
+                {orders.length === 0 ? (
+                  <Text style={{ color: theme.colors.muted, fontSize: 13, textAlign: 'center', marginVertical: 14 }}>
+                    Henüz sipariş geçmişiniz bulunmuyor.
+                  </Text>
+                ) : (
+                  [...orders]
+                    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+                    .map((order) => {
+                      const date = new Date(order.createdAt).toLocaleDateString('tr-TR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
+                      const statusLabel =
+                        order.status.toLowerCase() === 'pending' ? 'Alındı' :
+                        order.status.toLowerCase() === 'confirmed' ? 'Onaylandı' :
+                        order.status.toLowerCase() === 'preparing' ? 'Hazırlanıyor' :
+                        order.status.toLowerCase() === 'shipped' ? 'Yolda' :
+                        order.status.toLowerCase() === 'delivered' ? 'Teslim Edildi' :
+                        order.status.toLowerCase() === 'cancelled' ? 'İptal Edildi' : order.status;
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                          <View style={{
-                            paddingHorizontal: 8,
-                            paddingVertical: 3,
-                            borderRadius: 12,
-                            backgroundColor: order.status.toLowerCase() === 'delivered' ? '#dcfce7' : order.status.toLowerCase() === 'cancelled' ? '#fee2e2' : '#e0f2fe',
-                          }}>
-                            <Text style={{
-                              fontSize: 10,
-                              fontWeight: 'bold',
-                              color: order.status.toLowerCase() === 'delivered' ? '#15803d' : order.status.toLowerCase() === 'cancelled' ? '#b91c1c' : '#0369a1',
-                            }}>
-                              {statusLabel}
+                      const canCancel = order.status.toLowerCase() === 'pending';
+
+                      return (
+                        <View key={order.id} style={{ borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingVertical: 12 }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 13, color: '#0f172a' }}>
+                              #{order.id.slice(-8).toUpperCase()}
+                            </Text>
+                            <Text style={{ fontSize: 12, color: theme.colors.muted }}>
+                              {date}
                             </Text>
                           </View>
-                          {order.totalPrice ? (
-                            <Text style={{ fontWeight: '800', fontSize: 13, color: '#16a34a' }}>
-                              {order.totalPrice.toFixed(2)} TL
-                            </Text>
-                          ) : (
-                            <Text style={{ fontSize: 12, color: theme.colors.muted }}>0.00 TL</Text>
-                          )}
-                        </View>
 
-                        {canCancel && onCancelOrder ? (
-                          <Pressable
-                            style={styles.cancelOrderButton}
-                            disabled={cancellingOrderId === order.id}
-                            onPress={() => onCancelOrder(order.id)}
-                          >
-                            <Text style={styles.cancelOrderText}>
-                              {cancellingOrderId === order.id ? 'İptal ediliyor...' : 'Siparişi İptal Et'}
+                          <View style={{ marginBottom: 6 }}>
+                            {order.items.map((item, idx) => {
+                              const prod = products.find((p) => p.id === item.productId);
+                              const optionsStr = prod?.optionGroups
+                                ?.flatMap((g) => g.options)
+                                ?.filter((o) => item.selectedOptionIds?.includes(o.id))
+                                ?.map((o) => o.name)
+                                ?.join(', ');
+
+                              return (
+                                <View key={`${item.productId}-${idx}`} style={{ marginVertical: 2 }}>
+                                  <Text style={{ fontSize: 13, color: '#334155' }}>
+                                    • {item.quantity} x {prod?.name ?? 'Ürün'}
+                                  </Text>
+                                  {optionsStr ? (
+                                    <Text style={{ fontSize: 11, color: '#94a3b8', marginLeft: 10 }}>
+                                      Tercih: {optionsStr}
+                                    </Text>
+                                  ) : null}
+                                </View>
+                              );
+                            })}
+                          </View>
+
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                            <View style={{
+                              paddingHorizontal: 8,
+                              paddingVertical: 3,
+                              borderRadius: 12,
+                              backgroundColor: order.status.toLowerCase() === 'delivered' ? '#dcfce7' : order.status.toLowerCase() === 'cancelled' ? '#fee2e2' : '#e0f2fe',
+                            }}>
+                              <Text style={{
+                                fontSize: 10,
+                                fontWeight: 'bold',
+                                color: order.status.toLowerCase() === 'delivered' ? '#15803d' : order.status.toLowerCase() === 'cancelled' ? '#b91c1c' : '#0369a1',
+                              }}>
+                                {statusLabel}
+                              </Text>
+                            </View>
+                            {order.totalPrice ? (
+                              <Text style={{ fontWeight: '800', fontSize: 13, color: '#16a34a' }}>
+                                {order.totalPrice.toFixed(2)} TL
+                              </Text>
+                            ) : (
+                              <Text style={{ fontSize: 12, color: theme.colors.muted }}>0.00 TL</Text>
+                            )}
+                          </View>
+
+                          {canCancel && onCancelOrder ? (
+                            <Pressable
+                              style={styles.cancelOrderButton}
+                              disabled={cancellingOrderId === order.id}
+                              onPress={() => onCancelOrder(order.id)}
+                            >
+                              <Text style={styles.cancelOrderText}>
+                                {cancellingOrderId === order.id ? 'İptal ediliyor...' : 'Siparişi İptal Et'}
+                              </Text>
+                            </Pressable>
+                          ) : null}
+                        </View>
+                      );
+                    })
+                )}
+              </SectionCard>
+            )}
+
+            {subView === 'addresses' && (
+              <SectionCard title="Adreslerim">
+                <Pressable style={styles.backButton} onPress={() => { setSubView('profile'); setIsAddingAddress(false); }}>
+                  <Text style={styles.backButtonText}>⬅ Geri Dön</Text>
+                </Pressable>
+
+                {isAddingAddress ? (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontWeight: '800', fontSize: 14, color: '#0f172a', marginBottom: 10 }}>Yeni Adres Ekle</Text>
+                    
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Adres Başlığı (Örn: Ev, İş)"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newTitle}
+                      onChangeText={setNewTitle}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Sokak / Cadde / Apartman"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newStreet}
+                      onChangeText={setNewStreet}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="İlçe"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newDistrict}
+                      onChangeText={setNewDistrict}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Şehir"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newCity}
+                      onChangeText={setNewCity}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Posta Kodu"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newPostalCode}
+                      onChangeText={setNewPostalCode}
+                      keyboardType="numeric"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ülke"
+                      placeholderTextColor={theme.colors.muted}
+                      value={newCountry}
+                      onChangeText={setNewCountry}
+                    />
+
+                    <Pressable
+                      style={[styles.authButton, { marginTop: 16 }]}
+                      onPress={async () => {
+                        if (!newTitle.trim() || !newStreet.trim() || !newDistrict.trim() || !newCity.trim() || !newPostalCode.trim() || !newCountry.trim()) {
+                          return;
+                        }
+                        if (onAddAddress) {
+                          try {
+                            await onAddAddress(newTitle.trim(), newStreet.trim(), newDistrict.trim(), newCity.trim(), newPostalCode.trim(), newCountry.trim());
+                            setIsAddingAddress(false);
+                            setNewTitle('');
+                            setNewStreet('');
+                            setNewDistrict('');
+                            setNewCity('');
+                            setNewPostalCode('');
+                          } catch {
+                            // error is handled by hook
+                          }
+                        }
+                      }}
+                    >
+                      <Text style={styles.authButtonText}>Adresi Kaydet</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={[styles.signOutButton, { marginTop: 8, borderColor: '#cbd5e1' }]}
+                      onPress={() => setIsAddingAddress(false)}
+                    >
+                      <Text style={[styles.signOutText, { color: '#475569' }]}>İptal Et</Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <>
+                    <View style={{ marginVertical: 10 }}>
+                      {addresses.length === 0 ? (
+                        <Text style={{ color: theme.colors.muted, fontSize: 13, textAlign: 'center', marginVertical: 14 }}>
+                          Kayıtlı adresiniz bulunmuyor.
+                        </Text>
+                      ) : (
+                        addresses.map((address) => (
+                          <View key={address.id} style={styles.addressCard}>
+                            <Text style={styles.addressTitle}>{address.title}</Text>
+                            <Text style={styles.addressText}>
+                              {address.street}, {address.district}, {address.city}, {address.postalCode}, {address.country}
                             </Text>
-                          </Pressable>
-                        ) : null}
-                      </View>
-                    );
-                  })
-              )}
-            </SectionCard>
+                          </View>
+                        ))
+                      )}
+                    </View>
+
+                    <Pressable style={styles.addAddressButton} onPress={() => setIsAddingAddress(true)}>
+                      <Text style={styles.addAddressButtonText}>➕ Yeni Adres Ekle</Text>
+                    </Pressable>
+                  </>
+                )}
+              </SectionCard>
+            )}
           </>
         ) : (
           <SectionCard title="Giriş">
