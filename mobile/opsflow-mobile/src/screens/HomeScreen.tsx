@@ -23,7 +23,7 @@ interface HomeScreenProps {
 }
 
 const categoryOrder = ['pizzalar', 'patatesler', 'tatlilar', 'soslar', 'icecekler'];
-const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1785012397/Ads%C4%B1z.png';
+const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg';
 
 export function HomeScreen({
   categories,

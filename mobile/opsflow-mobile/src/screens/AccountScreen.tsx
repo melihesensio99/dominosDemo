@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { SectionCard } from '../components/SectionCard';
 import type { SessionUser, UserAddress } from '../types/auth';
@@ -345,6 +345,13 @@ export function AccountScreen({
           </>
         ) : (
           <SectionCard title="Giriş">
+            <View style={{ alignItems: 'center', marginBottom: 14 }}>
+              <Image
+                source={{ uri: 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg' }}
+                style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: '#e2e8f0' }}
+                resizeMode="cover"
+              />
+            </View>
             <View style={styles.modeRow}>
               <Pressable
                 style={[styles.modeButton, mode === 'login' && styles.modeButtonActive]}
