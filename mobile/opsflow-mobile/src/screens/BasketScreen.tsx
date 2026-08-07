@@ -9,6 +9,8 @@ import { styles } from './BasketScreen.styles';
 const basketBanner =
   'https://res.cloudinary.com/dc2j01x6b/image/upload/WhatsApp_Image_2026-07-25_at_19.14.44_1.jpg';
 
+const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg';
+
 interface BasketScreenProps {
   basket: Basket | null;
   products: Product[];
@@ -24,24 +26,29 @@ export function BasketScreen({
   basket,
   isLoading,
   error,
+  products,
   onProceedCheckout,
   onGoMenu,
   onUpdateQuantity,
   onRemoveItem,
 }: BasketScreenProps) {
-  const total = useMemo(
-    () => basket?.items.reduce((sum, item) => sum + item.totalPrice, 0) ?? 0,
-    [basket],
-  );
+  const totalPrice = useMemo(() => {
+    if (!basket) return 0;
+    return basket.items.reduce((acc, item) => {
+      const prod = products.find((p) => p.id === item.productId);
+      if (!prod) return acc;
+      const optsPrice = prod.optionGroups
+        ?.flatMap((g) => g.options)
+        .filter((o) => item.selectedOptionIds.includes(o.id))
+        .reduce((sum, o) => sum + o.price, 0) ?? 0;
+      return acc + (prod.price + optsPrice) * item.quantity;
+    }, 0);
+  }, [basket, products]);
 
-  const emptyState = isLoading ? (
-    <EmptyState title="Sepet yukleniyor" message="Sepet bilgisi backend'den getiriliyor." />
-  ) : error ? (
-    <EmptyState title="Sepet alinamadi" message={error instanceof Error ? error.message : 'Sepet getirilemedi.'} />
-  ) : (
+  const emptyState = (
     <EmptyState
-      title="Sepetinde urun bulunmuyor."
-      message="Menuye gidip birkac urun ekleyebilirsin."
+      title="Sepetiniz Boş"
+      subtitle="Sepetinizde ürün bulunmuyor. Leziz pizzalarımızı keşfetmek için menüye göz atın!"
       actionLabel="Menuye Git"
       onAction={onGoMenu}
     />
@@ -49,7 +56,7 @@ export function BasketScreen({
 
   return (
     <View style={styles.container}>
-      <AppHeader title="Sepetim" subtitle="Siparisini kontrol et ve tamamla" />
+      <AppHeader title="Sepetim" subtitle="Siparisini kontrol et ve tamamla" icon="🛒" />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {!basket?.items.length ? (
           emptyState

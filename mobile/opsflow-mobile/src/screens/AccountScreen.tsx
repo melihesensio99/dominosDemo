@@ -8,6 +8,8 @@ import type { Product } from '../types/catalog';
 import { styles } from './AccountScreen.styles';
 import { theme } from '../theme';
 
+const logoUrl = 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg';
+
 interface AccountScreenProps {
   user: SessionUser | null;
   mode: 'login' | 'register';
@@ -74,6 +76,7 @@ export function AccountScreen({
       <AppHeader
         title="Hesabım"
         subtitle={isAuthenticated ? 'Hesap bilgilerin' : 'Giriş yap veya yeni hesap oluştur'}
+        icon="👤"
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
