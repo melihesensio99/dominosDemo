@@ -344,7 +344,7 @@ export function AccountScreen({
             )}
           </>
         ) : (
-          <SectionCard title="Giriş">
+          <SectionCard>
             <View style={{ alignItems: 'center', marginBottom: 14 }}>
               <Image
                 source={{ uri: 'https://res.cloudinary.com/dc2j01x6b/image/upload/v1786076662/1b8169db840253547a07449fd7c120b4.jpg' }}
