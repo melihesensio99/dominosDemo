@@ -1,16 +1,18 @@
+// 🐢 Teenage Mutant Ninja Turtles – Pizza App Theme
+// Koyu lağım yeşili + neon yeşil aksanlar + koyu yüzeyler
 export const theme = {
   colors: {
-    background: '#f4f7fb',
-    surface: '#ffffff',
-    surfaceSoft: '#eef3fb',
-    text: '#152033',
-    muted: '#65728a',
-    border: '#dbe3ef',
-    primary: '#1f66f3',
-    primaryDark: '#1853c7',
-    primarySoft: '#e8f0ff',
-    danger: '#eb5757',
-    success: '#19a463',
+    background: '#0d1117',        // Koyu lağım arka planı
+    surface: '#161b22',           // Kart yüzeyleri – koyu gri-yeşil
+    surfaceSoft: '#1c2630',       // Hafif açık yüzey
+    text: '#e6edf3',             // Açık beyaz metin
+    muted: '#7d8590',            // Gri soluk metin
+    border: '#30363d',           // Koyu kenarlık
+    primary: '#2ea043',          // Ninja yeşili ana renk
+    primaryDark: '#238636',      // Koyu yeşil varyant
+    primarySoft: '#0d1f0d',      // Koyu yeşil soft arka plan
+    danger: '#f85149',           // Kırmızı tehlike
+    success: '#2ea043',          // Yeşil başarı
   },
   radius: {
     xl: 28,

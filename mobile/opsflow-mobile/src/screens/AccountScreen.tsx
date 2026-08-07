@@ -13,11 +13,13 @@ interface AccountScreenProps {
   mode: 'login' | 'register';
   email: string;
   password: string;
+  confirmPassword: string;
   isLoading?: boolean;
   error?: unknown;
   onChangeMode: (mode: 'login' | 'register') => void;
   onChangeEmail: (value: string) => void;
   onChangePassword: (value: string) => void;
+  onChangeConfirmPassword: (value: string) => void;
   onAuth: () => void;
   onSignOut: () => void;
   orders?: Order[];
@@ -40,11 +42,13 @@ export function AccountScreen({
   mode,
   email,
   password,
+  confirmPassword,
   isLoading,
   error,
   onChangeMode,
   onChangeEmail,
   onChangePassword,
+  onChangeConfirmPassword,
   onAuth,
   onSignOut,
   orders = [],
@@ -155,9 +159,9 @@ export function AccountScreen({
                       const canCancel = order.status.toLowerCase() === 'pending';
 
                       return (
-                        <View key={order.id} style={{ borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingVertical: 12 }}>
+                        <View key={order.id} style={{ borderBottomWidth: 1, borderBottomColor: '#21262d', paddingVertical: 12 }}>
                           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 13, color: '#0f172a' }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 13, color: '#e6edf3' }}>
                               #{order.id.slice(-8).toUpperCase()}
                             </Text>
                             <Text style={{ fontSize: 12, color: theme.colors.muted }}>
@@ -176,11 +180,11 @@ export function AccountScreen({
 
                               return (
                                 <View key={`${item.productId}-${idx}`} style={{ marginVertical: 2 }}>
-                                  <Text style={{ fontSize: 13, color: '#334155' }}>
+                                  <Text style={{ fontSize: 13, color: '#c9d1d9' }}>
                                     • {item.quantity} x {prod?.name ?? 'Ürün'}
                                   </Text>
                                   {optionsStr ? (
-                                    <Text style={{ fontSize: 11, color: '#94a3b8', marginLeft: 10 }}>
+                                    <Text style={{ fontSize: 11, color: '#7d8590', marginLeft: 10 }}>
                                       Tercih: {optionsStr}
                                     </Text>
                                   ) : null}
@@ -194,18 +198,18 @@ export function AccountScreen({
                               paddingHorizontal: 8,
                               paddingVertical: 3,
                               borderRadius: 12,
-                              backgroundColor: order.status.toLowerCase() === 'delivered' ? '#dcfce7' : order.status.toLowerCase() === 'cancelled' ? '#fee2e2' : '#e0f2fe',
+                              backgroundColor: order.status.toLowerCase() === 'delivered' ? '#0d1f0d' : order.status.toLowerCase() === 'cancelled' ? '#3d1c1c' : '#0d2137',
                             }}>
                               <Text style={{
                                 fontSize: 10,
                                 fontWeight: 'bold',
-                                color: order.status.toLowerCase() === 'delivered' ? '#15803d' : order.status.toLowerCase() === 'cancelled' ? '#b91c1c' : '#0369a1',
+                                color: order.status.toLowerCase() === 'delivered' ? '#3fb950' : order.status.toLowerCase() === 'cancelled' ? '#f85149' : '#58a6ff',
                               }}>
                                 {statusLabel}
                               </Text>
                             </View>
                             {order.totalPrice ? (
-                              <Text style={{ fontWeight: '800', fontSize: 13, color: '#16a34a' }}>
+                              <Text style={{ fontWeight: '800', fontSize: 13, color: '#3fb950' }}>
                                 {order.totalPrice.toFixed(2)} TL
                               </Text>
                             ) : (
@@ -239,7 +243,7 @@ export function AccountScreen({
 
                 {isAddingAddress ? (
                   <View style={{ marginTop: 10 }}>
-                    <Text style={{ fontWeight: '800', fontSize: 14, color: '#0f172a', marginBottom: 10 }}>Yeni Adres Ekle</Text>
+                    <Text style={{ fontWeight: '800', fontSize: 14, color: '#e6edf3', marginBottom: 10 }}>Yeni Adres Ekle</Text>
                     
                     <TextInput
                       style={styles.input}
@@ -384,6 +388,17 @@ export function AccountScreen({
               value={password}
               onChangeText={onChangePassword}
             />
+
+            {mode === 'register' ? (
+              <TextInput
+                style={styles.input}
+                placeholder="Şifre tekrar"
+                placeholderTextColor={theme.colors.muted}
+                secureTextEntry
+                value={confirmPassword}
+                onChangeText={onChangeConfirmPassword}
+              />
+            ) : null}
 
             <Pressable
               style={[styles.authButton, isLoading && { opacity: 0.7 }]}

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services';
 import { tokenService } from '../services/token.service';
-import type { AuthCredentials, SessionUser } from '../types/auth';
+import type { AuthCredentials, RegisterCredentials, SessionUser } from '../types/auth';
 
 export function useAuth() {
   const queryClient = useQueryClient();
@@ -11,6 +11,7 @@ export function useAuth() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('admin@opsflow.ai');
   const [password, setPassword] = useState('P@ssw0rd123');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -29,8 +30,11 @@ export function useAuth() {
       setIsSigningIn(true);
       setError(null);
 
-      const payload: AuthCredentials = { email, password };
-      const session = mode === 'login' ? await authService.login(payload) : await authService.register(payload);
+      const loginPayload: AuthCredentials = { email, password };
+      const registerPayload: RegisterCredentials = { email, password, confirmPassword };
+      const session = mode === 'login'
+        ? await authService.login(loginPayload)
+        : await authService.register(registerPayload);
       setUser(session);
       tokenService.setAccessToken(session.accessToken);
       return session;
@@ -55,9 +59,11 @@ export function useAuth() {
     mode,
     email,
     password,
+    confirmPassword,
     setMode,
     setEmail,
     setPassword,
+    setConfirmPassword,
     isSigningIn,
     error,
     signIn,

@@ -140,11 +140,13 @@ function AppShell() {
                 mode={app.mode}
                 email={app.email}
                 password={app.password}
+                confirmPassword={app.confirmPassword}
                 isLoading={app.status.auth.isLoading}
                 error={app.status.auth.error}
                 onChangeMode={app.setMode}
                 onChangeEmail={app.setEmail}
                 onChangePassword={app.setPassword}
+                onChangeConfirmPassword={app.setConfirmPassword}
                 onAuth={() => void app.signIn()}
                 onSignOut={app.signOut}
                 orders={app.orders}
@@ -169,11 +171,13 @@ function AppShell() {
             mode={app.mode}
             email={app.email}
             password={app.password}
+            confirmPassword={app.confirmPassword}
             isLoading={app.status.auth.isLoading}
             error={app.status.auth.error}
             onChangeMode={app.setMode}
             onChangeEmail={app.setEmail}
             onChangePassword={app.setPassword}
+            onChangeConfirmPassword={app.setConfirmPassword}
             onAuth={() => void app.signIn()}
             onSignOut={app.signOut}
           />

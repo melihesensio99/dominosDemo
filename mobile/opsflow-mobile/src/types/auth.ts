@@ -10,6 +10,10 @@ export interface AuthCredentials {
   password: string;
 }
 
+export interface RegisterCredentials extends AuthCredentials {
+  confirmPassword: string;
+}
+
 export interface UserAddress {
   id: string;
   title: string;

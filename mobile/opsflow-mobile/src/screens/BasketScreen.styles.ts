@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   itemPrice: {
-    color: '#B08A32',
+    color: '#e3b341',
     fontSize: 16,
     fontWeight: '900',
   },
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
   promoCard: {
     marginHorizontal: 16,
     borderRadius: 16,
-    backgroundColor: '#E9F8EF',
+    backgroundColor: '#0d1f0d',
     paddingHorizontal: 16,
     paddingVertical: 13,
     flexDirection: 'row',
@@ -149,7 +149,7 @@ export const styles = StyleSheet.create({
   },
   promoText: {
     flex: 1,
-    color: '#159447',
+    color: '#3fb950',
     fontWeight: '700',
     fontSize: 13,
   },
@@ -169,7 +169,7 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   checkoutTotal: {
-    color: '#B08A32',
+    color: '#e3b341',
     fontSize: 24,
     fontWeight: '900',
   },

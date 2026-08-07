@@ -25,6 +25,7 @@ Bu koleksiyon, alisveris akisinin Gateway uzerinden tekrar edilebilir sekilde te
 ## Degiskenler
 
 - `test_password`: Deneme kullanicisinin sifresi.
+- Register isteginde `confirmPassword`, `password` ile ayni gonderilir.
 - `test_email`: Bos birakilirsa benzersiz bir e-posta uretilir.
 - `token`: Login cevabindan otomatik doldurulur.
 - `category_id`: Kategori cevabindan otomatik doldurulur.

@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
   orderCards: { gap: 12 },
   statusCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, padding: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden' },
   statusHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  statusPulse: { width: 16, height: 16, borderRadius: 8, backgroundColor: theme.colors.success, borderWidth: 4, borderColor: '#D8F4E5' },
+  statusPulse: { width: 16, height: 16, borderRadius: 8, backgroundColor: theme.colors.success, borderWidth: 4, borderColor: '#1a3a1a' },
   statusHeaderText: { flex: 1, gap: 3 },
   statusTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '900' },
   orderTimeline: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 20 },

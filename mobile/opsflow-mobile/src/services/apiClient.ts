@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
 import type { Address } from '../types/common';
-import type { AuthCredentials, SessionUser, UserAddress } from '../types/auth';
+import type { AuthCredentials, RegisterCredentials, SessionUser, UserAddress } from '../types/auth';
 import type { Basket } from '../types/basket';
 import type { Category, Product } from '../types/catalog';
 import type { Order } from '../types/order';
@@ -103,7 +103,7 @@ export function postLogin(body: AuthCredentials) {
   return request<SessionUser>(endpoints.auth.login, { method: 'POST', body });
 }
 
-export function postRegister(body: AuthCredentials) {
+export function postRegister(body: RegisterCredentials) {
   return request<SessionUser>(endpoints.auth.register, { method: 'POST', body });
 }
 
