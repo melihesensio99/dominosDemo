@@ -1,5 +1,3 @@
-using Auth.Api.Abstractions;
-
 namespace Auth.Api.Features.Login;
 
 public sealed class LoginHandler(

@@ -1,4 +1,3 @@
-using Auth.Api.Abstractions;
 using Auth.Api.Features.Login;
 using Auth.Api.Features.Register;
 using BuildingBlocks.Behaviors;

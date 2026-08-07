@@ -1,5 +1,5 @@
 using System;
-using Auth.Api.Infrastructure;
+using Auth.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 

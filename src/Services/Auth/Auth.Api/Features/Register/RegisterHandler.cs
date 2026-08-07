@@ -1,5 +1,3 @@
-using Auth.Api.Abstractions;
-
 namespace Auth.Api.Features.Register;
 
 public sealed class RegisterHandler(
