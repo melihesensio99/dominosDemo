@@ -22,7 +22,7 @@ public static class AuthModule
         services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IUserAddressRepository, EfUserAddressRepository>();
-        services.AddSingleton<IPasswordHasher, Sha256PasswordHasher>();
+        services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();
 
         var jwtIssuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is missing.");
