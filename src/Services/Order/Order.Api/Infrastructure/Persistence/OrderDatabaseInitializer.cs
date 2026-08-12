@@ -12,6 +12,6 @@ public static class OrderDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
 
-        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateDatabaseAsync(cancellationToken);
     }
 }

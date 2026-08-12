@@ -10,7 +10,7 @@ public static class InventoryDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
 
-        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateDatabaseAsync(cancellationToken);
         await EnsureDoughStocksAsync(dbContext, cancellationToken);
     }
 

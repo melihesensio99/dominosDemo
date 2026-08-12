@@ -12,7 +12,7 @@ public static class CatalogDatabaseInitializer
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
-        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateDatabaseAsync(cancellationToken);
 
         var categories = new[]
         {

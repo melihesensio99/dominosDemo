@@ -17,7 +17,7 @@ public static class AuthDatabaseInitializer
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-        await dbContext.Database.MigrateOrEnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateDatabaseAsync(cancellationToken);
         await SeedAdminUserAsync(dbContext, passwordHasher, cancellationToken);
     }
 
