@@ -7,9 +7,5 @@ namespace Order.Api.Features.GetByCustomer;
 public sealed class GetMyOrdersHandler(IOrderRepository orderRepository) : IRequestHandler<GetMyOrdersQuery, Result<IReadOnlyCollection<OrderResponse>>>
 {
     public async Task<Result<IReadOnlyCollection<OrderResponse>>> Handle(GetMyOrdersQuery request, CancellationToken cancellationToken)
-    {
-        var orders = await orderRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
-        var items = orders.Select(OrderMapper.ToResponse).ToArray();
-        return Result<IReadOnlyCollection<OrderResponse>>.Success(items);
-    }
+        => await CustomerOrdersQueryExecutor.HandleAsync(orderRepository, request.CustomerId, cancellationToken);
 }
