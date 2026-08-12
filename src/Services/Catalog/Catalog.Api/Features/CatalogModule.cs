@@ -1,6 +1,7 @@
 using Catalog.Api.Features.Categories;
 using Catalog.Api.Features.Products;
 using FluentValidation;
+using Catalog.Api.Infrastructure.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Api.Features;
@@ -19,7 +20,7 @@ public static class CatalogModule
         services.AddDbContext<CatalogDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IProductRepository, EfProductRepository>();
         services.AddScoped<ICategoryRepository, EfCategoryRepository>();
-        services.AddHostedService<CatalogInventorySyncWorker>();
+        services.AddHostedService<CatalogOutboxDispatcher>();
 
         return services;
     }

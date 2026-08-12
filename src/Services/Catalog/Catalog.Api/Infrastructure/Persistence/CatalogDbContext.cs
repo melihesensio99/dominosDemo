@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Catalog.Api.Infrastructure.Outbox;
 
 namespace Catalog.Api.Infrastructure.Persistence;
 
@@ -11,6 +12,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<ProductOptionGroup> ProductOptionGroups => Set<ProductOptionGroup>();
 
     public DbSet<ProductOption> ProductOptions => Set<ProductOption>();
+
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +82,19 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
                 .WithMany(x => x.Options)
                 .HasForeignKey(x => x.ProductOptionGroupId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("outbox_messages");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Type).IsRequired().HasMaxLength(200);
+            entity.Property(x => x.Payload).IsRequired();
+            entity.Property(x => x.OccurredAt).IsRequired();
+            entity.Property(x => x.RetryCount).IsRequired();
+            entity.HasIndex(x => x.ProcessedAt);
+            entity.HasIndex(x => x.FailedAt);
+            entity.HasIndex(x => x.LockedAt);
         });
     }
 }

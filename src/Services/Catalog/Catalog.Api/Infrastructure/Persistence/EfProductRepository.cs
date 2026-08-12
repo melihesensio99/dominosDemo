@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Catalog.Api.Infrastructure.Outbox;
 
 namespace Catalog.Api.Infrastructure.Persistence;
 
@@ -28,6 +29,13 @@ public sealed class EfProductRepository(CatalogDbContext dbContext) : IProductRe
     public async Task AddAsync(Product product, CancellationToken cancellationToken)
     {
         await dbContext.Products.AddAsync(product, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddWithInventorySyncAsync(Product product, int reorderLevel, CancellationToken cancellationToken)
+    {
+        await dbContext.Products.AddAsync(product, cancellationToken);
+        dbContext.OutboxMessages.Add(CatalogOutboxMessageFactory.CreateProductCreated(product, reorderLevel));
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
