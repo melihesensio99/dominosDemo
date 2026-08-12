@@ -1,4 +1,5 @@
 using Catalog.Api.Features;
+using Catalog.Api.Infrastructure.Configuration;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-CatalogModule.ConfigureServices(builder.Services, builder.Configuration);
+builder.Services.AddCatalogModule(builder.Configuration);
 
 builder.Services.AddMassTransit(x =>
 {

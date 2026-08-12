@@ -1,4 +1,5 @@
 using Basket.Api.Features;
+using Basket.Api.Infrastructure.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
 }
 
-BasketModule.ConfigureServices(builder.Services, builder.Configuration);
+builder.Services.AddBasketModule(builder.Configuration);
 
 var app = builder.Build();
 

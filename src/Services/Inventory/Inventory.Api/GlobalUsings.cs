@@ -3,6 +3,7 @@ global using BuildingBlocks.Common;
 global using BuildingBlocks.Web;
 global using Inventory.Api.Abstractions;
 global using Inventory.Api.Domain;
+global using Inventory.Api.Infrastructure.Configuration;
 global using Inventory.Api.Infrastructure;
 global using MediatR;
 global using Microsoft.EntityFrameworkCore;

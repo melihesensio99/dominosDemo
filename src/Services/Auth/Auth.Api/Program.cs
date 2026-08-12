@@ -1,4 +1,5 @@
 using Auth.Api.Features;
+using Auth.Api.Infrastructure.Configuration;
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -11,7 +12,7 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
 }
 
-AuthModule.ConfigureServices(builder.Services, builder.Configuration);
+builder.Services.AddAuthModule(builder.Configuration);
 
 var app = builder.Build();
 

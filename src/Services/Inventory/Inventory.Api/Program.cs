@@ -1,7 +1,6 @@
 using Inventory.Api.Features;
 using Inventory.Api.GrpcServices;
-using Inventory.Api.Consumers;
-using MassTransit;
+using Inventory.Api.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,36 +41,7 @@ else
     });
 }
 
-InventoryModule.ConfigureServices(builder.Services, builder.Configuration);
-builder.Services.AddGrpc();
-
-builder.Services.AddMassTransit(x =>
-{
-    x.AddConsumer<ProductCreatedConsumer>();
-    x.AddConsumer<OrderCancelledConsumer>();
-    x.AddConsumer<OrderStatusChangedConsumer>();
-    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("inventory", false));
-
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        var host = builder.Configuration["RabbitMq:Host"] ?? "localhost";
-        var username = builder.Configuration["RabbitMq:Username"] ?? "guest";
-        var password = builder.Configuration["RabbitMq:Password"] ?? "guest";
-
-        cfg.Host(host, "/", h =>
-        {
-            h.Username(username);
-            h.Password(password);
-        });
-
-        cfg.UseMessageRetry(retry => retry.Intervals(
-            TimeSpan.FromSeconds(2),
-            TimeSpan.FromSeconds(5),
-            TimeSpan.FromSeconds(10)));
-
-        cfg.ConfigureEndpoints(context);
-    });
-});
+builder.Services.AddInventoryModule(builder.Configuration);
 
 var app = builder.Build();
 

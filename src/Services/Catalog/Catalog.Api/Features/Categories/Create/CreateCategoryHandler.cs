@@ -1,5 +1,4 @@
 using Catalog.Api.Features.Categories.Common;
-using Catalog.Api.Features.Common;
 
 namespace Catalog.Api.Features.Categories;
 

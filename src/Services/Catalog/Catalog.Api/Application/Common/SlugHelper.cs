@@ -1,4 +1,4 @@
-namespace Catalog.Api.Features.Common;
+namespace Catalog.Api.Application.Common;
 
 public static class SlugHelper
 {

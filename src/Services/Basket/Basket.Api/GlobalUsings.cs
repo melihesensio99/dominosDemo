@@ -1,6 +1,7 @@
 global using Basket.Api.Abstractions;
 global using Basket.Api.Domain;
 global using Basket.Api.Features.Common;
+global using Basket.Api.Infrastructure.Configuration;
 global using Basket.Api.Infrastructure;
 global using Basket.Api.Infrastructure.Clients.Catalog;
 global using Basket.Api.Infrastructure.Clients.Inventory;

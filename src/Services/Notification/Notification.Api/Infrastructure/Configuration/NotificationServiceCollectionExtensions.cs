@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
@@ -8,14 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Notification.Api.Abstractions.Realtime;
 using Notification.Api.Consumers;
-using Notification.Api.Infrastructure;
 using Notification.Api.Infrastructure.Realtime;
+using System.Security.Claims;
+using System.Text;
 
-namespace Notification.Api.Features;
+namespace Notification.Api.Infrastructure.Configuration;
 
-public static class NotificationModule
+public static class NotificationServiceCollectionExtensions
 {
-    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddNotificationModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCors(options =>
         {
@@ -68,41 +67,8 @@ public static class NotificationModule
                 cfg.ConfigureEndpoints(context);
             });
         });
-    }
 
-    public static IEndpointRouteBuilder MapNotificationEndpoints(this IEndpointRouteBuilder app)
-    {
-        app.MapGet("/notifications", async (MongoNotificationStore store, CancellationToken cancellationToken) =>
-        {
-            var items = await store.GetAllAsync(cancellationToken);
-            return Results.Ok(new { items });
-        });
-
-        app.MapPost("/notifications", async (
-            CreateNotificationRequest request,
-            MongoNotificationStore store,
-            CancellationToken cancellationToken) =>
-        {
-            var notification = await store.AddAsync(
-                request.RecipientId,
-                request.Message,
-                cancellationToken: cancellationToken);
-
-            return Results.Accepted($"/notifications/{notification.Id}", notification);
-        });
-
-        app.MapGet("/notifications/{id}", async (
-            string id,
-            MongoNotificationStore store,
-            CancellationToken cancellationToken) =>
-        {
-            return await store.GetByIdAsync(id, cancellationToken) is { } notification
-                ? Results.Ok(notification)
-                : Results.NotFound(new { error = "notification-not-found", id });
-        });
-
-        app.MapHub<NotificationHub>("/hubs/notifications");
-        return app;
+        return services;
     }
 
     private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
@@ -140,8 +106,6 @@ public static class NotificationModule
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // SignalR groups customers by the JWT subject claim. Keep the
-                // original claim names instead of mapping "sub" to a .NET URI.
                 options.MapInboundClaims = false;
                 options.Events = new JwtBearerEvents
                 {
@@ -176,5 +140,3 @@ public static class NotificationModule
         services.AddAuthorization();
     }
 }
-
-public sealed record CreateNotificationRequest(string RecipientId, string Message);

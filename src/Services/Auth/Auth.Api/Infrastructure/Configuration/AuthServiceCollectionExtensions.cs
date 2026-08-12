@@ -1,21 +1,20 @@
-using Auth.Api.Features.Login;
-using Auth.Api.Features.Register;
 using BuildingBlocks.Behaviors;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace Auth.Api.Features;
+namespace Auth.Api.Infrastructure.Configuration;
 
-public static class AuthModule
+public static class AuthServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AuthModule).Assembly));
-        services.AddValidatorsFromAssembly(typeof(AuthModule).Assembly);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AuthServiceCollectionExtensions).Assembly));
+        services.AddValidatorsFromAssembly(typeof(AuthServiceCollectionExtensions).Assembly);
         services.AddValidationBehavior();
+
         var connectionString = configuration.GetConnectionString("AuthDb")
             ?? throw new InvalidOperationException("ConnectionStrings:AuthDb is missing.");
 
@@ -57,15 +56,8 @@ public static class AuthModule
                     ClockSkew = TimeSpan.Zero,
                 };
             });
+
         services.AddAuthorization();
         return services;
-    }
-
-    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
-    {
-        app.MapLoginEndpoint();
-        app.MapRegisterEndpoint();
-        app.MapAddressEndpoints();
-        return app;
     }
 }

@@ -1,23 +1,18 @@
-using Basket.Api.Features.Clear;
-using Basket.Api.Features.Get;
-using Basket.Api.Features.Items.Add;
-using Basket.Api.Features.Items.Remove;
-using Basket.Api.Features.Items.Update;
 using BuildingBlocks.Security;
 using FluentValidation;
 using Grpc.Net.Client;
 using Inventory.Contracts.Grpc;
 using StackExchange.Redis;
 
-namespace Basket.Api.Features;
+namespace Basket.Api.Infrastructure.Configuration;
 
-public static class BasketModule
+public static class BasketServiceCollectionExtensions
 {
-    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddBasketModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(BasketApiAssemblyMarker).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(BasketServiceCollectionExtensions).Assembly));
         services.AddValidationBehavior();
-        services.AddValidatorsFromAssembly(typeof(BasketApiAssemblyMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(BasketServiceCollectionExtensions).Assembly);
         services.AddJwtAuthentication(configuration);
 
         services.AddSingleton<IConnectionMultiplexer>(_ =>
@@ -46,18 +41,11 @@ public static class BasketModule
                 configuration["InventoryGrpc:Url"] ?? "http://localhost:5083",
                 channelOptions);
         });
+
         services.AddSingleton(sp =>
             new InventoryStockService.InventoryStockServiceClient(sp.GetRequiredService<GrpcChannel>()));
         services.AddSingleton<IInventoryStockClient, InventoryGrpcStockClient>();
-    }
 
-    public static IEndpointRouteBuilder MapBasketEndpoints(this IEndpointRouteBuilder app)
-    {
-        app.MapGetBasketEndpoint();
-        app.MapAddBasketItemEndpoint();
-        app.MapUpdateBasketItemQuantityEndpoint();
-        app.MapRemoveBasketItemEndpoint();
-        app.MapClearBasketEndpoint();
-        return app;
+        return services;
     }
 }
