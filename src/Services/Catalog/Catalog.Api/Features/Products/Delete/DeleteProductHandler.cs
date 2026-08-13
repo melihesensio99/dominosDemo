@@ -10,7 +10,7 @@ public sealed class DeleteProductHandler(IProductRepository productRepository) :
             return Result.NotFound("catalog.product_not_found", "Product was not found.");
         }
 
-        await productRepository.DeleteAsync(product, cancellationToken);
+        await productRepository.DeleteWithInventorySyncAsync(product, cancellationToken);
         return Result.Success();
     }
 }

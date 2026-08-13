@@ -16,5 +16,9 @@ public interface IProductRepository
 
     Task UpdateAsync(Product product, CancellationToken cancellationToken);
 
+    Task UpdateWithInventorySyncAsync(Product product, CancellationToken cancellationToken);
+
     Task DeleteAsync(Product product, CancellationToken cancellationToken);
+
+    Task DeleteWithInventorySyncAsync(Product product, CancellationToken cancellationToken);
 }

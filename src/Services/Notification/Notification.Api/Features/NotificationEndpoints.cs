@@ -18,7 +18,7 @@ public static class NotificationEndpoints
             MongoNotificationStore store,
             CancellationToken cancellationToken) =>
         {
-            var notification = await store.AddAsync(
+            var (notification, _) = await store.AddAsync(
                 request.RecipientId,
                 request.Message,
                 cancellationToken: cancellationToken);

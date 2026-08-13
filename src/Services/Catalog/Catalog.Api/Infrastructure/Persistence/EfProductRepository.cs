@@ -45,9 +45,23 @@ public sealed class EfProductRepository(CatalogDbContext dbContext) : IProductRe
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UpdateWithInventorySyncAsync(Product product, CancellationToken cancellationToken)
+    {
+        dbContext.Products.Update(product);
+        dbContext.OutboxMessages.Add(CatalogOutboxMessageFactory.CreateProductUpdated(product));
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteAsync(Product product, CancellationToken cancellationToken)
     {
         dbContext.Products.Remove(product);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteWithInventorySyncAsync(Product product, CancellationToken cancellationToken)
+    {
+        dbContext.Products.Remove(product);
+        dbContext.OutboxMessages.Add(CatalogOutboxMessageFactory.CreateProductDeleted(product));
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

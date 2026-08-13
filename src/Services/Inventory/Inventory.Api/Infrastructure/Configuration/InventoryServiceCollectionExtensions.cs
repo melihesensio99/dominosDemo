@@ -25,15 +25,20 @@ public static class InventoryServiceCollectionExtensions
         services.AddMassTransit(x =>
         {
             x.AddConsumer<ProductCreatedConsumer>();
+            x.AddConsumer<ProductUpdatedConsumer>();
+            x.AddConsumer<ProductDeletedConsumer>();
             x.AddConsumer<OrderCancelledConsumer>();
             x.AddConsumer<OrderStatusChangedConsumer>();
             x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("inventory", false));
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                var host = configuration["RabbitMq:Host"] ?? "localhost";
-                var username = configuration["RabbitMq:Username"] ?? "guest";
-                var password = configuration["RabbitMq:Password"] ?? "guest";
+                var host = configuration["RabbitMq:Host"]
+                    ?? throw new InvalidOperationException("RabbitMq:Host is missing.");
+                var username = configuration["RabbitMq:Username"]
+                    ?? throw new InvalidOperationException("RabbitMq:Username is missing.");
+                var password = configuration["RabbitMq:Password"]
+                    ?? throw new InvalidOperationException("RabbitMq:Password is missing.");
 
                 cfg.Host(host, "/", h =>
                 {

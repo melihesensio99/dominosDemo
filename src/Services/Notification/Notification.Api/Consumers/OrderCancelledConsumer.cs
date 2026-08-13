@@ -17,6 +17,5 @@ public sealed class OrderCancelledConsumer(MongoNotificationStore store)
             message,
             "received",
             context.CancellationToken);
-
     }
 }

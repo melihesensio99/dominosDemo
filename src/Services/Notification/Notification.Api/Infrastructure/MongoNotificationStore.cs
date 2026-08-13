@@ -17,17 +17,16 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
     public async Task<NotificationDocument?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         await collection.Find(item => item.Id == id).FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<NotificationDocument> AddAsync(string recipientId, string message, string status = "queued", CancellationToken cancellationToken = default)
+    public async Task<(NotificationDocument Notification, bool IsNew)> AddAsync(
+        string recipientId,
+        string message,
+        string status = "queued",
+        CancellationToken cancellationToken = default)
     {
-        return await AddAsync(
-            Guid.NewGuid(),
-            recipientId,
-            message,
-            status,
-            cancellationToken);
+        return await AddAsync(Guid.NewGuid(), recipientId, message, status, cancellationToken);
     }
 
-    public async Task<NotificationDocument> AddAsync(
+    public async Task<(NotificationDocument Notification, bool IsNew)> AddAsync(
         Guid eventId,
         string recipientId,
         string message,
@@ -45,16 +44,10 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
-        await collection.ReplaceOneAsync(
-            item => item.EventId == eventKey,
-            notification,
-            new ReplaceOptions { IsUpsert = true },
-            cancellationToken);
-
-        return notification;
+        return await InsertOnceAsync(notification, cancellationToken);
     }
 
-    public async Task<NotificationDocument> AddLowStockAsync(
+    public async Task<(NotificationDocument Notification, bool IsNew)> AddLowStockAsync(
         Guid eventId,
         string stockKey,
         string displayName,
@@ -78,12 +71,24 @@ public sealed class MongoNotificationStore(IMongoCollection<NotificationDocument
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
-        await collection.ReplaceOneAsync(
-            item => item.EventId == eventKey,
-            notification,
-            new ReplaceOptions { IsUpsert = true },
-            cancellationToken);
+        return await InsertOnceAsync(notification, cancellationToken);
+    }
 
-        return notification;
+    private async Task<(NotificationDocument Notification, bool IsNew)> InsertOnceAsync(
+        NotificationDocument notification,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await collection.InsertOneAsync(notification, cancellationToken: cancellationToken);
+            return (notification, true);
+        }
+        catch (MongoWriteException exception) when (exception.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            var existing = await collection.Find(item => item.EventId == notification.EventId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return (existing ?? notification, false);
+        }
     }
 }

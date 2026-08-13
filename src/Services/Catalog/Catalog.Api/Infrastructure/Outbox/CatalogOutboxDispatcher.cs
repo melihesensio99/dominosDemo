@@ -102,6 +102,12 @@ public sealed class CatalogOutboxDispatcher(
             "catalog.product-created" => publishEndpoint.Publish(
                 JsonSerializer.Deserialize<ProductCreatedIntegrationEvent>(message.Payload, JsonOptions)!,
                 cancellationToken),
+            "catalog.product-updated" => publishEndpoint.Publish(
+                JsonSerializer.Deserialize<ProductUpdatedIntegrationEvent>(message.Payload, JsonOptions)!,
+                cancellationToken),
+            "catalog.product-deleted" => publishEndpoint.Publish(
+                JsonSerializer.Deserialize<ProductDeletedIntegrationEvent>(message.Payload, JsonOptions)!,
+                cancellationToken),
             _ => Task.CompletedTask,
         };
     }

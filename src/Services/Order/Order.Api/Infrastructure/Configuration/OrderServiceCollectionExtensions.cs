@@ -39,13 +39,17 @@ public static class OrderServiceCollectionExtensions
 
         services.AddDbContext<OrderDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IOrderRepository, EfOrderRepository>();
+        var catalogApiUrl = configuration["CatalogApi:Url"]
+            ?? throw new InvalidOperationException("CatalogApi:Url is missing.");
         services.AddHttpClient<ICatalogInventoryClient, CatalogInventoryClient>(client =>
         {
-            client.BaseAddress = new Uri(configuration["CatalogApi:Url"] ?? "http://localhost:5174/");
+            client.BaseAddress = new Uri(catalogApiUrl);
         });
 
+        var inventoryGrpcUrl = configuration["InventoryGrpc:Url"]
+            ?? throw new InvalidOperationException("InventoryGrpc:Url is missing.");
         services.AddSingleton(_ => GrpcChannel.ForAddress(
-            configuration["InventoryGrpc:Url"] ?? "http://localhost:5142"));
+            inventoryGrpcUrl));
         services.AddSingleton(serviceProvider =>
             new InventoryStockService.InventoryStockServiceClient(
                 serviceProvider.GetRequiredService<GrpcChannel>()));
@@ -89,9 +93,12 @@ public static class OrderServiceCollectionExtensions
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                var host = configuration["RabbitMq:Host"] ?? "localhost";
-                var username = configuration["RabbitMq:Username"] ?? "guest";
-                var password = configuration["RabbitMq:Password"] ?? "guest";
+                var host = configuration["RabbitMq:Host"]
+                    ?? throw new InvalidOperationException("RabbitMq:Host is missing.");
+                var username = configuration["RabbitMq:Username"]
+                    ?? throw new InvalidOperationException("RabbitMq:Username is missing.");
+                var password = configuration["RabbitMq:Password"]
+                    ?? throw new InvalidOperationException("RabbitMq:Password is missing.");
 
                 cfg.Host(host, "/", h =>
                 {

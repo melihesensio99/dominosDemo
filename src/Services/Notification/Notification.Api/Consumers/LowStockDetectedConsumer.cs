@@ -13,7 +13,7 @@ public sealed class LowStockDetectedConsumer(
     public async Task Consume(ConsumeContext<LowStockDetectedIntegrationEvent> context)
     {
         var message = context.Message;
-        var document = await store.AddLowStockAsync(
+        var (document, isNew) = await store.AddLowStockAsync(
             message.EventId,
             message.StockKey,
             message.DisplayName,
@@ -21,12 +21,15 @@ public sealed class LowStockDetectedConsumer(
             message.ReorderLevel,
             context.CancellationToken);
 
-        await realtimePublisher.NotifyLowStockAsync(new LowStockNotification(
-            document.Id,
-            message.StockKey,
-            message.DisplayName,
-            message.Available,
-            message.ReorderLevel,
-            document.CreatedAt));
+        if (isNew)
+        {
+            await realtimePublisher.NotifyLowStockAsync(new LowStockNotification(
+                document.Id,
+                message.StockKey,
+                message.DisplayName,
+                message.Available,
+                message.ReorderLevel,
+                document.CreatedAt));
+        }
     }
 }

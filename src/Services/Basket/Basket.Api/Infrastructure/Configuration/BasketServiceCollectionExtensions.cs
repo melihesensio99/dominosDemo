@@ -15,14 +15,23 @@ public static class BasketServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(BasketServiceCollectionExtensions).Assembly);
         services.AddJwtAuthentication(configuration);
 
+        var redisConnectionString = configuration.GetConnectionString("Redis")
+            ?? throw new InvalidOperationException("ConnectionStrings:Redis is missing.");
+
+        var catalogApiUrl = configuration["CatalogApi:Url"]
+            ?? throw new InvalidOperationException("CatalogApi:Url is missing.");
+
+        var inventoryGrpcUrl = configuration["InventoryGrpc:Url"]
+            ?? throw new InvalidOperationException("InventoryGrpc:Url is missing.");
+
         services.AddSingleton<IConnectionMultiplexer>(_ =>
-            ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
+            ConnectionMultiplexer.Connect(redisConnectionString));
 
         services.AddSingleton<IBasketRepository, RedisBasketRepository>();
 
         services.AddHttpClient<ICatalogProductClient, CatalogProductClient>(client =>
         {
-            client.BaseAddress = new Uri(configuration["CatalogApi:Url"] ?? "http://localhost:5174/");
+            client.BaseAddress = new Uri(catalogApiUrl);
         });
 
         services.AddSingleton(_ =>
@@ -37,9 +46,7 @@ public static class BasketServiceCollectionExtensions
                 };
             }
 
-            return GrpcChannel.ForAddress(
-                configuration["InventoryGrpc:Url"] ?? "http://localhost:5083",
-                channelOptions);
+            return GrpcChannel.ForAddress(inventoryGrpcUrl, channelOptions);
         });
 
         services.AddSingleton(sp =>

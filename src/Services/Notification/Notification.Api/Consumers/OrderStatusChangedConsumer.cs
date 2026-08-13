@@ -15,18 +15,21 @@ public sealed class OrderStatusChangedConsumer(
         var evt = context.Message;
         var message = $"Order '{evt.OrderId}' status changed from '{evt.PreviousStatus}' to '{evt.Status}'.";
 
-        await store.AddAsync(
+        var (_, isNew) = await store.AddAsync(
             evt.EventId,
             evt.CustomerId,
             message,
             "received",
             context.CancellationToken);
 
-        await realtimePublisher.NotifyOrderStatusChangedAsync(
-            new OrderStatusChangedNotification(
-                evt.OrderId,
-                evt.CustomerId,
-                evt.Status,
-                evt.OccurredAt));
+        if (isNew)
+        {
+            await realtimePublisher.NotifyOrderStatusChangedAsync(
+                new OrderStatusChangedNotification(
+                    evt.OrderId,
+                    evt.CustomerId,
+                    evt.Status,
+                    evt.OccurredAt));
+        }
     }
 }

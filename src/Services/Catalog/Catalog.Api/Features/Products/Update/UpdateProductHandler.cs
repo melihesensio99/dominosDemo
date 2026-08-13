@@ -1,4 +1,5 @@
 using Catalog.Api.Features.Products.Common;
+using Catalog.Api.Infrastructure.Outbox;
 
 namespace Catalog.Api.Features.Products;
 
@@ -35,7 +36,7 @@ public sealed class UpdateProductHandler(
         product.IsActive = request.IsActive;
         product.UpdatedAt = DateTimeOffset.UtcNow;
 
-        await productRepository.UpdateAsync(product, cancellationToken);
+        await productRepository.UpdateWithInventorySyncAsync(product, cancellationToken);
 
         product.Category = category;
 

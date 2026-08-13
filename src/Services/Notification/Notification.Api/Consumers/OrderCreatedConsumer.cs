@@ -14,19 +14,22 @@ public sealed class OrderCreatedConsumer(
     {
         var evt = context.Message;
         var message = $"Order '{evt.OrderId}' was created for customer '{evt.CustomerId}' with {evt.ItemCount} items.";
-        await store.AddAsync(
+        var (_, isNew) = await store.AddAsync(
             evt.EventId,
             evt.CustomerId,
             message,
             "received",
             context.CancellationToken);
 
-        await realtimePublisher.NotifyNewOrderAsync(
-            new NewOrderNotification(
-                evt.OrderId,
-                evt.CustomerId,
-                evt.Status,
-                evt.ItemCount,
-                evt.OccurredAt));
+        if (isNew)
+        {
+            await realtimePublisher.NotifyNewOrderAsync(
+                new NewOrderNotification(
+                    evt.OrderId,
+                    evt.CustomerId,
+                    evt.Status,
+                    evt.ItemCount,
+                    evt.OccurredAt));
+        }
     }
 }

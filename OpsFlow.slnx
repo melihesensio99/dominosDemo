@@ -26,4 +26,7 @@
   <Folder Name="/src/Services/Order/">
     <Project Path="src/Services/Order/Order.Api/OrderService.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Auth.Api.Tests/Auth.Api.Tests.csproj" />
+  </Folder>
 </Solution>

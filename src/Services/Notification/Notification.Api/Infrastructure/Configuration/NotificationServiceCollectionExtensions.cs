@@ -46,9 +46,12 @@ public static class NotificationServiceCollectionExtensions
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                var host = configuration["RabbitMq:Host"] ?? "localhost";
-                var username = configuration["RabbitMq:Username"] ?? "guest";
-                var password = configuration["RabbitMq:Password"] ?? "guest";
+                var host = configuration["RabbitMq:Host"]
+                    ?? throw new InvalidOperationException("RabbitMq:Host is missing.");
+                var username = configuration["RabbitMq:Username"]
+                    ?? throw new InvalidOperationException("RabbitMq:Username is missing.");
+                var password = configuration["RabbitMq:Password"]
+                    ?? throw new InvalidOperationException("RabbitMq:Password is missing.");
 
                 cfg.Host(host, "/", h =>
                 {

@@ -1,4 +1,5 @@
 using Grpc.Core;
+using BuildingBlocks.Resilience;
 using Inventory.Contracts.Grpc;
 using Order.Api.Abstractions;
 
@@ -21,11 +22,22 @@ public sealed class OrderGrpcStockClient(InventoryStockService.InventoryStockSer
 
         try
         {
-            return Map(await client.ReserveOrderStockAsync(request, cancellationToken: cancellationToken));
+            var response = await ResilienceExecutor.ExecuteAsync(
+                async attemptToken => await client.ReserveOrderStockAsync(request, cancellationToken: attemptToken).ResponseAsync,
+                cancellationToken,
+                shouldRetry: exception => exception is RpcException rpcException
+                    && rpcException.StatusCode is StatusCode.Unavailable or StatusCode.DeadlineExceeded or StatusCode.Internal,
+                timeout: TimeSpan.FromSeconds(10));
+
+            return Map(response);
         }
         catch (RpcException exception)
         {
             return new OrderStockResult(false, "inventory.unavailable", exception.Status.Detail);
+        }
+        catch (TimeoutException)
+        {
+            return new OrderStockResult(false, "inventory.timeout", "Inventory request timed out.");
         }
     }
 
@@ -33,13 +45,24 @@ public sealed class OrderGrpcStockClient(InventoryStockService.InventoryStockSer
     {
         try
         {
-            return Map(await client.ReleaseOrderStockAsync(
-                new OrderStockReservationRequest { OrderId = orderId },
-                cancellationToken: cancellationToken));
+            var response = await ResilienceExecutor.ExecuteAsync(
+                async attemptToken => await client.ReleaseOrderStockAsync(
+                    new OrderStockReservationRequest { OrderId = orderId },
+                    cancellationToken: attemptToken).ResponseAsync,
+                cancellationToken,
+                shouldRetry: exception => exception is RpcException rpcException
+                    && rpcException.StatusCode is StatusCode.Unavailable or StatusCode.DeadlineExceeded or StatusCode.Internal,
+                timeout: TimeSpan.FromSeconds(10));
+
+            return Map(response);
         }
         catch (RpcException exception)
         {
             return new OrderStockResult(false, "inventory.unavailable", exception.Status.Detail);
+        }
+        catch (TimeoutException)
+        {
+            return new OrderStockResult(false, "inventory.timeout", "Inventory request timed out.");
         }
     }
 
